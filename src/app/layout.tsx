@@ -42,10 +42,10 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata = createMetadata({
 	title: {
-		template: "%s | Combo",
-		default: "Combo",
+		template: "%s | Pixelfy",
+		default: "Pixelfy - Video Editor",
 	},
-	description: "AI Video generator for the next gen web.",
+	description: "Professional online video editor - Create amazing videos with Pixelfy",
 	metadataBase: baseUrl,
 });
 

@@ -4,8 +4,8 @@ import { AuthLayout } from "@/components/auth/auth-layout";
 export default function RegisterPage() {
 	return (
 		<AuthLayout 
-			title="Video Editor" 
-			subtitle="Join thousands of creators making amazing videos"
+			title="Pixelfy" 
+			subtitle="Join thousands of creators on Pixelfy.uz"
 		>
 			<RegisterForm />
 		</AuthLayout>

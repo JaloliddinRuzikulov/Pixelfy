@@ -1,24 +1,24 @@
 <p align="center">
-  <a href="https://github.com/designcombo/react-video-editor">
-    <img width="150px" height="150px" src="https://cdn.designcombo.dev/logo-white.png"/>
+  <a href="https://pixelfy.uz">
+    <img width="150px" height="150px" src="https://pixelfy.uz/logo.png"/>
   </a>
 </p>
-<h1 align="center">React Video Editor</h1>
+<h1 align="center">Pixelfy Video Editor</h1>
 
 <div align="center">
   
-Video Editor application using React and TypeScript.
+Professional video editing platform - Pixelfy.uz
 
 <p align="center">
-    <a href="https://designcombo.dev/">Combo</a>
+    <a href="https://pixelfy.uz/">Pixelfy</a>
     ·  
-    <a href="https://discord.gg/jrZs3wZyM5">Discord</a>
+    <a href="https://pixelfy.uz/support">Support</a>
     ·  
-    <a href="https://github.com/designcombo/react-video-editor">X</a>
+    <a href="https://github.com/pixelfy/video-editor">GitHub</a>
 </p>
 </div>
 
-[![](https://cdn.designcombo.dev/editor-preview-2.png)](https://github.com/designcombo/react-video-editor)
+[![Pixelfy Video Editor](https://pixelfy.uz/preview.png)](https://pixelfy.uz)
 
 ## ✨ Features
 
@@ -30,7 +30,7 @@ Video Editor application using React and TypeScript.
 
 ## 🚀 See It in Action
 
-Check out the deployed version here: [React Video Editor Live Demo](https://basic.designcombo.dev/)
+Check out the live version here: [Pixelfy Video Editor](https://pixelfy.uz/)
 
 ## ⌨️ Development
 
@@ -45,14 +45,14 @@ PEXELS_API_KEY=""
 Clone locally:
 
 ```bash
-git clone git@github.com:designcombo/react-video-editor.git
-cd react-video-editor
+git clone git@github.com:pixelfy/video-editor.git
+cd video-editor
 pnpm install
 pnpm dev
 ```
 
-Open your browser and visit http://localhost:3000 , see more at [Development](https://github.com/designcombo/react-video-editor).
+Open your browser and visit http://localhost:3000 , see more at [Pixelfy Development](https://github.com/pixelfy/video-editor).
 
 ## 📝 License
 
-Copyright © 2025 [DesignCombo](https://designcombo.dev/).
+Copyright © 2025 [Pixelfy](https://pixelfy.uz/).

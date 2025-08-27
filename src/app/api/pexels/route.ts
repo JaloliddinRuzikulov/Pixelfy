@@ -1,118 +1,181 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const PEXELS_API_BASE_URL = "https://api.pexels.com/v1";
+// Generate sample image data using Unsplash Source API (no auth required)
+function generateSampleImages(count: number, startId: number, theme?: string) {
+	const images = [];
+	const themes = theme ? [theme] : [
+		"nature", "city", "technology", "abstract", "business", 
+		"food", "travel", "animals", "architecture", "people",
+		"landscape", "ocean", "mountain", "forest", "desert"
+	];
+	
+	const sizes = [
+		{ width: 1920, height: 1080 },
+		{ width: 1280, height: 720 },
+		{ width: 1600, height: 900 },
+		{ width: 2560, height: 1440 },
+		{ width: 3840, height: 2160 },
+	];
 
-interface PexelsPhoto {
-	id: number;
-	width: number;
-	height: number;
-	url: string;
-	photographer: string;
-	photographer_url: string;
-	photographer_id: number;
-	avg_color: string;
-	src: {
-		original: string;
-		large2x: string;
-		large: string;
-		medium: string;
-		small: string;
-		portrait: string;
-		landscape: string;
-		tiny: string;
-	};
-	liked: boolean;
-	alt: string;
+	for (let i = 0; i < count; i++) {
+		const currentTheme = themes[i % themes.length];
+		const size = sizes[i % sizes.length];
+		const imageId = `sample_${startId + i}`;
+		
+		images.push({
+			id: imageId,
+			width: size.width,
+			height: size.height,
+			photographer: `Photographer ${i + 1}`,
+			photographer_url: "#",
+			alt: `${currentTheme.charAt(0).toUpperCase() + currentTheme.slice(1)} image ${i + 1}`,
+			// Using Unsplash Source API for real images without authentication
+			src: {
+				original: `https://source.unsplash.com/${size.width}x${size.height}/?${currentTheme}`,
+				large2x: `https://source.unsplash.com/1600x900/?${currentTheme}`,
+				large: `https://source.unsplash.com/1200x675/?${currentTheme}`,
+				medium: `https://source.unsplash.com/800x450/?${currentTheme}`,
+				small: `https://source.unsplash.com/400x225/?${currentTheme}`,
+				portrait: `https://source.unsplash.com/600x800/?${currentTheme}`,
+				landscape: `https://source.unsplash.com/800x600/?${currentTheme}`,
+				tiny: `https://source.unsplash.com/200x150/?${currentTheme}`,
+			},
+			avg_color: "#" + Math.floor(Math.random()*16777215).toString(16),
+		});
+	}
+	
+	return images;
 }
 
-interface PexelsSearchResponse {
-	total_results: number;
-	page: number;
-	per_page: number;
-	photos: PexelsPhoto[];
-	next_page?: string;
-	prev_page?: string;
-}
-
-interface PexelsCuratedResponse {
-	page: number;
-	per_page: number;
-	photos: PexelsPhoto[];
-	next_page?: string;
-	prev_page?: string;
-}
+// Static sample images with specific URLs
+const STATIC_SAMPLES = [
+	{
+		id: "static_1",
+		width: 1920,
+		height: 1080,
+		photographer: "Sample Artist",
+		photographer_url: "#",
+		alt: "Beautiful landscape",
+		src: {
+			original: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080",
+			large2x: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&h=900",
+			large: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=675",
+			medium: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=450",
+			small: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=225",
+			portrait: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=800",
+			landscape: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600",
+			tiny: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=150",
+		},
+		avg_color: "#4a5568",
+	},
+	{
+		id: "static_2",
+		width: 1920,
+		height: 1080,
+		photographer: "Sample Artist",
+		photographer_url: "#",
+		alt: "City skyline",
+		src: {
+			original: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&h=1080",
+			large2x: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&h=900",
+			large: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&h=675",
+			medium: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=450",
+			small: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=225",
+			portrait: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&h=800",
+			landscape: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=600",
+			tiny: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=200&h=150",
+		},
+		avg_color: "#2d3748",
+	},
+	{
+		id: "static_3",
+		width: 1920,
+		height: 1080,
+		photographer: "Sample Artist",
+		photographer_url: "#",
+		alt: "Abstract art",
+		src: {
+			original: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&h=1080",
+			large2x: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1600&h=900",
+			large: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&h=675",
+			medium: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=450",
+			small: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=225",
+			portrait: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&h=800",
+			landscape: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600",
+			tiny: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=200&h=150",
+		},
+		avg_color: "#667eea",
+	},
+];
 
 export async function GET(request: NextRequest) {
 	const { searchParams } = new URL(request.url);
 	const query = searchParams.get("query");
-	const page = searchParams.get("page") || "1";
-	const perPage = searchParams.get("per_page") || "20";
-
-	const apiKey = process.env.PEXELS_API_KEY;
-
-	if (!apiKey) {
-		return NextResponse.json(
-			{ error: "Pexels API key not configured" },
-			{ status: 500 },
-		);
-	}
+	const page = parseInt(searchParams.get("page") || "1");
+	const perPage = parseInt(searchParams.get("per_page") || "20");
 
 	try {
-		let url: string;
-
+		// Combine static samples with generated images
+		const allImages = [
+			...STATIC_SAMPLES,
+			...generateSampleImages(60, 4, query || undefined)
+		];
+		
+		// Filter images based on search query if provided
+		let filteredImages = allImages;
 		if (query) {
-			// Search for specific images
-			url = `${PEXELS_API_BASE_URL}/search?query=${encodeURIComponent(query)}&page=${page}&per_page=${perPage}`;
-		} else {
-			// Get curated images
-			url = `${PEXELS_API_BASE_URL}/curated?page=${page}&per_page=${perPage}`;
+			filteredImages = allImages.filter(image => 
+				image.alt.toLowerCase().includes(query.toLowerCase())
+			);
+			// If no matches, generate themed images for the query
+			if (filteredImages.length < perPage) {
+				filteredImages = [
+					...filteredImages,
+					...generateSampleImages(perPage, 100, query)
+				];
+			}
 		}
 
-		const response = await fetch(url, {
-			headers: {
-				Authorization: apiKey,
-			},
-		});
-
-		if (!response.ok) {
-			throw new Error(`Pexels API error: ${response.status}`);
-		}
-
-		const data: PexelsSearchResponse | PexelsCuratedResponse =
-			await response.json();
+		// Implement pagination
+		const startIndex = (page - 1) * perPage;
+		const endIndex = startIndex + perPage;
+		const paginatedImages = filteredImages.slice(startIndex, endIndex);
 
 		// Transform the data to match the expected format for the video editor
-		const transformedPhotos = data.photos.map((photo) => ({
-			id: `pexels_${photo.id}`,
+		const transformedPhotos = paginatedImages.map((photo) => ({
+			id: photo.id,
 			details: {
-				src: photo.src.large2x, // Use large2x for better quality
+				src: photo.src.large2x,
 				width: photo.width,
 				height: photo.height,
 				photographer: photo.photographer,
 				photographer_url: photo.photographer_url,
 				alt: photo.alt,
 			},
-			preview: photo.src.medium, // Use medium for preview
+			preview: photo.src.medium,
 			type: "image" as const,
 			metadata: {
-				pexels_id: photo.id,
 				avg_color: photo.avg_color,
 				original_url: photo.src.original,
 			},
 		}));
 
+		const totalPages = Math.ceil(filteredImages.length / perPage);
+		const hasNextPage = page < totalPages;
+		const hasPrevPage = page > 1;
+
 		return NextResponse.json({
 			photos: transformedPhotos,
-			total_results: "total_results" in data ? data.total_results : 0,
-			page: data.page,
-			per_page: data.per_page,
-			next_page: data.next_page,
-			prev_page: data.prev_page,
+			total_results: filteredImages.length,
+			page: page,
+			per_page: perPage,
+			next_page: hasNextPage ? `?page=${page + 1}&per_page=${perPage}` : undefined,
+			prev_page: hasPrevPage ? `?page=${page - 1}&per_page=${perPage}` : undefined,
 		});
 	} catch (error) {
-		console.error("Pexels API error:", error);
+		console.error("Images API error:", error);
 		return NextResponse.json(
-			{ error: "Failed to fetch images from Pexels" },
+			{ error: "Failed to fetch images" },
 			{ status: 500 },
 		);
 	}

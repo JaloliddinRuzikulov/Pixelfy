@@ -15,21 +15,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm test -- path/to/test.test.ts` - Run a single test file
 - `npm test -- --testNamePattern="test name"` - Run tests matching pattern
 
-### Database Commands (Optional)
+### Database & Authentication Commands (Optional)
 - `npm run migrate:up` - Run database migrations up
 - `npm run migrate:down` - Roll back database migrations
 - `npm run cleanup-db` - Clean up database
+- `npm run setup-auth` - Initialize authentication system
 
 ### Development Setup
 To run the application locally:
 1. Clone the repository and install dependencies with `npm install`
-2. Copy `.env.example` to `.env` and configure environment variables
-3. At minimum, set `PEXELS_API_KEY` for stock media integration
-4. Run `npm run dev` to start the development server
+2. Copy `.env.example` to `.env` and configure environment variables (optional)
+3. Run `npm run dev` to start the development server
+4. The app now uses open APIs for stock media - no API keys required for basic functionality
 
 ## Architecture Overview
 
-This is a browser-based video editor built with Next.js 15, TypeScript, and Remotion for video rendering. The application follows a component-driven architecture with state management via Zustand and event-driven updates through @designcombo packages.
+Pixelfy is a browser-based video editor built with Next.js 15, TypeScript, and Remotion for video rendering. The application follows a component-driven architecture with state management via Zustand and event-driven updates through @designcombo packages.
 
 ### Core Technology Stack
 - **Framework**: Next.js 15 with App Router
@@ -41,7 +42,7 @@ This is a browser-based video editor built with Next.js 15, TypeScript, and Remo
 - **Code Style**: Biome formatter (tabs for indentation, double quotes)
 - **Testing**: Jest with React Testing Library
 - **AI Integration**: Google AI SDK for voice-over generation
-- **Media APIs**: Pexels API for stock videos and images
+- **Media APIs**: Open source sample videos and Unsplash Source API for stock media (no auth required)
 - **Animations**: Framer Motion for UI animations
 
 ### Key Architectural Components
@@ -67,7 +68,7 @@ StateManager from @designcombo/state coordinates complex state operations with e
 #### 3. Media Processing Pipeline
 - **Upload Service** (`src/utils/upload-service.ts`): Handles file uploads with presigned URLs
 - **Local APIs** (`src/app/api/local-*/`): Backend endpoints for media processing
-- **Stock Media**: Pexels API integration for stock videos/images
+- **Stock Media**: Sample videos from Google and Unsplash Source API (no authentication required)
 - **Caching**: CacheManager for thumbnail and media optimization
 
 #### 4. Video Composition System
@@ -109,23 +110,32 @@ The application uses local APIs for development:
 
 ## Environment Configuration
 
-Required environment variables in `.env`:
+Optional environment variables in `.env` (copy from `.env.example`):
 ```
-# Required
-PEXELS_API_KEY=""  # For stock media integration (get from https://www.pexels.com/api/)
+# Stock Media (Optional - app works without these)
+PEXELS_API_KEY=""  # If you want to use Pexels API instead of built-in sample media
+
+# Authentication (Required for user system)
+JWT_SECRET=""  # Change this in production
 
 # Optional AI Features
 GOOGLE_AI_API_KEY=""  # Google AI for voice-over generation
 COMBO_SH_JWT=""  # Combo.sh JWT token for additional services
 
-# Optional Database (PostgreSQL)
+# Optional Database (PostgreSQL - required for user system)
 DATABASE_URL=""  # Format: postgresql://user:password@localhost:5432/video_editor
+REDIS_URL=""  # Redis for caching
 
 # Optional Storage (S3-compatible)
 S3_BUCKET=""
 S3_REGION=""
 S3_ACCESS_KEY_ID=""
 S3_SECRET_ACCESS_KEY=""
+
+# Feature Flags
+NEXT_PUBLIC_ENABLE_AI_FEATURES=""  # Enable AI features
+NEXT_PUBLIC_ENABLE_RECORDING=""  # Enable recording features
+NEXT_PUBLIC_ENABLE_TEMPLATES=""  # Enable template features
 ```
 
 ## Code Style Guidelines

@@ -4,8 +4,8 @@ import { AuthLayout } from "@/components/auth/auth-layout";
 export default function LoginPage() {
 	return (
 		<AuthLayout 
-			title="Video Editor" 
-			subtitle="Professional video editing made simple"
+			title="Pixelfy" 
+			subtitle="Professional video editing platform"
 		>
 			<LoginForm />
 		</AuthLayout>
