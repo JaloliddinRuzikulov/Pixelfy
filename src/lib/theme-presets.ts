@@ -1,0 +1,261 @@
+export interface ThemeColors {
+	primary: string;
+	accent: string;
+	background: string;
+	foreground: string;
+	muted: string;
+	card: string;
+	border: string;
+}
+
+export interface ThemePreset {
+	id: string;
+	name: string;
+	emoji: string;
+	description: string;
+	light: ThemeColors;
+	dark: ThemeColors;
+}
+
+export const themePresets: ThemePreset[] = [
+	{
+		id: "default",
+		name: "Default",
+		emoji: "🎨",
+		description: "Professional purple theme",
+		light: {
+			primary: "oklch(0.51 0.28 285)",
+			accent: "oklch(0.92 0.025 55)",
+			background: "oklch(0.985 0.003 85)",
+			foreground: "oklch(0.20 0.015 260)",
+			muted: "oklch(0.94 0.007 95)",
+			card: "oklch(0.995 0.002 85)",
+			border: "oklch(0.89 0.01 95)",
+		},
+		dark: {
+			primary: "oklch(0.68 0.25 325)",
+			accent: "oklch(0.28 0.045 75)",
+			background: "oklch(0.13 0.015 250)",
+			foreground: "oklch(0.92 0.008 85)",
+			muted: "oklch(0.23 0.020 240)",
+			card: "oklch(0.15 0.018 250)",
+			border: "oklch(0.25 0.020 250)",
+		},
+	},
+	{
+		id: "ocean",
+		name: "Ocean",
+		emoji: "🌊",
+		description: "Calm blue waters",
+		light: {
+			primary: "oklch(0.55 0.25 220)",
+			accent: "oklch(0.85 0.15 180)",
+			background: "oklch(0.98 0.005 210)",
+			foreground: "oklch(0.15 0.02 220)",
+			muted: "oklch(0.92 0.01 210)",
+			card: "oklch(1 0 0)",
+			border: "oklch(0.88 0.015 210)",
+		},
+		dark: {
+			primary: "oklch(0.65 0.22 210)",
+			accent: "oklch(0.35 0.18 180)",
+			background: "oklch(0.10 0.025 220)",
+			foreground: "oklch(0.94 0.005 210)",
+			muted: "oklch(0.20 0.03 220)",
+			card: "oklch(0.12 0.028 220)",
+			border: "oklch(0.22 0.025 220)",
+		},
+	},
+	{
+		id: "sunset",
+		name: "Sunset",
+		emoji: "🌅",
+		description: "Warm orange glow",
+		light: {
+			primary: "oklch(0.60 0.28 35)",
+			accent: "oklch(0.75 0.20 55)",
+			background: "oklch(0.99 0.005 40)",
+			foreground: "oklch(0.20 0.02 30)",
+			muted: "oklch(0.94 0.015 45)",
+			card: "oklch(1 0.003 40)",
+			border: "oklch(0.90 0.02 40)",
+		},
+		dark: {
+			primary: "oklch(0.65 0.25 25)",
+			accent: "oklch(0.40 0.22 55)",
+			background: "oklch(0.12 0.015 30)",
+			foreground: "oklch(0.95 0.008 40)",
+			muted: "oklch(0.22 0.025 35)",
+			card: "oklch(0.14 0.018 30)",
+			border: "oklch(0.24 0.020 30)",
+		},
+	},
+	{
+		id: "forest",
+		name: "Forest",
+		emoji: "🌲",
+		description: "Natural green vibes",
+		light: {
+			primary: "oklch(0.50 0.23 140)",
+			accent: "oklch(0.70 0.18 100)",
+			background: "oklch(0.98 0.008 130)",
+			foreground: "oklch(0.18 0.015 140)",
+			muted: "oklch(0.92 0.012 130)",
+			card: "oklch(0.99 0.005 130)",
+			border: "oklch(0.88 0.018 130)",
+		},
+		dark: {
+			primary: "oklch(0.60 0.22 140)",
+			accent: "oklch(0.35 0.15 100)",
+			background: "oklch(0.11 0.018 140)",
+			foreground: "oklch(0.93 0.006 130)",
+			muted: "oklch(0.20 0.025 140)",
+			card: "oklch(0.13 0.020 140)",
+			border: "oklch(0.22 0.022 140)",
+		},
+	},
+	{
+		id: "lavender",
+		name: "Lavender",
+		emoji: "💜",
+		description: "Soft purple dreams",
+		light: {
+			primary: "oklch(0.58 0.22 290)",
+			accent: "oklch(0.80 0.15 320)",
+			background: "oklch(0.99 0.006 300)",
+			foreground: "oklch(0.22 0.015 290)",
+			muted: "oklch(0.94 0.01 300)",
+			card: "oklch(1 0.004 300)",
+			border: "oklch(0.90 0.015 300)",
+		},
+		dark: {
+			primary: "oklch(0.65 0.20 290)",
+			accent: "oklch(0.40 0.18 320)",
+			background: "oklch(0.12 0.02 290)",
+			foreground: "oklch(0.94 0.006 300)",
+			muted: "oklch(0.22 0.025 290)",
+			card: "oklch(0.14 0.022 290)",
+			border: "oklch(0.24 0.025 290)",
+		},
+	},
+	{
+		id: "cherry",
+		name: "Cherry",
+		emoji: "🍒",
+		description: "Bold red energy",
+		light: {
+			primary: "oklch(0.55 0.25 20)",
+			accent: "oklch(0.70 0.18 350)",
+			background: "oklch(0.99 0.004 10)",
+			foreground: "oklch(0.20 0.018 20)",
+			muted: "oklch(0.93 0.01 15)",
+			card: "oklch(1 0.003 10)",
+			border: "oklch(0.90 0.015 10)",
+		},
+		dark: {
+			primary: "oklch(0.60 0.24 15)",
+			accent: "oklch(0.38 0.20 350)",
+			background: "oklch(0.11 0.015 10)",
+			foreground: "oklch(0.94 0.006 10)",
+			muted: "oklch(0.20 0.02 15)",
+			card: "oklch(0.13 0.018 10)",
+			border: "oklch(0.22 0.02 10)",
+		},
+	},
+	{
+		id: "mint",
+		name: "Mint",
+		emoji: "🍃",
+		description: "Fresh and clean",
+		light: {
+			primary: "oklch(0.55 0.20 165)",
+			accent: "oklch(0.75 0.15 190)",
+			background: "oklch(0.99 0.005 170)",
+			foreground: "oklch(0.18 0.012 165)",
+			muted: "oklch(0.93 0.008 170)",
+			card: "oklch(1 0.003 170)",
+			border: "oklch(0.89 0.012 170)",
+		},
+		dark: {
+			primary: "oklch(0.62 0.20 165)",
+			accent: "oklch(0.38 0.16 190)",
+			background: "oklch(0.10 0.018 170)",
+			foreground: "oklch(0.94 0.005 170)",
+			muted: "oklch(0.19 0.022 170)",
+			card: "oklch(0.12 0.020 170)",
+			border: "oklch(0.21 0.022 170)",
+		},
+	},
+	{
+		id: "midnight",
+		name: "Midnight",
+		emoji: "🌙",
+		description: "Deep dark mode",
+		light: {
+			primary: "oklch(0.45 0.15 250)",
+			accent: "oklch(0.65 0.10 280)",
+			background: "oklch(0.96 0.003 260)",
+			foreground: "oklch(0.15 0.01 250)",
+			muted: "oklch(0.90 0.005 260)",
+			card: "oklch(0.98 0.002 260)",
+			border: "oklch(0.85 0.008 260)",
+		},
+		dark: {
+			primary: "oklch(0.55 0.18 250)",
+			accent: "oklch(0.30 0.12 280)",
+			background: "oklch(0.08 0.01 250)",
+			foreground: "oklch(0.96 0.003 260)",
+			muted: "oklch(0.15 0.015 250)",
+			card: "oklch(0.10 0.012 250)",
+			border: "oklch(0.18 0.015 250)",
+		},
+	},
+	{
+		id: "solar",
+		name: "Solar",
+		emoji: "☀️",
+		description: "Bright and energetic",
+		light: {
+			primary: "oklch(0.65 0.25 85)",
+			accent: "oklch(0.80 0.20 65)",
+			background: "oklch(0.99 0.008 80)",
+			foreground: "oklch(0.22 0.02 85)",
+			muted: "oklch(0.94 0.015 80)",
+			card: "oklch(1 0.005 80)",
+			border: "oklch(0.91 0.02 80)",
+		},
+		dark: {
+			primary: "oklch(0.70 0.24 85)",
+			accent: "oklch(0.45 0.22 65)",
+			background: "oklch(0.12 0.012 85)",
+			foreground: "oklch(0.95 0.008 80)",
+			muted: "oklch(0.22 0.02 85)",
+			card: "oklch(0.14 0.015 85)",
+			border: "oklch(0.24 0.018 85)",
+		},
+	},
+	{
+		id: "zen",
+		name: "Zen",
+		emoji: "🧘",
+		description: "Peaceful and balanced",
+		light: {
+			primary: "oklch(0.50 0.08 200)",
+			accent: "oklch(0.70 0.05 180)",
+			background: "oklch(0.98 0.002 200)",
+			foreground: "oklch(0.25 0.005 200)",
+			muted: "oklch(0.92 0.003 200)",
+			card: "oklch(0.99 0.001 200)",
+			border: "oklch(0.88 0.005 200)",
+		},
+		dark: {
+			primary: "oklch(0.55 0.10 200)",
+			accent: "oklch(0.35 0.08 180)",
+			background: "oklch(0.14 0.008 200)",
+			foreground: "oklch(0.90 0.003 200)",
+			muted: "oklch(0.24 0.01 200)",
+			card: "oklch(0.16 0.01 200)",
+			border: "oklch(0.26 0.012 200)",
+		},
+	},
+];
