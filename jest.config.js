@@ -13,7 +13,7 @@ const customJestConfig = {
 	// Module name mapper for path aliases
 	moduleNameMapper: {
 		"^@/(.*)$": "<rootDir>/src/$1",
-		"^@designcombo/(.*)$": "<rootDir>/node_modules/@designcombo/$1",
+		"^@designcombo/(.*)$": "<rootDir>/src/vendor/designcombo/$1",
 	},
 
 	// Test environment

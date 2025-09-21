@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timeline Track Resize Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #000;
+            color: #fff;
+        }
+        #timeline-canvas {
+            border: 1px solid #333;
+            background: #111;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            margin: 5px;
+            padding: 10px 15px;
+            background: #333;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #555;
+        }
+        .log {
+            background: #222;
+            padding: 10px;
+            margin-top: 20px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Timeline Track Resize Test</h1>
+    <div class="controls">
+        <button onclick="addSampleVideo()">Add Sample Video</button>
+        <button onclick="addSampleImage()">Add Sample Image</button>
+        <button onclick="clearTimeline()">Clear Timeline</button>
+        <button onclick="testResize()">Test Track Resize</button>
+    </div>
+
+    <canvas id="timeline-canvas" width="800" height="400"></canvas>
+
+    <div class="log" id="log">
+        <div>Timeline Test Log:</div>
+    </div>
+
+    <script>
+        let timeline = null;
+        let trackCount = 0;
+
+        function log(message) {
+            const logEl = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logEl.appendChild(entry);
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        // Test the timeline without the full framework
+        async function initTimeline() {
+            try {
+                log('Initializing timeline test...');
+
+                // Create a simple canvas-based timeline simulation
+                const canvas = document.getElementById('timeline-canvas');
+                const ctx = canvas.getContext('2d');
+
+                // Draw basic timeline structure
+                drawTimelineStructure(ctx, canvas.width, canvas.height);
+
+                log('Timeline canvas initialized');
+
+                // Add mouse event listeners for resize testing
+                setupMouseEvents(canvas);
+
+            } catch (error) {
+                log('Error initializing timeline: ' + error.message);
+            }
+        }
+
+        function drawTimelineStructure(ctx, width, height) {
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw timeline background
+            ctx.fillStyle = '#18181b';
+            ctx.fillRect(0, 0, width, height);
+
+            // Draw ruler
+            ctx.fillStyle = '#333';
+            ctx.fillRect(0, 0, width, 30);
+
+            // Draw time markers
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            for (let i = 0; i < width; i += 60) {
+                ctx.fillText(`${i/60}s`, i + 5, 20);
+                ctx.fillRect(i, 25, 1, 5);
+            }
+
+            // Draw existing tracks
+            tracks.forEach((track, index) => {
+                drawTrack(ctx, track, index);
+            });
+        }
+
+        let tracks = [];
+        let selectedTrack = null;
+        let resizeMode = null;
+
+        function drawTrack(ctx, track, index) {
+            const y = 40 + (index * 60);
+            const trackHeight = track.height || 50;
+
+            // Track background
+            ctx.fillStyle = track.selected ? '#0d8d8a' : '#333';
+            ctx.fillRect(0, y, track.width || 200, trackHeight);
+
+            // Track border
+            ctx.strokeStyle = '#555';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(0, y, track.width || 200, trackHeight);
+
+            // Track label
+            ctx.fillStyle = '#fff';
+            ctx.font = '14px Arial';
+            ctx.fillText(track.name, 10, y + trackHeight/2 + 5);
+
+            // Draw resize handles if selected
+            if (track.selected) {
+                drawResizeHandles(ctx, track, y, trackHeight);
+            }
+        }
+
+        function drawResizeHandles(ctx, track, y, trackHeight) {
+            const width = track.width || 200;
+
+            // Top resize handle
+            ctx.fillStyle = '#00d8d6';
+            ctx.fillRect(0, y - 2, width, 4);
+
+            // Bottom resize handle
+            ctx.fillStyle = '#00d8d6';
+            ctx.fillRect(0, y + trackHeight - 2, width, 4);
+
+            log(`Resize handles drawn for track: ${track.name}`);
+        }
+
+        function setupMouseEvents(canvas) {
+            let isDragging = false;
+            let startY = 0;
+            let startHeight = 0;
+
+            canvas.addEventListener('mousedown', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                log(`Mouse down at: ${x}, ${y}`);
+
+                // Check if clicking on a track
+                const trackIndex = Math.floor((y - 40) / 60);
+                if (trackIndex >= 0 && trackIndex < tracks.length) {
+                    const track = tracks[trackIndex];
+                    const trackY = 40 + (trackIndex * 60);
+                    const trackHeight = track.height || 50;
+
+                    // Check if clicking on resize handles
+                    if (y >= trackY - 2 && y <= trackY + 2) {
+                        // Top resize handle
+                        resizeMode = 'top';
+                        isDragging = true;
+                        startY = y;
+                        startHeight = trackHeight;
+                        track.selected = true;
+                        log(`Started resizing track "${track.name}" from top`);
+                    } else if (y >= trackY + trackHeight - 2 && y <= trackY + trackHeight + 2) {
+                        // Bottom resize handle
+                        resizeMode = 'bottom';
+                        isDragging = true;
+                        startY = y;
+                        startHeight = trackHeight;
+                        track.selected = true;
+                        log(`Started resizing track "${track.name}" from bottom`);
+                    } else {
+                        // Select track
+                        tracks.forEach(t => t.selected = false);
+                        track.selected = true;
+                        log(`Selected track: ${track.name}`);
+                    }
+
+                    redrawTimeline();
+                }
+            });
+
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+
+                if (isDragging && selectedTrack) {
+                    const deltaY = y - startY;
+
+                    if (resizeMode === 'bottom') {
+                        selectedTrack.height = Math.max(30, Math.min(100, startHeight + deltaY));
+                        log(`Resizing track height to: ${selectedTrack.height}px`);
+                    } else if (resizeMode === 'top') {
+                        selectedTrack.height = Math.max(30, Math.min(100, startHeight - deltaY));
+                        log(`Resizing track height to: ${selectedTrack.height}px`);
+                    }
+
+                    redrawTimeline();
+                } else {
+                    // Update cursor based on hover position
+                    const trackIndex = Math.floor((y - 40) / 60);
+                    if (trackIndex >= 0 && trackIndex < tracks.length) {
+                        const track = tracks[trackIndex];
+                        const trackY = 40 + (trackIndex * 60);
+                        const trackHeight = track.height || 50;
+
+                        if ((y >= trackY - 2 && y <= trackY + 2) ||
+                            (y >= trackY + trackHeight - 2 && y <= trackY + trackHeight + 2)) {
+                            canvas.style.cursor = 'ns-resize';
+                        } else {
+                            canvas.style.cursor = 'pointer';
+                        }
+                    } else {
+                        canvas.style.cursor = 'default';
+                    }
+                }
+            });
+
+            canvas.addEventListener('mouseup', () => {
+                if (isDragging) {
+                    log(`Finished resizing track`);
+                    isDragging = false;
+                    resizeMode = null;
+                    selectedTrack = null;
+                }
+            });
+        }
+
+        function redrawTimeline() {
+            const canvas = document.getElementById('timeline-canvas');
+            const ctx = canvas.getContext('2d');
+            drawTimelineStructure(ctx, canvas.width, canvas.height);
+        }
+
+        function addSampleVideo() {
+            const track = {
+                id: `video_${trackCount++}`,
+                name: `Video Track ${trackCount}`,
+                type: 'video',
+                width: 300,
+                height: 50,
+                selected: false
+            };
+            tracks.push(track);
+            log(`Added video track: ${track.name}`);
+            redrawTimeline();
+        }
+
+        function addSampleImage() {
+            const track = {
+                id: `image_${trackCount++}`,
+                name: `Image Track ${trackCount}`,
+                type: 'image',
+                width: 200,
+                height: 40,
+                selected: false
+            };
+            tracks.push(track);
+            log(`Added image track: ${track.name}`);
+            redrawTimeline();
+        }
+
+        function clearTimeline() {
+            tracks = [];
+            trackCount = 0;
+            log('Timeline cleared');
+            redrawTimeline();
+        }
+
+        function testResize() {
+            if (tracks.length === 0) {
+                log('No tracks to test. Add some tracks first.');
+                return;
+            }
+
+            log('Testing track resize functionality...');
+            log('1. Click on a track to select it');
+            log('2. Look for cyan resize handles at top/bottom edges');
+            log('3. Drag the handles to resize track height');
+            log('4. Height should be constrained between 30px and 100px');
+        }
+
+        // Initialize on page load
+        window.addEventListener('load', initTimeline);
+    </script>
+</body>
+</html>

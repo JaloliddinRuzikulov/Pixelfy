@@ -9,9 +9,11 @@ export default function TestAuthWidthPage() {
 					Auth Form Width Test
 				</h1>
 				<div className="mb-8">
-					<h2 className="text-lg font-semibold mb-4">Current Implementation:</h2>
-					<AuthLayout 
-						title="Video Editor" 
+					<h2 className="text-lg font-semibold mb-4">
+						Current Implementation:
+					</h2>
+					<AuthLayout
+						title="Video Editor"
 						subtitle="Width test for authentication form"
 					>
 						<LoginForm />
@@ -19,7 +21,9 @@ export default function TestAuthWidthPage() {
 				</div>
 				<div className="text-center text-muted-foreground">
 					<p>This page is for testing the authentication form width fix.</p>
-					<p>The form should be responsive and not too narrow on larger screens.</p>
+					<p>
+						The form should be responsive and not too narrow on larger screens.
+					</p>
 				</div>
 			</div>
 		</div>

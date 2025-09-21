@@ -8,7 +8,8 @@ const SAMPLE_VIDEOS = [
 		height: 1080,
 		duration: 10,
 		src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
-		preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg",
+		preview:
+			"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg",
 		title: "Big Buck Bunny",
 		fps: 30,
 	},
@@ -18,7 +19,8 @@ const SAMPLE_VIDEOS = [
 		height: 1080,
 		duration: 12,
 		src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
-		preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg",
+		preview:
+			"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg",
 		title: "Elephants Dream",
 		fps: 30,
 	},
@@ -28,7 +30,8 @@ const SAMPLE_VIDEOS = [
 		height: 1080,
 		duration: 15,
 		src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
-		preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg",
+		preview:
+			"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg",
 		title: "For Bigger Blazes",
 		fps: 30,
 	},
@@ -38,7 +41,8 @@ const SAMPLE_VIDEOS = [
 		height: 1080,
 		duration: 10,
 		src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4",
-		preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerEscapes.jpg",
+		preview:
+			"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerEscapes.jpg",
 		title: "For Bigger Escapes",
 		fps: 30,
 	},
@@ -48,7 +52,8 @@ const SAMPLE_VIDEOS = [
 		height: 1080,
 		duration: 8,
 		src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4",
-		preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerFun.jpg",
+		preview:
+			"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerFun.jpg",
 		title: "For Bigger Fun",
 		fps: 30,
 	},
@@ -58,7 +63,8 @@ const SAMPLE_VIDEOS = [
 		height: 1080,
 		duration: 9,
 		src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4",
-		preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerJoyrides.jpg",
+		preview:
+			"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerJoyrides.jpg",
 		title: "For Bigger Joyrides",
 		fps: 30,
 	},
@@ -68,7 +74,8 @@ const SAMPLE_VIDEOS = [
 		height: 1080,
 		duration: 11,
 		src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4",
-		preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerMeltdowns.jpg",
+		preview:
+			"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerMeltdowns.jpg",
 		title: "For Bigger Meltdowns",
 		fps: 30,
 	},
@@ -78,7 +85,8 @@ const SAMPLE_VIDEOS = [
 		height: 1080,
 		duration: 14,
 		src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4",
-		preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/SubaruOutbackOnStreetAndDirt.jpg",
+		preview:
+			"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/SubaruOutbackOnStreetAndDirt.jpg",
 		title: "Subaru Outback On Street And Dirt",
 		fps: 30,
 	},
@@ -88,7 +96,8 @@ const SAMPLE_VIDEOS = [
 		height: 1080,
 		duration: 20,
 		src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4",
-		preview: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/TearsOfSteel.jpg",
+		preview:
+			"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/TearsOfSteel.jpg",
 		title: "Tears of Steel",
 		fps: 30,
 	},
@@ -108,7 +117,8 @@ const SAMPLE_VIDEOS = [
 		height: 1080,
 		duration: 10,
 		src: "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4",
-		preview: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400",
+		preview:
+			"https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?w=400",
 		title: "Sample Video 1",
 		fps: 30,
 	},
@@ -118,7 +128,8 @@ const SAMPLE_VIDEOS = [
 		height: 720,
 		duration: 5,
 		src: "https://www.w3schools.com/html/mov_bbb.mp4",
-		preview: "https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400",
+		preview:
+			"https://images.unsplash.com/photo-1536240478700-b869070f9279?w=400",
 		title: "Sample Animation",
 		fps: 30,
 	},
@@ -127,9 +138,27 @@ const SAMPLE_VIDEOS = [
 // Generate additional mock videos with placeholder data
 function generateMockVideos(count: number, startId: number) {
 	const mockVideos = [];
-	const themes = ["Nature", "City", "Abstract", "Technology", "Space", "Ocean", "Mountain", "Forest"];
-	const colors = ["blue", "green", "red", "purple", "orange", "yellow", "cyan", "magenta"];
-	
+	const themes = [
+		"Nature",
+		"City",
+		"Abstract",
+		"Technology",
+		"Space",
+		"Ocean",
+		"Mountain",
+		"Forest",
+	];
+	const colors = [
+		"blue",
+		"green",
+		"red",
+		"purple",
+		"orange",
+		"yellow",
+		"cyan",
+		"magenta",
+	];
+
 	for (let i = 0; i < count; i++) {
 		const theme = themes[i % themes.length];
 		const color = colors[i % colors.length];
@@ -158,12 +187,12 @@ export async function GET(request: NextRequest) {
 	try {
 		// Combine sample videos with mock videos
 		const allVideos = [...SAMPLE_VIDEOS, ...generateMockVideos(30, 13)];
-		
+
 		// Filter videos based on search query
 		let filteredVideos = allVideos;
 		if (query) {
-			filteredVideos = allVideos.filter(video => 
-				video.title.toLowerCase().includes(query.toLowerCase())
+			filteredVideos = allVideos.filter((video) =>
+				video.title.toLowerCase().includes(query.toLowerCase()),
 			);
 		}
 
@@ -204,8 +233,12 @@ export async function GET(request: NextRequest) {
 			total_results: filteredVideos.length,
 			page: page,
 			per_page: perPage,
-			next_page: hasNextPage ? `?page=${page + 1}&per_page=${perPage}` : undefined,
-			prev_page: hasPrevPage ? `?page=${page - 1}&per_page=${perPage}` : undefined,
+			next_page: hasNextPage
+				? `?page=${page + 1}&per_page=${perPage}`
+				: undefined,
+			prev_page: hasPrevPage
+				? `?page=${page - 1}&per_page=${perPage}`
+				: undefined,
 		});
 	} catch (error) {
 		console.error("Video API error:", error);

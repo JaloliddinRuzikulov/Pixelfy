@@ -11,6 +11,7 @@ export interface AuthenticatedUser {
 	lastName?: string;
 	avatarUrl?: string;
 	emailVerified: boolean;
+	role: "admin" | "user";
 }
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-key";
@@ -56,6 +57,7 @@ export async function verifyAuthToken(
 			lastName: user.lastName,
 			avatarUrl: user.avatarUrl,
 			emailVerified: user.emailVerified,
+			role: user.role,
 		};
 	} catch (error) {
 		console.error("Token verification failed:", error);

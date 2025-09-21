@@ -28,15 +28,25 @@ const useDragAndDrop = (onDragStateChange?: (isDragging: boolean) => void) => {
 
 	const handleDrop = useCallback((draggedData: DraggedData) => {
 		const payload = { ...draggedData, id: generateId() };
+		console.log("Dropping item:", draggedData.type, payload);
+
+		// Add options with targetTrackId to place items on the main track
+		const options = {
+			targetTrackId: "main", // Place on main track
+		};
+
 		switch (draggedData.type) {
 			case AcceptedDropTypes.IMAGE:
-				dispatch(ADD_IMAGE, { payload });
+				dispatch(ADD_IMAGE, { payload, options });
+				console.log("Dispatched ADD_IMAGE with track");
 				break;
 			case AcceptedDropTypes.VIDEO:
-				dispatch(ADD_VIDEO, { payload });
+				dispatch(ADD_VIDEO, { payload, options });
+				console.log("Dispatched ADD_VIDEO with track");
 				break;
 			case AcceptedDropTypes.AUDIO:
-				dispatch(ADD_AUDIO, { payload });
+				dispatch(ADD_AUDIO, { payload, options });
+				console.log("Dispatched ADD_AUDIO with track");
 				break;
 		}
 	}, []);
@@ -45,15 +55,13 @@ const useDragAndDrop = (onDragStateChange?: (isDragging: boolean) => void) => {
 		(e: React.DragEvent<HTMLDivElement>) => {
 			e.preventDefault();
 			try {
-				const draggedDataString = e.dataTransfer?.types[0] as string;
-				if (!draggedDataString) return;
-				const draggedData: DraggedData = JSON.parse(draggedDataString);
-
-				if (!Object.values(AcceptedDropTypes).includes(draggedData.type))
-					return;
-				setIsDraggingOver(true);
-				setIsPointerInside(true);
-				onDragStateChange?.(true);
+				// Check if the dragged data is in JSON format
+				if (e.dataTransfer?.types.includes("application/json")) {
+					// We can't read the data in onDragEnter, but we know it's JSON
+					setIsDraggingOver(true);
+					setIsPointerInside(true);
+					onDragStateChange?.(true);
+				}
 			} catch (error) {
 				console.error("Error parsing dragged data:", error);
 			}
@@ -80,11 +88,12 @@ const useDragAndDrop = (onDragStateChange?: (isDragging: boolean) => void) => {
 			onDragStateChange?.(false);
 
 			try {
-				const draggedDataString = e.dataTransfer?.types[0] as string;
-				const draggedData = JSON.parse(
-					e.dataTransfer!.getData(draggedDataString),
-				);
-				handleDrop(draggedData);
+				// Get data with proper MIME type
+				const draggedDataString = e.dataTransfer?.getData("application/json");
+				if (draggedDataString) {
+					const draggedData = JSON.parse(draggedDataString);
+					handleDrop(draggedData);
+				}
 			} catch (error) {
 				console.error("Error parsing dropped data:", error);
 			}

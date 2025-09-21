@@ -19,13 +19,13 @@ const usePlayerEvents = () => {
 	//handle player events
 	useEffect(() => {
 		const playerEvents = subject.pipe(
-			filter(({ key }) => key.startsWith(PLAYER_PREFIX)),
+			filter(({ key }: { key: string }) => key.startsWith(PLAYER_PREFIX)),
 		);
 		const timelineEvents = subject.pipe(
-			filter(({ key }) => key.startsWith(TIMELINE_PREFIX)),
+			filter(({ key }: { key: string }) => key.startsWith(TIMELINE_PREFIX)),
 		);
 
-		const timelineEventsSubscription = timelineEvents.subscribe((obj) => {
+		const timelineEventsSubscription = timelineEvents.subscribe((obj: any) => {
 			if (obj.key === TIMELINE_SEEK) {
 				const time = obj.value?.payload?.time;
 				if (playerRef?.current && typeof time === "number") {
@@ -33,7 +33,7 @@ const usePlayerEvents = () => {
 				}
 			}
 		});
-		const playerEventsSubscription = playerEvents.subscribe((obj) => {
+		const playerEventsSubscription = playerEvents.subscribe((obj: any) => {
 			if (obj.key === PLAYER_SEEK) {
 				const time = obj.value?.payload?.time;
 				if (playerRef?.current && typeof time === "number") {
@@ -67,10 +67,10 @@ const usePlayerEvents = () => {
 	// handle selection events
 	useEffect(() => {
 		const selectionEvents = subject.pipe(
-			filter(({ key }) => key.startsWith(LAYER_PREFIX)),
+			filter(({ key }: { key: string }) => key.startsWith(LAYER_PREFIX)),
 		);
 
-		const selectionSubscription = selectionEvents.subscribe((obj) => {
+		const selectionSubscription = selectionEvents.subscribe((obj: any) => {
 			if (obj.key === LAYER_SELECTION) {
 				setState({
 					activeIds: obj.value?.payload.activeIds,

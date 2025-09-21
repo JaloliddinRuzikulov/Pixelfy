@@ -14,15 +14,11 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
 		<div className="auth-layout-container">
 			{/* Background decoration */}
 			<div className="auth-decoration" />
-			
+
 			<div className="auth-content-wrapper">
 				<div className="auth-header">
-					<h1 className="auth-title">
-						{title}
-					</h1>
-					<p className="auth-subtitle">
-						{subtitle}
-					</p>
+					<h1 className="auth-title">{title}</h1>
+					<p className="auth-subtitle">{subtitle}</p>
 				</div>
 				{children}
 			</div>

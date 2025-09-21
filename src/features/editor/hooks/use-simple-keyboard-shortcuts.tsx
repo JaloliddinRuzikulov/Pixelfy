@@ -139,7 +139,7 @@ export const useSimpleKeyboardShortcuts = (enabled = true) => {
 			// Zoom to fit
 			if ((e.ctrlKey || e.metaKey) && e.key === "0") {
 				e.preventDefault();
-				const fitZoom = getFitZoomLevel(duration, timeline?.width || 1000);
+				const fitZoom = getFitZoomLevel(duration, scale?.zoom || 1);
 				if (fitZoom) {
 					dispatch(TIMELINE_SCALE_CHANGED, { payload: fitZoom });
 					toast.success("Zoom to fit", { duration: 1000 });

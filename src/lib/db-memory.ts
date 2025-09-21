@@ -17,7 +17,7 @@ export class UserRepository {
 		lastName?: string;
 	}): Promise<User> {
 		const { email, passwordHash, firstName, lastName } = userData;
-		
+
 		const user = {
 			id: userIdCounter.toString(),
 			email,
@@ -26,13 +26,14 @@ export class UserRepository {
 			lastName: lastName || undefined,
 			avatarUrl: undefined,
 			emailVerified: false,
+			role: "user" as const,
 			createdAt: new Date().toISOString(),
 			updatedAt: new Date().toISOString(),
 		};
-		
+
 		users.push(user);
 		userIdCounter++;
-		
+
 		return {
 			id: user.id,
 			email: user.email,
@@ -40,6 +41,7 @@ export class UserRepository {
 			lastName: user.lastName,
 			avatarUrl: user.avatarUrl,
 			emailVerified: user.emailVerified,
+			role: user.role,
 			createdAt: user.createdAt,
 			updatedAt: user.updatedAt,
 		};
@@ -48,14 +50,14 @@ export class UserRepository {
 	static async findByEmail(
 		email: string,
 	): Promise<(User & { passwordHash: string }) | null> {
-		const user = users.find(u => u.email === email);
+		const user = users.find((u) => u.email === email);
 		return user || null;
 	}
 
 	static async findById(id: string): Promise<User | null> {
-		const user = users.find(u => u.id === id);
+		const user = users.find((u) => u.id === id);
 		if (!user) return null;
-		
+
 		return {
 			id: user.id,
 			email: user.email,
@@ -63,6 +65,7 @@ export class UserRepository {
 			lastName: user.lastName,
 			avatarUrl: user.avatarUrl,
 			emailVerified: user.emailVerified,
+			role: user.role,
 			createdAt: user.createdAt,
 			updatedAt: user.updatedAt,
 		};
@@ -76,9 +79,9 @@ export class UserRepository {
 			avatarUrl?: string;
 		},
 	): Promise<User | null> {
-		const user = users.find(u => u.id === id);
+		const user = users.find((u) => u.id === id);
 		if (!user) return null;
-		
+
 		if (updates.firstName !== undefined) {
 			user.firstName = updates.firstName;
 		}
@@ -88,9 +91,9 @@ export class UserRepository {
 		if (updates.avatarUrl !== undefined) {
 			user.avatarUrl = updates.avatarUrl;
 		}
-		
+
 		user.updatedAt = new Date().toISOString();
-		
+
 		return {
 			id: user.id,
 			email: user.email,
@@ -98,6 +101,7 @@ export class UserRepository {
 			lastName: user.lastName,
 			avatarUrl: user.avatarUrl,
 			emailVerified: user.emailVerified,
+			role: user.role,
 			createdAt: user.createdAt,
 			updatedAt: user.updatedAt,
 		};
@@ -107,22 +111,22 @@ export class UserRepository {
 		id: string,
 		passwordHash: string,
 	): Promise<boolean> {
-		const user = users.find(u => u.id === id);
+		const user = users.find((u) => u.id === id);
 		if (!user) return false;
-		
+
 		user.passwordHash = passwordHash;
 		user.updatedAt = new Date().toISOString();
-		
+
 		return true;
 	}
 
 	static async verifyEmail(id: string): Promise<boolean> {
-		const user = users.find(u => u.id === id);
+		const user = users.find((u) => u.id === id);
 		if (!user) return false;
-		
+
 		user.emailVerified = true;
 		user.updatedAt = new Date().toISOString();
-		
+
 		return true;
 	}
 }
@@ -130,7 +134,9 @@ export class UserRepository {
 // Session database operations
 export class SessionRepository {
 	static async create(userId: string, sessionToken: string): Promise<Session> {
-		const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(); // 7 days
+		const expiresAt = new Date(
+			Date.now() + 7 * 24 * 60 * 60 * 1000,
+		).toISOString(); // 7 days
 
 		const session = {
 			id: sessionIdCounter.toString(),
@@ -138,40 +144,40 @@ export class SessionRepository {
 			sessionToken,
 			expiresAt,
 		};
-		
+
 		sessions.push(session);
 		sessionIdCounter++;
-		
+
 		return session;
 	}
 
 	static async findByToken(sessionToken: string): Promise<Session | null> {
-		const session = sessions.find(s => 
-			s.sessionToken === sessionToken && 
-			new Date(s.expiresAt) > new Date()
+		const session = sessions.find(
+			(s) =>
+				s.sessionToken === sessionToken && new Date(s.expiresAt) > new Date(),
 		);
-		
+
 		return session || null;
 	}
 
 	static async deleteByToken(sessionToken: string): Promise<boolean> {
-		const index = sessions.findIndex(s => s.sessionToken === sessionToken);
+		const index = sessions.findIndex((s) => s.sessionToken === sessionToken);
 		if (index === -1) return false;
-		
+
 		sessions.splice(index, 1);
 		return true;
 	}
 
 	static async deleteByUserId(userId: string): Promise<boolean> {
 		const initialLength = sessions.length;
-		sessions = sessions.filter(s => s.userId !== userId);
+		sessions = sessions.filter((s) => s.userId !== userId);
 		return sessions.length < initialLength;
 	}
 
 	static async cleanup(): Promise<number> {
 		const now = new Date();
 		const initialLength = sessions.length;
-		sessions = sessions.filter(s => new Date(s.expiresAt) > now);
+		sessions = sessions.filter((s) => new Date(s.expiresAt) > now);
 		return initialLength - sessions.length;
 	}
 }
@@ -183,9 +189,9 @@ export class TokenRepository {
 		token: string,
 	): Promise<void> {
 		const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
-		
+
 		tokens.push({
-			type: 'email_verification',
+			type: "email_verification",
 			userId,
 			token,
 			expiresAt,
@@ -196,13 +202,12 @@ export class TokenRepository {
 		userId: string;
 		expiresAt: Date;
 	} | null> {
-		const tokenData = tokens.find(t => 
-			t.type === 'email_verification' && 
-			t.token === token
+		const tokenData = tokens.find(
+			(t) => t.type === "email_verification" && t.token === token,
 		);
-		
+
 		if (!tokenData) return null;
-		
+
 		return {
 			userId: tokenData.userId,
 			expiresAt: tokenData.expiresAt,
@@ -210,11 +215,10 @@ export class TokenRepository {
 	}
 
 	static async deleteEmailVerificationToken(token: string): Promise<void> {
-		const index = tokens.findIndex(t => 
-			t.type === 'email_verification' && 
-			t.token === token
+		const index = tokens.findIndex(
+			(t) => t.type === "email_verification" && t.token === token,
 		);
-		
+
 		if (index !== -1) {
 			tokens.splice(index, 1);
 		}
@@ -225,9 +229,9 @@ export class TokenRepository {
 		token: string,
 	): Promise<void> {
 		const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-		
+
 		tokens.push({
-			type: 'password_reset',
+			type: "password_reset",
 			userId,
 			token,
 			expiresAt,
@@ -238,13 +242,12 @@ export class TokenRepository {
 		userId: string;
 		expiresAt: Date;
 	} | null> {
-		const tokenData = tokens.find(t => 
-			t.type === 'password_reset' && 
-			t.token === token
+		const tokenData = tokens.find(
+			(t) => t.type === "password_reset" && t.token === token,
 		);
-		
+
 		if (!tokenData) return null;
-		
+
 		return {
 			userId: tokenData.userId,
 			expiresAt: tokenData.expiresAt,
@@ -252,11 +255,10 @@ export class TokenRepository {
 	}
 
 	static async deletePasswordResetToken(token: string): Promise<void> {
-		const index = tokens.findIndex(t => 
-			t.type === 'password_reset' && 
-			t.token === token
+		const index = tokens.findIndex(
+			(t) => t.type === "password_reset" && t.token === token,
 		);
-		
+
 		if (index !== -1) {
 			tokens.splice(index, 1);
 		}

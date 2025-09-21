@@ -32,6 +32,7 @@ import ControlItemHorizontal from "./control-item-horizontal";
 import { useSimpleKeyboardShortcuts } from "./hooks/use-simple-keyboard-shortcuts";
 import { KeyboardHelp } from "./components/keyboard-help";
 import { useChromaKeyEvents } from "./hooks/use-chroma-key-events";
+import { useStateManagerEvents } from "./hooks/use-state-manager-events";
 import { useTranslations } from "next-intl";
 
 const stateManager = new StateManager({
@@ -39,12 +40,33 @@ const stateManager = new StateManager({
 		width: 1080,
 		height: 1920,
 	},
+	duration: 30000,
+	tracks: [
+		{
+			id: "main",
+			type: "main",
+			items: [],
+			magnetic: false,
+			static: false,
+		},
+	],
+	trackItemIds: [],
+	trackItemsMap: {},
+	transitionIds: [],
+	transitionsMap: {},
+	activeIds: [],
 });
 
-const Editor = ({ tempId, id, projectId }: { tempId?: string; id?: string; projectId?: string | null }) => {
+const Editor = ({
+	tempId,
+	id,
+	projectId,
+}: { tempId?: string; id?: string; projectId?: string | null }) => {
 	const t = useTranslations("editor");
 	const [projectName, setProjectName] = useState<string>(t("untitledVideo"));
-	const [currentProjectId, setCurrentProjectId] = useState<string | null>(projectId || null);
+	const [currentProjectId, setCurrentProjectId] = useState<string | null>(
+		projectId || null,
+	);
 	const { scene } = useSceneStore();
 	const timelinePanelRef = useRef<ImperativePanelHandle>(null);
 	const sceneRef = useRef<SceneRef>(null);
@@ -65,8 +87,11 @@ const Editor = ({ tempId, id, projectId }: { tempId?: string; id?: string; proje
 	useTimelineEvents();
 	useSimpleKeyboardShortcuts(true);
 	useChromaKeyEvents();
+	useStateManagerEvents(stateManager);
 
 	const { setCompactFonts, setFonts } = useDataState();
+
+	// StateManager event handlers are initialized via useStateManagerEvents hook
 
 	// Load project data if projectId is provided
 	useEffect(() => {
@@ -78,9 +103,11 @@ const Editor = ({ tempId, id, projectId }: { tempId?: string; id?: string; proje
 				if (project) {
 					setProjectName(project.name);
 					setCurrentProjectId(project.id);
-					
+
 					// Load project state if exists
-					const projectState = localStorage.getItem(`project-state-${projectId}`);
+					const projectState = localStorage.getItem(
+						`project-state-${projectId}`,
+					);
 					if (projectState) {
 						const state = JSON.parse(projectState);
 						dispatch(DESIGN_LOAD, { payload: state });
@@ -93,24 +120,32 @@ const Editor = ({ tempId, id, projectId }: { tempId?: string; id?: string; proje
 	// Auto-save project state
 	useEffect(() => {
 		if (!currentProjectId) return;
-		
+
 		const saveInterval = setInterval(() => {
 			const state = stateManager.getState();
-			localStorage.setItem(`project-state-${currentProjectId}`, JSON.stringify(state));
-			
+			localStorage.setItem(
+				`project-state-${currentProjectId}`,
+				JSON.stringify(state),
+			);
+
 			// Update project in projects list
 			const projects = localStorage.getItem("video-editor-projects");
 			if (projects) {
 				const projectsList = JSON.parse(projects);
-				const projectIndex = projectsList.findIndex((p: any) => p.id === currentProjectId);
+				const projectIndex = projectsList.findIndex(
+					(p: any) => p.id === currentProjectId,
+				);
 				if (projectIndex !== -1) {
 					projectsList[projectIndex].name = projectName;
 					projectsList[projectIndex].updatedAt = new Date();
-					localStorage.setItem("video-editor-projects", JSON.stringify(projectsList));
+					localStorage.setItem(
+						"video-editor-projects",
+						JSON.stringify(projectsList),
+					);
 				}
 			}
 		}, 5000); // Auto-save every 5 seconds
-		
+
 		return () => clearInterval(saveInterval);
 	}, [currentProjectId, projectName]);
 
@@ -296,7 +331,10 @@ const Editor = ({ tempId, id, projectId }: { tempId?: string; id?: string; proje
 					</div>
 				)}
 				<ResizablePanelGroup style={{ flex: 1 }} direction="vertical">
-					<ResizablePanel className="relative border-r-2 border-border" defaultSize={70}>
+					<ResizablePanel
+						className="relative border-r-2 border-border"
+						defaultSize={70}
+					>
 						<FloatingControl />
 						<div className="flex h-full flex-1">
 							{/* Sidebar only on large screens - conditionally mounted */}

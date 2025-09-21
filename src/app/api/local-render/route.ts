@@ -23,6 +23,7 @@ const renderJobs = new Map<
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
+		const { design, chromaKeySettings, options } = body;
 
 		// Generate unique job ID
 		const jobId = crypto.randomBytes(16).toString("hex");
@@ -35,15 +36,17 @@ export async function POST(request: NextRequest) {
 			createdAt: new Date(),
 		});
 
-		// Start async rendering (in background)
-		processRenderJob(jobId, body).catch((error) => {
-			console.error("Render error:", error);
-			const job = renderJobs.get(jobId);
-			if (job) {
-				job.status = "failed";
-				job.error = error.message;
-			}
-		});
+		// Start async rendering (in background) with chromaKey settings
+		processRenderJob(jobId, { design, chromaKeySettings, options }).catch(
+			(error) => {
+				console.error("Render error:", error);
+				const job = renderJobs.get(jobId);
+				if (job) {
+					job.status = "failed";
+					job.error = error.message;
+				}
+			},
+		);
 
 		return NextResponse.json({
 			success: true,

@@ -121,13 +121,13 @@ export const Texts = () => {
 	};
 
 	return (
-		<div className="flex h-full flex-col bg-background">
+		<div className="flex h-full flex-col bg-background overflow-hidden">
 			<div className="flex h-12 flex-none items-center px-4 text-sm font-medium border-b border-border bg-muted/20">
 				<Type className="w-4 h-4 mr-2 text-primary" />
 				Text Elements
 			</div>
 
-			<ScrollArea className="flex-1">
+			<ScrollArea className="flex-1 overflow-auto">
 				<div className="p-4 space-y-6">
 					{/* Quick Add Button */}
 					<div className="space-y-3">

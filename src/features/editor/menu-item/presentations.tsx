@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Upload, Loader2, FileText, AlertCircle, Images } from "lucide-react";
 import { generateId } from "@designcombo/timeline";
 import { dispatch } from "@designcombo/events";
+import { ADD_ITEMS } from "@designcombo/state";
 import { toast } from "sonner";
 
 interface PresentationFile {
@@ -12,17 +13,14 @@ interface PresentationFile {
 	name: string;
 	status: "uploading" | "converting" | "ready" | "error";
 	progress?: number;
-	videoUrl?: string;
 	pageImages?: string[];
 	error?: string;
 	uploadedAt: Date;
-	conversionType?: "video" | "images";
 }
 
 export const Presentations = () => {
 	const [presentations, setPresentations] = useState<PresentationFile[]>([]);
 	const [isProcessing, setIsProcessing] = useState(false);
-	const conversionType = "images";
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const handleFileSelect = async (
@@ -33,14 +31,23 @@ export const Presentations = () => {
 
 		const file = files[0];
 
-		// Check file type - only allow PowerPoint files
+		// Check file type
 		const allowedTypes = [
+			"application/pdf",
 			"application/vnd.ms-powerpoint",
 			"application/vnd.openxmlformats-officedocument.presentationml.presentation",
 		];
 
-		if (!allowedTypes.includes(file.type)) {
-			toast.error("Please upload a PowerPoint file (.ppt or .pptx)");
+		const allowedExtensions = [".ppt", ".pptx", ".pdf"];
+		const fileExt = file.name
+			.toLowerCase()
+			.substring(file.name.lastIndexOf("."));
+
+		if (
+			!allowedTypes.includes(file.type) &&
+			!allowedExtensions.includes(fileExt)
+		) {
+			toast.error("Please upload a PDF, PPT, or PPTX file");
 			return;
 		}
 
@@ -66,28 +73,27 @@ export const Presentations = () => {
 			// Upload file
 			const formData = new FormData();
 			formData.append("file", file);
-			formData.append("type", "presentation");
-			formData.append("conversionType", conversionType);
 
-			const uploadResponse = await fetch("/api/presentation-to-video", {
+			const uploadResponse = await fetch("/api/presentations/upload", {
 				method: "POST",
 				body: formData,
 			});
 
 			if (!uploadResponse.ok) {
-				throw new Error("Failed to upload presentation");
+				const errorData = await uploadResponse.json();
+				throw new Error(errorData.error || "Failed to upload presentation");
 			}
+
+			const result = await uploadResponse.json();
 
 			// Update status to converting
 			setPresentations((prev) =>
 				prev.map((p) =>
 					p.id === presentationId
-						? { ...p, status: "converting", progress: 50 }
+						? { ...p, status: "converting", progress: 30 }
 						: p,
 				),
 			);
-
-			const result = await uploadResponse.json();
 
 			// Poll for conversion status
 			let conversionComplete = false;
@@ -98,7 +104,7 @@ export const Presentations = () => {
 				await new Promise((resolve) => setTimeout(resolve, 5000)); // Poll every 5 seconds
 
 				const statusResponse = await fetch(
-					`/api/presentation-to-video?jobId=${result.jobId}`,
+					`/api/presentations/upload?jobId=${result.jobId}`,
 				);
 				const statusData = await statusResponse.json();
 
@@ -112,20 +118,20 @@ export const Presentations = () => {
 										...p,
 										status: "ready",
 										progress: 100,
-										videoUrl: statusData.videoUrl,
 										pageImages: statusData.pageImages,
-										conversionType,
 									}
 								: p,
 						),
 					);
 
-					toast.success("Presentation converted to images successfully!");
+					toast.success(
+						`Presentation converted! ${statusData.pageImages?.length || 0} slides ready`,
+					);
 				} else if (statusData.status === "failed") {
 					throw new Error(statusData.error || "Conversion failed");
 				} else {
 					// Update progress
-					const progress = 50 + (attempts / maxAttempts) * 50;
+					const progress = Math.min(30 + (attempts / maxAttempts) * 60, 95);
 					setPresentations((prev) =>
 						prev.map((p) => (p.id === presentationId ? { ...p, progress } : p)),
 					);
@@ -140,7 +146,7 @@ export const Presentations = () => {
 		} catch (error) {
 			console.error("Presentation processing error:", error);
 
-			let errorMessage =
+			const errorMessage =
 				error instanceof Error ? error.message : "Unknown error";
 
 			setPresentations((prev) =>
@@ -165,39 +171,46 @@ export const Presentations = () => {
 	};
 
 	const handleAddImagesToTimeline = (presentation: PresentationFile) => {
-		if (!presentation.pageImages || presentation.pageImages.length === 0)
+		if (!presentation.pageImages || presentation.pageImages.length === 0) {
+			toast.error("No images available to add");
 			return;
+		}
 
-		// Add each page as an image to timeline
+		// Add each image to timeline with 3 seconds duration
+		const imageDuration = 3000; // 3 seconds per image
+		let currentTime = 0;
+
 		presentation.pageImages.forEach((imageUrl, index) => {
-			dispatch("ADD_ITEMS", {
+			const id = generateId();
+
+			dispatch(ADD_ITEMS, {
 				payload: {
 					trackItems: [
 						{
-							id: generateId(),
+							id,
 							type: "image",
 							display: {
-								from: index * 3000, // Each image shows for 3 seconds
-								to: (index + 1) * 3000,
+								from: currentTime,
+								to: currentTime + imageDuration,
 							},
 							details: {
 								src: imageUrl,
 							},
-							metadata: {
-								originalName: `${presentation.name} - Page ${index + 1}`,
-							},
+							metadata: {},
 						},
 					],
 				},
-				options: {},
 			});
+
+			currentTime += imageDuration;
 		});
 
-		toast.success(`${presentation.pageImages.length} pages added to timeline`);
+		toast.success(`${presentation.pageImages.length} slides added to timeline`);
 	};
 
-	const handleRetry = async (presentation: PresentationFile) => {
-		// Re-upload the presentation
+	const handleRetry = (presentation: PresentationFile) => {
+		// Remove the failed presentation and trigger file input
+		setPresentations((prev) => prev.filter((p) => p.id !== presentation.id));
 		toast.info("Please select the file again to retry");
 		fileInputRef.current?.click();
 	};
@@ -214,7 +227,7 @@ export const Presentations = () => {
 					<input
 						ref={fileInputRef}
 						type="file"
-						accept=".pptx,.ppt"
+						accept=".pdf,.pptx,.ppt"
 						onChange={handleFileSelect}
 						className="hidden"
 						disabled={isProcessing}
@@ -229,7 +242,8 @@ export const Presentations = () => {
 						Upload Presentation
 					</Button>
 					<div className="text-xs text-muted-foreground">
-						<p>✓ PowerPoint files only (.ppt, .pptx - max 50MB)</p>
+						<p>✓ PDF, PPT & PPTX files (max 50MB)</p>
+						<p>✓ Converted to HD images for timeline</p>
 					</div>
 				</div>
 			</div>
@@ -246,7 +260,7 @@ export const Presentations = () => {
 								No presentations uploaded
 							</p>
 							<p className="text-xs text-muted-foreground/70">
-								Upload a PDF or PowerPoint to convert for your video
+								Upload PDF or PowerPoint files to convert to timeline images
 							</p>
 						</div>
 					) : (
@@ -290,7 +304,7 @@ export const Presentations = () => {
 														<div className="w-2 h-2 bg-green-500 rounded-full" />
 														<span className="text-xs text-green-600 dark:text-green-400 font-medium">
 															Ready • {presentation.pageImages?.length || 0}{" "}
-															Images
+															Slides
 														</span>
 													</div>
 

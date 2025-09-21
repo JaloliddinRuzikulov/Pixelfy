@@ -81,8 +81,8 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 					return;
 				}
 
-				// Handle MP4 export - use local render API
-				console.log("Starting MP4 export with payload:", payload);
+				// Handle MP4 export - use Remotion render API
+				console.log("Starting MP4 export with Remotion, payload:", payload);
 
 				// Get chroma key settings from store
 				const chromaKeyStore = (
@@ -90,7 +90,8 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 				).default.getState();
 				const chromaKeySettings = chromaKeyStore.chromaKeySettings;
 
-				const response = await fetch(`/api/local-render`, {
+				// Use Remotion render API for exact UI match
+				const response = await fetch(`/api/remotion-render`, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
@@ -98,8 +99,8 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 					body: JSON.stringify({
 						design: {
 							...payload,
-							chromaKeySettings, // Pass chroma key settings
 						},
+						chromaKeySettings, // Pass chroma key settings separately
 						options: {
 							fps: 30,
 							size: payload.size,
@@ -126,7 +127,9 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 				const checkStatus = async () => {
 					try {
 						console.log(`Checking status for job: ${jobId}`);
-						const statusResponse = await fetch(`/api/local-render?id=${jobId}`);
+						const statusResponse = await fetch(
+							`/api/remotion-render?id=${jobId}`,
+						);
 
 						if (!statusResponse.ok) {
 							const errorText = await statusResponse.text();

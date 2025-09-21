@@ -33,40 +33,66 @@ export const Images = () => {
 
 	// Load curated images on component mount
 	useEffect(() => {
-		loadCuratedImages();
+		const loadInitialImages = async () => {
+			try {
+				await loadCuratedImages();
+			} catch (error) {
+				console.error("Error loading initial images:", error);
+			}
+		};
+		loadInitialImages();
 	}, [loadCuratedImages]);
 
 	const handleAddImage = (payload: Partial<IImage>) => {
-		const id = generateId();
-		dispatch(ADD_ITEMS, {
-			payload: {
-				trackItems: [
-					{
-						id,
-						type: "image",
-						display: {
-							from: 0,
-							to: 5000,
-						},
-						details: {
-							src: payload.details?.src,
-						},
-						metadata: {},
-					},
-				],
-			},
-		});
+		try {
+			const defaultDuration = 5000; // 5 seconds default for images
+			const duration = payload.duration || defaultDuration;
+
+			const imageItem = {
+				id: generateId(),
+				type: "image" as const,
+				display: {
+					from: 0,
+					to: duration,
+				},
+				trim: {
+					from: 0,
+					to: duration,
+				},
+				duration: duration,
+				details: {
+					src: payload.details?.src || "",
+				},
+				metadata: {
+					previewUrl: payload.preview || payload.metadata?.previewUrl,
+					originalDimensions: payload.metadata?.originalDimensions,
+					photographer: payload.metadata?.photographer,
+					...payload.metadata,
+				},
+			};
+
+			console.log("Dispatching ADD_ITEMS for image:", imageItem);
+			dispatch(ADD_ITEMS, {
+				payload: {
+					trackItems: [imageItem],
+				},
+			});
+			console.log("ADD_ITEMS dispatched for image");
+		} catch (error) {
+			console.error("Error dispatching ADD_ITEMS for image:", error);
+		}
 	};
 
 	const handleSearch = async () => {
-		if (!searchQuery.trim()) {
-			await loadCuratedImages();
-			return;
-		}
-
 		try {
+			if (!searchQuery.trim()) {
+				await loadCuratedImages();
+				return;
+			}
+
 			await searchImages(searchQuery);
-		} finally {
+		} catch (error) {
+			console.error("Error searching images:", error);
 		}
 	};
 
@@ -76,20 +102,28 @@ export const Images = () => {
 		}
 	};
 
-	const handleLoadMore = () => {
-		if (hasNextPage) {
-			if (searchQuery.trim()) {
-				searchImagesAppend(searchQuery, currentPage + 1);
-			} else {
-				loadCuratedImagesAppend(currentPage + 1);
+	const handleLoadMore = async () => {
+		try {
+			if (hasNextPage) {
+				if (searchQuery.trim()) {
+					await searchImagesAppend(searchQuery, currentPage + 1);
+				} else {
+					await loadCuratedImagesAppend(currentPage + 1);
+				}
 			}
+		} catch (error) {
+			console.error("Error loading more images:", error);
 		}
 	};
 
-	const handleClearSearch = () => {
-		setSearchQuery("");
-		clearImages();
-		loadCuratedImages();
+	const handleClearSearch = async () => {
+		try {
+			setSearchQuery("");
+			clearImages();
+			await loadCuratedImages();
+		} catch (error) {
+			console.error("Error clearing search:", error);
+		}
 	};
 
 	// Use Pexels images if available, otherwise fall back to empty array
@@ -236,10 +270,18 @@ const ImageItem = ({
 				onClick={() =>
 					handleAddImage({
 						id: generateId(),
+						type: "image",
+						name: image.name || "Untitled Image",
+						display: { from: 0, to: 5000 },
 						details: {
-							src: image.details?.src,
+							src: image.details?.src || "",
+						} as any,
+						preview: image.preview,
+						metadata: {
+							previewUrl: image.preview,
+							...(image.metadata || {}),
 						},
-					} as IImage)
+					})
 				}
 				className="relative group cursor-pointer overflow-hidden rounded-lg bg-card hover:bg-muted/30 break-inside-avoid mb-3"
 			>

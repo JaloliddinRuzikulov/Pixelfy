@@ -1,14 +1,24 @@
 import { Pool } from "pg";
-import { User, Session } from "./auth";
+import { User, Session, UserRole } from "./auth";
+import { Kysely, PostgresDialect } from "kysely";
+import { createAnalyticsTables } from "./db-analytics";
 
 // Try PostgreSQL first, fallback to memory storage
 let useMemoryDb = false;
 let pool: Pool;
+let kyselyDb: Kysely<any> | null = null;
 
 try {
-	if (!process.env.DATABASE_URL || process.env.DATABASE_URL.includes('postgresql://postgres:password@localhost')) {
+	if (
+		!process.env.DATABASE_URL ||
+		process.env.DATABASE_URL.includes(
+			"postgresql://postgres:password@localhost",
+		)
+	) {
 		// Development fallback - use memory database
-		console.log('Using file-based database for development (PostgreSQL not configured)');
+		console.log(
+			"Using file-based database for development (PostgreSQL not configured)",
+		);
 		useMemoryDb = true;
 	} else {
 		pool = new Pool({
@@ -18,13 +28,26 @@ try {
 					? { rejectUnauthorized: false }
 					: false,
 		});
+
+		// Initialize Kysely for analytics
+		kyselyDb = new Kysely({
+			dialect: new PostgresDialect({
+				pool: pool,
+			}),
+		});
+
+		// Create analytics tables if they don't exist
+		createAnalyticsTables(kyselyDb).catch(console.error);
 	}
 } catch (error) {
-	console.log('PostgreSQL connection failed, falling back to in-memory database:', error);
+	console.log(
+		"PostgreSQL connection failed, falling back to in-memory database:",
+		error,
+	);
 	useMemoryDb = true;
 }
 
-export { pool as db };
+export { pool as db, kyselyDb };
 
 // Import file-based implementations for development
 import {
@@ -40,18 +63,31 @@ export class UserRepository {
 		passwordHash: string;
 		firstName?: string;
 		lastName?: string;
+		role?: UserRole;
 	}): Promise<User> {
 		if (useMemoryDb) {
 			return FileUserRepository.create(userData);
 		}
 
-		const { email, passwordHash, firstName, lastName } = userData;
+		const { email, passwordHash, firstName, lastName, role } = userData;
+
+		// Admin emails list
+		const adminEmails = ["jaloliddinruzikulov@gmail.com", "admin@pixelfy.uz"];
+
+		// Check if this is the first user (should be admin) or if email is in admin list
+		const countResult = await pool.query("SELECT COUNT(*) FROM users");
+		const userCount = parseInt(countResult.rows[0].count);
+		const userRole =
+			role ||
+			(userCount === 0 || adminEmails.includes(email.toLowerCase())
+				? "admin"
+				: "user");
 
 		const result = await pool.query(
-			`INSERT INTO users (email, password_hash, first_name, last_name) 
-       VALUES ($1, $2, $3, $4) 
-       RETURNING id, email, first_name, last_name, avatar_url, email_verified, created_at, updated_at`,
-			[email, passwordHash, firstName || null, lastName || null],
+			`INSERT INTO users (email, password_hash, first_name, last_name, role) 
+       VALUES ($1, $2, $3, $4, $5) 
+       RETURNING id, email, first_name, last_name, avatar_url, email_verified, role, created_at, updated_at`,
+			[email, passwordHash, firstName || null, lastName || null, userRole],
 		);
 
 		const row = result.rows[0];
@@ -62,6 +98,7 @@ export class UserRepository {
 			lastName: row.last_name,
 			avatarUrl: row.avatar_url,
 			emailVerified: row.email_verified,
+			role: row.role || "user",
 			createdAt: row.created_at,
 			updatedAt: row.updated_at,
 		};
@@ -75,7 +112,7 @@ export class UserRepository {
 		}
 
 		const result = await pool.query(
-			`SELECT id, email, password_hash, first_name, last_name, avatar_url, email_verified, created_at, updated_at 
+			`SELECT id, email, password_hash, first_name, last_name, avatar_url, email_verified, role, created_at, updated_at 
        FROM users WHERE email = $1`,
 			[email],
 		);
@@ -91,6 +128,7 @@ export class UserRepository {
 			lastName: row.last_name,
 			avatarUrl: row.avatar_url,
 			emailVerified: row.email_verified,
+			role: row.role || "user",
 			createdAt: row.created_at,
 			updatedAt: row.updated_at,
 		};
@@ -102,7 +140,7 @@ export class UserRepository {
 		}
 
 		const result = await pool.query(
-			`SELECT id, email, first_name, last_name, avatar_url, email_verified, created_at, updated_at 
+			`SELECT id, email, first_name, last_name, avatar_url, email_verified, role, created_at, updated_at 
        FROM users WHERE id = $1`,
 			[id],
 		);
@@ -117,6 +155,7 @@ export class UserRepository {
 			lastName: row.last_name,
 			avatarUrl: row.avatar_url,
 			emailVerified: row.email_verified,
+			role: row.role || "user",
 			createdAt: row.created_at,
 			updatedAt: row.updated_at,
 		};
@@ -174,6 +213,7 @@ export class UserRepository {
 			lastName: row.last_name,
 			avatarUrl: row.avatar_url,
 			emailVerified: row.email_verified,
+			role: row.role || "user",
 			createdAt: row.created_at,
 			updatedAt: row.updated_at,
 		};
@@ -206,6 +246,91 @@ export class UserRepository {
 		);
 
 		return (result.rowCount ?? 0) > 0;
+	}
+
+	static async update(
+		id: string,
+		updates: {
+			firstName?: string;
+			lastName?: string;
+			avatarUrl?: string;
+			role?: UserRole;
+		},
+	): Promise<User> {
+		if (useMemoryDb) {
+			return FileUserRepository.update(id, updates);
+		}
+
+		const fields: string[] = [];
+		const values: any[] = [];
+		let paramCount = 1;
+
+		if (updates.firstName !== undefined) {
+			fields.push(`first_name = $${paramCount++}`);
+			values.push(updates.firstName);
+		}
+		if (updates.lastName !== undefined) {
+			fields.push(`last_name = $${paramCount++}`);
+			values.push(updates.lastName);
+		}
+		if (updates.avatarUrl !== undefined) {
+			fields.push(`avatar_url = $${paramCount++}`);
+			values.push(updates.avatarUrl);
+		}
+		if (updates.role !== undefined) {
+			fields.push(`role = $${paramCount++}`);
+			values.push(updates.role);
+		}
+
+		fields.push(`updated_at = NOW()`);
+		values.push(id);
+
+		const result = await pool.query(
+			`UPDATE users SET ${fields.join(", ")} WHERE id = $${paramCount}
+			RETURNING id, email, first_name, last_name, avatar_url, email_verified, role, created_at, updated_at`,
+			values,
+		);
+
+		if (result.rows.length === 0) {
+			throw new Error("User not found");
+		}
+
+		const row = result.rows[0];
+		return {
+			id: row.id,
+			email: row.email,
+			firstName: row.first_name,
+			lastName: row.last_name,
+			avatarUrl: row.avatar_url,
+			emailVerified: row.email_verified,
+			role: row.role || "user",
+			createdAt: row.created_at,
+			updatedAt: row.updated_at,
+		};
+	}
+
+	static async findAll(): Promise<User[]> {
+		if (useMemoryDb) {
+			return FileUserRepository.findAll();
+		}
+
+		const result = await pool.query(
+			`SELECT id, email, first_name, last_name, avatar_url, email_verified, role, created_at, updated_at, last_login
+			FROM users ORDER BY created_at DESC`,
+		);
+
+		return result.rows.map((row) => ({
+			id: row.id,
+			email: row.email,
+			firstName: row.first_name,
+			lastName: row.last_name,
+			avatarUrl: row.avatar_url,
+			emailVerified: row.email_verified,
+			role: row.role || "user",
+			createdAt: row.created_at,
+			updatedAt: row.updated_at,
+			lastLogin: row.last_login,
+		}));
 	}
 }
 

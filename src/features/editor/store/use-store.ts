@@ -43,7 +43,10 @@ interface ITimelineStore {
 		type: "color" | "image";
 		value: string;
 	};
-	setBackground: (background: { type: "color" | "image"; value: string }) => void;
+	setBackground: (background: {
+		type: "color" | "image";
+		value: string;
+	}) => void;
 	viewTimeline: boolean;
 	setViewTimeline: (viewTimeline: boolean) => void;
 }

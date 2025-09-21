@@ -5,11 +5,11 @@ import { UserRepository } from "@/lib/db";
 export async function GET(request: NextRequest) {
 	try {
 		const user = await getAuthenticatedUser(request);
-		
+
 		if (!user) {
 			return NextResponse.json(
 				{ error: "Authentication required" },
-				{ status: 401 }
+				{ status: 401 },
 			);
 		}
 
@@ -36,11 +36,11 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
 	try {
 		const user = await getAuthenticatedUser(request);
-		
+
 		if (!user) {
 			return NextResponse.json(
 				{ error: "Authentication required" },
-				{ status: 401 }
+				{ status: 401 },
 			);
 		}
 

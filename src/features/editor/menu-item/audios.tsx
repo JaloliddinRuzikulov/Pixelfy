@@ -2,7 +2,7 @@ import Draggable from "@/components/shared/draggable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
 import { dispatch } from "@designcombo/events";
-import { ADD_AUDIO, ADD_ITEMS } from "@designcombo/state";
+import { ADD_ITEMS } from "@designcombo/state";
 import { IAudio } from "@designcombo/types";
 import { Music, Play, Clock } from "lucide-react";
 import { useIsDraggingOverTimeline } from "../hooks/is-dragging-over-timeline";
@@ -14,11 +14,46 @@ export const Audios = () => {
 	const isDraggingOverTimeline = useIsDraggingOverTimeline();
 
 	const handleAddAudio = (payload: Partial<IAudio>) => {
-		payload.id = generateId();
-		dispatch(ADD_AUDIO, {
-			payload,
-			options: {},
-		});
+		try {
+			// Convert duration from seconds to milliseconds
+			const defaultDuration = 30000; // 30 seconds default for audio
+			const durationInSeconds = payload.duration || 30;
+			const durationInMs = durationInSeconds * 1000;
+
+			const audioItem = {
+				id: generateId(),
+				type: "audio" as const,
+				display: {
+					from: 0,
+					to: durationInMs,
+				},
+				trim: {
+					from: 0,
+					to: durationInMs,
+				},
+				duration: durationInMs,
+				details: {
+					src: payload.details?.src || "",
+				},
+				metadata: {
+					author: payload.metadata?.author || "Unknown Artist",
+					mood: payload.metadata?.mood,
+					originalDuration: payload.duration, // Keep original duration in seconds
+					...payload.metadata,
+				},
+				name: payload.name || "Untitled Audio",
+			};
+
+			console.log("Dispatching ADD_ITEMS for audio:", audioItem);
+			dispatch(ADD_ITEMS, {
+				payload: {
+					trackItems: [audioItem],
+				},
+			});
+			console.log("ADD_ITEMS dispatched for audio");
+		} catch (error) {
+			console.error("Error dispatching ADD_ITEMS for audio:", error);
+		}
 	};
 
 	return (

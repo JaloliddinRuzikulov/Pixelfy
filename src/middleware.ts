@@ -2,13 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifySessionToken } from "@/lib/auth-edge";
 
 // Routes that require authentication
-const protectedRoutes = ["/", "/edit", "/dashboard", "/projects", "/profile", "/settings"];
+const protectedRoutes = [
+	"/",
+	"/dashboard",
+	"/projects",
+	"/profile",
+	"/settings",
+];
 
 // Routes that should redirect authenticated users away
 const authRoutes = ["/auth/login", "/auth/register"];
 
 // Public routes that don't require authentication (these override protected routes)
-const publicRoutes = ["/auth/verify-email", "/api/auth", "/test-width", "/test-auth-width"];
+const publicRoutes = [
+	"/auth/verify-email",
+	"/api/auth",
+	"/test-width",
+	"/test-auth-width",
+];
 
 export async function middleware(request: NextRequest) {
 	const pathname = request.nextUrl.pathname;
@@ -38,7 +49,11 @@ export async function middleware(request: NextRequest) {
 	}
 
 	// Handle protected routes
-	if (protectedRoutes.some((route) => pathname.startsWith(route))) {
+	if (
+		protectedRoutes.some((route) =>
+			route === "/" ? pathname === "/" : pathname.startsWith(route),
+		)
+	) {
 		if (!isAuthenticated) {
 			// Redirect to login with return URL (but only if not already on auth route)
 			if (!authRoutes.some((route) => pathname.startsWith(route))) {

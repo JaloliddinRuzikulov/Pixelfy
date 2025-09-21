@@ -7,49 +7,72 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Essential Commands
 - `npm run dev` - Start Next.js development server (http://localhost:3000)
 - `npm run build` - Build production application
+- `npm run start` - Start production server after build
 - `npm run lint` - Run Next.js linting
-- `npm run format` - Format code using Biome (uses tabs, double quotes)
+- `npm run format` - Format code using Biome (tabs for indentation, double quotes)
+
+### Testing Commands
 - `npm test` - Run all Jest tests
 - `npm run test:watch` - Run tests in watch mode
-- `npm run test:coverage` - Run tests with coverage report
+- `npm run test:coverage` - Run tests with coverage report (50% threshold)
 - `npm test -- path/to/test.test.ts` - Run a single test file
 - `npm test -- --testNamePattern="test name"` - Run tests matching pattern
 
 ### Database & Authentication Commands (Optional)
-- `npm run migrate:up` - Run database migrations up
+- `npm run migrate:up` - Run database migrations up (uses tsx scripts/migrate.ts)
 - `npm run migrate:down` - Roll back database migrations
-- `npm run cleanup-db` - Clean up database
+- `npm run cleanup-db` - Clean up database (tsx scripts/cleanup-db.ts)
 - `npm run setup-auth` - Initialize authentication system
+- `npm run create-admin` - Create admin user for the system
 
-### Development Setup
-To run the application locally:
-1. Clone the repository and install dependencies with `npm install`
-2. Copy `.env.example` to `.env` and configure environment variables (optional)
-3. Run `npm run dev` to start the development server
-4. The app now uses open APIs for stock media - no API keys required for basic functionality
+### Presentation Conversion Service (Optional)
+For PowerPoint/PDF to video conversion:
+- `./libreoffice-service.sh start` - Start LibreOffice Docker service
+- `./libreoffice-service.sh stop` - Stop the service
+- `./libreoffice-service.sh status` - Check service health
+- `docker-compose up -d libreoffice-converter` - Alternative startup method
 
 ## Architecture Overview
 
-Pixelfy is a browser-based video editor built with Next.js 15, TypeScript, and Remotion for video rendering. The application follows a component-driven architecture with state management via Zustand and event-driven updates through @designcombo packages.
+Pixelfy is a browser-based video editor built with Next.js 15, TypeScript, and Remotion for video rendering. The application follows a component-driven architecture with state management via Zustand and event-driven updates through vendored @designcombo packages.
 
 ### Core Technology Stack
-- **Framework**: Next.js 15 with App Router
-- **Language**: TypeScript (strict mode enabled)
-- **State Management**: Zustand stores with @designcombo/state StateManager
-- **Video Processing**: Remotion for video composition and export
-- **Timeline**: @designcombo/timeline for timeline UI and interactions
+- **Framework**: Next.js 15.3.2 with App Router
+- **Language**: TypeScript 5 (strict mode enabled)
+- **Runtime**: React 19
+- **State Management**: Zustand 5 stores with vendored @designcombo/state StateManager
+- **Video Processing**: Remotion 4.0.315 for video composition and export
+- **Timeline**: Vendored @designcombo/timeline for timeline UI and interactions
 - **UI Components**: Radix UI primitives with Tailwind CSS v4
-- **Code Style**: Biome formatter (tabs for indentation, double quotes)
-- **Testing**: Jest with React Testing Library
+- **Code Style**: Biome 1.9.4 formatter (tabs for indentation, double quotes)
+- **Testing**: Jest 30 with React Testing Library 16 and jsdom environment
 - **AI Integration**: Google AI SDK for voice-over generation
-- **Media APIs**: Open source sample videos and Unsplash Source API for stock media (no auth required)
-- **Animations**: Framer Motion for UI animations
+- **Media APIs**: Pexels API (optional), sample videos, and stock media
+- **Animations**: Framer Motion 11 for UI animations
+- **Database**: PostgreSQL with Kysely 0.28.2 query builder (optional)
+- **Authentication**: JWT-based with bcryptjs for password hashing
+- **Internationalization**: next-intl with support for en, ru, uz locales
+
+### Vendored @designcombo Packages
+Located in `src/vendor/designcombo/`:
+- **@designcombo/state**: Central state management with event dispatching
+- **@designcombo/timeline**: Canvas-based timeline rendering engine
+- **@designcombo/events**: Pub/sub event bus for component communication
+- **@designcombo/types**: TypeScript type definitions for track items
+- **@designcombo/frames**: Frame/timing conversion utilities
+
+### Path Aliases Configuration
+From `tsconfig.json`:
+- `@/*` → `./src/*`
+- `@designcombo/*` → `./src/vendor/designcombo/*`
 
 ### Key Architectural Components
 
 #### 1. Editor System (`src/features/editor/`)
 The main editor orchestrates all editing functionality:
 - **editor.tsx**: Root component managing StateManager instance and coordinating Timeline, Scene, and Controls
+- **editor-lazy.tsx**: Lazy-loaded editor wrapper
+- **redesigned-editor.tsx**: Alternative layout with improved spacing and modern UI
 - **timeline/**: Canvas-based timeline implementation using CanvasTimeline class
 - **scene/**: Preview area with Remotion Player and interactive element manipulation
 - **player/**: Remotion-based video composition system with sequence-based rendering
@@ -62,65 +85,102 @@ Multiple Zustand stores handle different aspects of application state:
 - **use-crop-store.ts**: Crop tool state
 - **use-chroma-key-store.ts**: Chroma key/green screen settings
 - **use-download-state.ts**: Export and download management
+- **use-upload-store.ts**: File upload management and progress tracking
+- **use-folder.ts**: Folder organization for media assets
+- **use-scene-store.ts**: Scene-specific state management
+- **use-subscription-store.ts**: Subscription and billing state
 
 StateManager from @designcombo/state coordinates complex state operations with event-driven updates via @designcombo/events pub/sub system.
 
 #### 3. Media Processing Pipeline
 - **Upload Service** (`src/utils/upload-service.ts`): Handles file uploads with presigned URLs
 - **Local APIs** (`src/app/api/local-*/`): Backend endpoints for media processing
-- **Stock Media**: Sample videos from Google and Unsplash Source API (no authentication required)
-- **Caching**: CacheManager for thumbnail and media optimization
+  - `/api/local-fonts`: Font management
+  - `/api/local-render`: Local video rendering
+- **Stock Media APIs**:
+  - `/api/pexels`: Pexels images API
+  - `/api/pexels-videos`: Pexels videos API
+- **Presentation APIs** (`src/app/api/presentations/`): PPT/PDF conversion endpoints
+- **Remotion Rendering** (`src/app/api/remotion-render/`): Server-side video rendering
+- **Admin APIs** (`src/app/api/admin/`): Admin-only endpoints for user and content management
 
-#### 4. Video Composition System
-Remotion-based rendering with:
+#### 4. Video Composition System (Remotion)
+Configuration in `remotion.config.ts`:
+- Video image format: JPEG
+- Concurrency: 1 (for stability)
+- Chromium OpenGL renderer: angle
+- Delay render timeout: 120 seconds
+
+Composition components:
 - **Sequences**: Time-based composition of media elements
 - **Track Items**: Video, audio, text, and image elements
 - **Effects**: Transitions, filters, chroma key support
 - **Export**: Frame-by-frame rendering to video files
 
-### Important Implementation Notes
+### Biome Configuration
+From `biome.json`:
+- Indentation: tabs
+- Quotes: double
+- Linter rules:
+  - `noUnusedVariables`: off
+  - `useExhaustiveDependencies`: off
+  - `noExplicitAny`: off
+  - `useImportType`: off
 
-#### React Components and Hooks
-- Components using hooks must be rendered as React elements, not called as functions
-- Maintain consistent hook order - avoid conditional hook calls
-- Use proper component composition with JSX syntax
+### Jest Testing Configuration
+From `jest.config.js`:
+- Test environment: jsdom
+- Setup file: `jest.setup.js`
+- Path aliases: @/ and @designcombo/ supported
+- Coverage threshold: 50% for all metrics
+- Test patterns: `__tests__/**/*.{js,jsx,ts,tsx}` and `*.{spec,test}.{js,jsx,ts,tsx}`
 
-#### Canvas and Performance
-- Timeline uses direct canvas manipulation for performance
-- Frame-based timing at 30 FPS default
-- All timing values in milliseconds internally
+### Important Implementation Patterns
 
-#### Event System
-- Components communicate via @designcombo/events
-- StateManager dispatches DESIGN_LOAD, EDIT_OBJECT, etc.
-- Timeline events use TIMELINE_PREFIX namespace
+#### React 19 and Hook Rules
+- **NEVER** call React components as functions - always use JSX: `<Component />` not `Component()`
+- Hooks must maintain consistent order - no conditional hook calls
+- Components using hooks require proper React element rendering
 
-#### File Organization
-- Feature-based structure under `src/features/editor/`
-- Shared components in `src/components/`
-- API routes in `src/app/api/`
-- Type definitions from `@designcombo/types`
+#### Event-Driven Communication
+Event namespaces from @designcombo/events:
+- **Timeline Events**: Prefixed with `TIMELINE_` (e.g., TIMELINE_SEEK, TIMELINE_PLAY)
+- **State Events**: DESIGN_LOAD, EDIT_OBJECT, DELETE_OBJECT
+- **Player Events**: PLAYER_PLAY, PLAYER_PAUSE, PLAYER_SEEK
+- **Layer Events**: LAYER_* for layer selection
+- Subscribe in useEffect, clean up subscriptions on unmount
 
-#### Local Development Architecture
-The application uses local APIs for development:
-- **Local Media Processing** (`/api/local-*/`): Handles uploads, rendering, and media processing without external dependencies
-- **Font Management**: Local font loading system using `src/features/editor/data/local-fonts.ts`
-- **Error Boundaries**: Implemented in `src/components/error-boundary.tsx` for graceful error handling
-- **Theme System**: Dark/light mode support with customizable themes
+#### Frame and Timing Calculations
+- **Internal**: All timing in milliseconds
+- **Display**: Convert to frames using 30 FPS default
+- **Remotion**: Frame-based calculations for video composition
+- **Utils**: Use `@designcombo/frames` utilities for conversions
+
+#### Canvas Timeline Implementation
+- **CanvasTimeline class**: Core rendering logic
+- **Draw loop**: Optimized requestAnimationFrame rendering
+- **Interaction**: Mouse/touch events handled via canvas coordinates
+- **Virtualization**: Only render visible timeline segments
+
+#### Middleware and Route Protection
+- Internationalization middleware for locale handling
+- Authentication middleware for protected routes
+- Admin role verification for /admin routes
+- Public routes: /auth/*, /api/auth/*
 
 ## Environment Configuration
 
-Optional environment variables in `.env` (copy from `.env.example`):
+Optional environment variables (create `.env` from `.env.example` or `.env.development`):
 ```
 # Stock Media (Optional - app works without these)
-PEXELS_API_KEY=""  # If you want to use Pexels API instead of built-in sample media
+PEXELS_API_KEY=""  # For Pexels API stock media
 
 # Authentication (Required for user system)
-JWT_SECRET=""  # Change this in production
+JWT_SECRET=""  # Required for JWT authentication
 
 # Optional AI Features
 GOOGLE_AI_API_KEY=""  # Google AI for voice-over generation
-COMBO_SH_JWT=""  # Combo.sh JWT token for additional services
+COMBO_SH_JWT=""  # Combo.sh JWT token
 
 # Optional Database (PostgreSQL - required for user system)
 DATABASE_URL=""  # Format: postgresql://user:password@localhost:5432/video_editor
@@ -133,20 +193,15 @@ S3_ACCESS_KEY_ID=""
 S3_SECRET_ACCESS_KEY=""
 
 # Feature Flags
-NEXT_PUBLIC_ENABLE_AI_FEATURES=""  # Enable AI features
-NEXT_PUBLIC_ENABLE_RECORDING=""  # Enable recording features
-NEXT_PUBLIC_ENABLE_TEMPLATES=""  # Enable template features
+NEXT_PUBLIC_ENABLE_AI_FEATURES=""
+NEXT_PUBLIC_ENABLE_RECORDING=""
+NEXT_PUBLIC_ENABLE_TEMPLATES=""
+
+# Presentation Processing (Optional)
+MAX_PRESENTATION_SIZE="52428800"  # Default: 50MB
+TEMP_DIR="/tmp/presentations"
+PRESENTATIONS_OUTPUT_DIR="/public/uploads/presentation-pages"
 ```
-
-## Code Style Guidelines
-
-- **Formatting**: Biome with tabs for indentation, double quotes for strings
-- **TypeScript**: Strict mode enabled, use type imports where appropriate
-- **Path Aliases**: Use `@/` for imports from `src/` directory
-- **Component Exports**: Named exports for components, default for pages
-- **React 19**: Uses React 19 features and concurrent features
-- **Linting**: Biome linter with custom rules (unused variables disabled, exhaustive deps disabled)
-- **Testing**: Jest with jsdom environment, coverage threshold of 50%
 
 ## Common Development Tasks
 
@@ -154,36 +209,87 @@ NEXT_PUBLIC_ENABLE_TEMPLATES=""  # Enable template features
 1. Create component in `src/features/editor/player/items/`
 2. Register in `src/features/editor/player/sequence-item.tsx`
 3. Add timeline rendering in `src/features/editor/timeline/items/`
-4. Update type definitions if needed
+4. Update type definitions if needed in vendored @designcombo/types
 
 ### Modifying State Management
 1. Update relevant Zustand store in `src/features/editor/store/`
 2. Dispatch events via @designcombo/events if needed
 3. Handle events in components using useEffect subscriptions
+4. Prevent duplicate subscriptions using WeakMap registry pattern (see use-state-manager-events.ts)
 
 ### Working with Remotion
 - Compositions use Sequence and AbsoluteFill components
 - Calculate frames using fps and duration utilities
 - Maintain consistent frame timing across components
-
-### Debugging and Error Handling
-- React components must have unique `key` props when rendered in lists
-- Check browser console for detailed error messages
-- Use React DevTools for component inspection
-- Remotion Player errors often relate to frame calculation or media loading
-- Error boundaries are implemented for graceful error handling
-- Performance monitoring available through built-in hooks
+- Export composition in `src/features/editor/player/export-composition.tsx`
+- Server-side rendering configuration in `remotion.config.ts`
 
 ### Testing Strategy
 - Unit tests in `src/__tests__/` directory
-- Test components with React Testing Library
-- Coverage reports available with `npm run test:coverage`
-- Mock external dependencies and APIs in tests
-- Use `jest.setup.js` for global test configuration
+- Component tests with React Testing Library
+- Coverage reports with `npm run test:coverage` (50% threshold)
+- Mock external dependencies and APIs
+- Global test configuration in `jest.setup.js`
 
-### Performance Considerations
+### Performance Optimization Patterns
 - Timeline uses canvas for efficient rendering of large datasets
-- Media caching system in `src/lib/cache-manager.ts` for thumbnail optimization
-- Lazy loading implemented for heavy editor components
-- Web Workers recommended for heavy video processing tasks
-- Virtual scrolling should be considered for long timelines
+- Media caching system for thumbnail optimization
+- Lazy loading for heavy editor components (editor-lazy.tsx)
+- Virtual scrolling for timeline segments
+- Memoization and selective re-rendering
+- Frame-based calculations at 30 FPS
+- RequestAnimationFrame for smooth canvas updates
+
+### Authentication and Admin System
+- JWT-based authentication with bcryptjs
+- Role-based access control for admin panel
+- User management via `/api/admin/users`
+- Database: PostgreSQL with Kysely query builder
+- Setup: Run `npm run create-admin` to create initial admin user
+
+### Presentation Processing
+Supports converting presentations (PPT/PPTX/PDF) to video:
+- Upload via `/api/presentations/upload` endpoint
+- Conversion uses LibreOffice Docker service
+- Docker service runs on port 8080
+- Output: PNG images at 1920x1080, 3 seconds per slide in timeline
+- See `PRESENTATION_SYSTEM_REQUIREMENTS.md` for setup details
+
+## Key File Locations
+
+### Core Editor Files
+- Main editor: `src/features/editor/editor.tsx`
+- Timeline canvas: `src/features/editor/timeline/canvas-timeline.ts`
+- Scene interactions: `src/features/editor/scene/scene-interactions.tsx`
+- Player composition: `src/features/editor/player/composition.tsx`
+
+### State Management
+- Core stores: `src/features/editor/store/`
+- StateManager integration: `src/features/editor/hooks/use-state-manager-events.ts`
+
+### API Routes
+- Local rendering: `src/app/api/local-render/`
+- Presentations: `src/app/api/presentations/`
+- Remotion render: `src/app/api/remotion-render/`
+- Admin endpoints: `src/app/api/admin/`
+
+### Configuration Files
+- TypeScript: `tsconfig.json`
+- Biome formatter: `biome.json`
+- Jest testing: `jest.config.js`
+- Remotion: `remotion.config.ts`
+- Next.js: `next.config.mjs`
+
+### Database and Auth
+- Models: `src/lib/db-models.ts`
+- Database utilities: `src/lib/db-*.ts`
+- Auth utilities: `src/lib/auth.ts`, `src/lib/auth-server.ts`
+- Role utilities: `src/lib/role-utils.ts`
+
+### Vendored Libraries
+- All @designcombo packages: `src/vendor/designcombo/`
+
+### Internationalization
+- Locale configuration: `src/i18n/config.ts`
+- Message files: `src/i18n/messages/*.json`
+- Middleware handling: `src/middleware.ts`

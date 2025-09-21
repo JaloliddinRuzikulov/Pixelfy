@@ -1,0 +1,21 @@
+{
+	"$schema": "https://turbo.build/schema.json",
+	"globalEnv": ["NODE_ENV"],
+	"pipeline": {
+		"build": {
+			"outputs": [".next/**", "!.next/cache/**"],
+			"env": ["NEXT_PUBLIC_*", "DATABASE_URL", "JWT_SECRET"]
+		},
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"lint": {
+			"outputs": []
+		},
+		"test": {
+			"outputs": [],
+			"inputs": ["src/**/*.tsx", "src/**/*.ts", "src/**/*.jsx", "src/**/*.js"]
+		}
+	}
+}

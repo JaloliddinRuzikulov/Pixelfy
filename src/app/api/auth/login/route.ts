@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { UserRepository, SessionRepository } from "@/lib/db";
+import { ActivityRepository } from "@/lib/db-extended";
 import {
 	verifyPassword,
 	generateSessionToken,
@@ -51,6 +52,15 @@ export async function POST(request: NextRequest) {
 		const sessionToken = generateSessionToken();
 		await SessionRepository.create(user.id, sessionToken);
 
+		// Log activity
+		await ActivityRepository.create({
+			userId: user.id,
+			action: "Tizimga kirdi",
+			details: `${user.firstName || user.email} tizimga kirdi`,
+			entityType: "user",
+			entityId: user.id,
+		});
+
 		// Create response with user data
 		const response = NextResponse.json({
 			message: "Login successful",
@@ -61,6 +71,7 @@ export async function POST(request: NextRequest) {
 				lastName: user.lastName,
 				avatarUrl: user.avatarUrl,
 				emailVerified: user.emailVerified,
+				role: user.role || "user",
 			},
 		});
 

@@ -25,7 +25,13 @@ import BasicText from "./control-item/basic-text";
 import BasicImage from "./control-item/basic-image";
 import BasicVideo from "./control-item/basic-video";
 import BasicAudio from "./control-item/basic-audio";
-import { ITrackItem, IText, IImage, IVideo, IAudio } from "@designcombo/types";
+import {
+	ITrackItem,
+	IText,
+	IImage,
+	IVideo,
+	IAudio,
+} from "@designcombo/types";
 
 // Define control menu items configuration
 const CONTROL_MENU_CONFIG = {
@@ -172,37 +178,39 @@ const ControlMenuButton = memo(
 ControlMenuButton.displayName = "ControlMenuButton";
 
 // Control content component
-const ControlContent = ({ trackItem, activeSection }: { trackItem: ITrackItem; activeSection: string }) => {
+const ControlContent = ({
+	trackItem,
+	activeSection,
+}: { trackItem: ITrackItem; activeSection: string }) => {
 	const getContent = () => {
 		switch (trackItem.type) {
 			case "text":
-				return <BasicText trackItem={trackItem as ITrackItem & IText} type={activeSection} />;
+				return (
+					<BasicText
+						trackItem={trackItem as ITrackItem & IText}
+						type={activeSection}
+					/>
+				);
 			case "image":
 				if (activeSection === "basic") {
 					return <BasicImage trackItem={trackItem as ITrackItem & IImage} />;
 				}
 				return (
-					<div className="p-4 text-sm text-muted-foreground">
-						Tez kunda...
-					</div>
+					<div className="p-4 text-sm text-muted-foreground">Tez kunda...</div>
 				);
 			case "video":
 				if (activeSection === "basic") {
 					return <BasicVideo trackItem={trackItem as ITrackItem & IVideo} />;
 				}
 				return (
-					<div className="p-4 text-sm text-muted-foreground">
-						Tez kunda...
-					</div>
+					<div className="p-4 text-sm text-muted-foreground">Tez kunda...</div>
 				);
 			case "audio":
 				if (activeSection === "basic") {
 					return <BasicAudio trackItem={trackItem as ITrackItem & IAudio} />;
 				}
 				return (
-					<div className="p-4 text-sm text-muted-foreground">
-						Tez kunda...
-					</div>
+					<div className="p-4 text-sm text-muted-foreground">Tez kunda...</div>
 				);
 			default:
 				return null;
@@ -211,9 +219,7 @@ const ControlContent = ({ trackItem, activeSection }: { trackItem: ITrackItem; a
 
 	return (
 		<ScrollArea className="flex-1 min-w-[200px] bg-background">
-			<div className="p-3">
-				{getContent()}
-			</div>
+			<div className="p-3">{getContent()}</div>
 		</ScrollArea>
 	);
 };
@@ -234,7 +240,8 @@ function ControlMenuList() {
 				setTrackItem(item);
 				// Set default active section based on item type
 				if (!activeSection) {
-					const config = CONTROL_MENU_CONFIG[item.type as keyof typeof CONTROL_MENU_CONFIG];
+					const config =
+						CONTROL_MENU_CONFIG[item.type as keyof typeof CONTROL_MENU_CONFIG];
 					if (config && config[0]) {
 						setActiveSection(config[0].type);
 					}
@@ -249,11 +256,12 @@ function ControlMenuList() {
 	// Get menu items based on track item type
 	const menuItems = useMemo(() => {
 		if (!trackItem) return [];
-		
-		const config = CONTROL_MENU_CONFIG[trackItem.type as keyof typeof CONTROL_MENU_CONFIG];
+
+		const config =
+			CONTROL_MENU_CONFIG[trackItem.type as keyof typeof CONTROL_MENU_CONFIG];
 		if (!config) return [];
 
-		return config.map(item => ({
+		return config.map((item) => ({
 			...item,
 			label: t(item.labelKey),
 		}));
@@ -261,7 +269,7 @@ function ControlMenuList() {
 
 	const handleMenuItemClick = useCallback(
 		(menuItem: string) => {
-			const item = menuItems.find(m => m.id === menuItem);
+			const item = menuItems.find((m) => m.id === menuItem);
 			if (item) {
 				setActiveSection(item.type);
 			}
@@ -278,7 +286,7 @@ function ControlMenuList() {
 		<div className="hidden lg:flex h-[calc(100vh-58px)] border-l-2 border-border">
 			{/* Content area - now on the left */}
 			<ControlContent trackItem={trackItem} activeSection={activeSection} />
-			
+
 			{/* Icon menu - now on the right */}
 			<nav
 				className="flex w-20 flex-col items-center gap-0.5 border-l-2 border-border bg-muted/30 py-2 px-1.5"

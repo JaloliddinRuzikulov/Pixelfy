@@ -7,10 +7,10 @@ import {
 } from "@/components/store-initializer";
 import { QueryProvider } from "@/components/query-provider";
 import { Analytics } from "@vercel/analytics/react";
-import { ErrorBoundary } from "@/components/error-boundary";
+import { ErrorBoundary, GlobalErrorHandler } from "@/components/error-boundary";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/contexts/auth-context";
-import { IntlProvider } from "@/providers/intl-provider";
+import { IntlProvider } from "@/store/intl-provider";
 
 import "./globals.css";
 
@@ -45,7 +45,8 @@ export const metadata = createMetadata({
 		template: "%s | Pixelfy",
 		default: "Pixelfy - Video Editor",
 	},
-	description: "Professional online video editor - Create amazing videos with Pixelfy",
+	description:
+		"Professional online video editor - Create amazing videos with Pixelfy",
 	metadataBase: baseUrl,
 });
 
@@ -78,6 +79,7 @@ export default async function RootLayout({
 					<IntlProvider>
 						<AuthProvider>
 							<ErrorBoundary>
+								<GlobalErrorHandler />
 								<QueryProvider>
 									{children}
 									<StoreInitializer />

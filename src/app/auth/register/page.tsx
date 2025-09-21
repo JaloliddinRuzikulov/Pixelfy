@@ -3,8 +3,8 @@ import { AuthLayout } from "@/components/auth/auth-layout";
 
 export default function RegisterPage() {
 	return (
-		<AuthLayout 
-			title="Pixelfy" 
+		<AuthLayout
+			title="Pixelfy"
 			subtitle="Join thousands of creators on Pixelfy.uz"
 		>
 			<RegisterForm />

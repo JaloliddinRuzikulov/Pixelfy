@@ -1,9 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { dispatch } from "@designcombo/events";
-import { HISTORY_UNDO, HISTORY_REDO, DESIGN_RESIZE } from "@designcombo/state";
+import {
+	HISTORY_UNDO,
+	HISTORY_REDO,
+	DESIGN_RESIZE,
+} from "@designcombo/state";
 import { Icons } from "@/components/shared/icons";
-import { Download, ProportionsIcon, Palette, Menu, Home, Plus, HelpCircle } from "lucide-react";
+import {
+	Download,
+	ProportionsIcon,
+	Palette,
+	Menu,
+	Home,
+	Plus,
+	HelpCircle,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import {
 	Popover,
@@ -248,7 +260,7 @@ const NavigationMenu = () => {
 			id: `project_${Date.now()}`,
 			name: t("untitledVideo"),
 			createdAt: new Date(),
-			updatedAt: new Date()
+			updatedAt: new Date(),
 		};
 
 		// Add to projects list
@@ -277,8 +289,8 @@ const NavigationMenu = () => {
 					<Menu className="h-5 w-5" />
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent 
-				align="start" 
+			<DropdownMenuContent
+				align="start"
 				className="w-56 z-[9999] bg-background border shadow-lg"
 				sideOffset={5}
 			>
@@ -312,9 +324,21 @@ const BackgroundColorPicker = () => {
 	};
 
 	const presetColors = [
-		"#000000", "#FFFFFF", "#FF0000", "#00FF00", "#0000FF",
-		"#FFFF00", "#FF00FF", "#00FFFF", "#808080", "#FFA500",
-		"#800080", "#FFC0CB", "#A52A2A", "#FFD700", "#C0C0C0",
+		"#000000",
+		"#FFFFFF",
+		"#FF0000",
+		"#00FF00",
+		"#0000FF",
+		"#FFFF00",
+		"#FF00FF",
+		"#00FFFF",
+		"#808080",
+		"#FFA500",
+		"#800080",
+		"#FFC0CB",
+		"#A52A2A",
+		"#FFD700",
+		"#C0C0C0",
 	];
 
 	return (
@@ -335,7 +359,9 @@ const BackgroundColorPicker = () => {
 			<PopoverContent className="w-72 p-4">
 				<div className="space-y-4">
 					<div>
-						<label className="text-sm font-medium mb-2 block">{t("customColor")}</label>
+						<label className="text-sm font-medium mb-2 block">
+							{t("customColor")}
+						</label>
 						<div className="flex gap-2">
 							<Input
 								type="color"
@@ -353,7 +379,9 @@ const BackgroundColorPicker = () => {
 						</div>
 					</div>
 					<div>
-						<label className="text-sm font-medium mb-2 block">{t("presetColors")}</label>
+						<label className="text-sm font-medium mb-2 block">
+							{t("presetColors")}
+						</label>
 						<div className="grid grid-cols-5 gap-2">
 							{presetColors.map((presetColor) => (
 								<button
@@ -362,7 +390,10 @@ const BackgroundColorPicker = () => {
 									className="w-full h-10 rounded border-2 hover:scale-110 transition-transform"
 									style={{
 										backgroundColor: presetColor,
-										borderColor: color === presetColor ? "var(--primary)" : "var(--border)",
+										borderColor:
+											color === presetColor
+												? "var(--primary)"
+												: "var(--border)",
 									}}
 									aria-label={presetColor}
 								/>
@@ -378,8 +409,8 @@ const BackgroundColorPicker = () => {
 const ResizeVideo = () => {
 	const t = useTranslations("editor");
 	const [open, setOpen] = useState(false);
-	
-	const handleResize = (options: typeof RESIZE_OPTIONS[0]["value"]) => {
+
+	const handleResize = (options: (typeof RESIZE_OPTIONS)[0]["value"]) => {
 		dispatch(DESIGN_RESIZE, {
 			payload: {
 				...options,
@@ -387,13 +418,13 @@ const ResizeVideo = () => {
 		});
 		setOpen(false);
 	};
-	
+
 	return (
 		<Popover open={open} onOpenChange={setOpen}>
 			<PopoverTrigger asChild>
-				<Button 
-					className="pointer-events-auto h-7 gap-2" 
-					variant="outline" 
+				<Button
+					className="pointer-events-auto h-7 gap-2"
+					variant="outline"
 					size="sm"
 				>
 					<ProportionsIcon className="h-4 w-4" />
@@ -409,13 +440,21 @@ const ResizeVideo = () => {
 							className="w-full flex items-center gap-3 px-3 py-2 rounded-md hover:bg-muted text-left transition-colors"
 						>
 							<div className="flex-shrink-0">
-								{option.icon === "landscape" && <Icons.landscape className="w-5 h-5 text-muted-foreground" />}
-								{option.icon === "portrait" && <Icons.portrait className="w-5 h-5 text-muted-foreground" />}
-								{option.icon === "square" && <Icons.square className="w-5 h-5 text-muted-foreground" />}
+								{option.icon === "landscape" && (
+									<Icons.landscape className="w-5 h-5 text-muted-foreground" />
+								)}
+								{option.icon === "portrait" && (
+									<Icons.portrait className="w-5 h-5 text-muted-foreground" />
+								)}
+								{option.icon === "square" && (
+									<Icons.square className="w-5 h-5 text-muted-foreground" />
+								)}
 							</div>
 							<div className="flex-1 min-w-0">
 								<div className="font-medium text-sm">{option.label}</div>
-								<div className="text-xs text-muted-foreground">{option.description}</div>
+								<div className="text-xs text-muted-foreground">
+									{option.description}
+								</div>
 							</div>
 							<div className="text-xs text-muted-foreground">
 								{option.value.width}×{option.value.height}

@@ -4,6 +4,7 @@ import { calculateMediaStyles } from "../styles";
 import { OffthreadVideo } from "remotion";
 import useChromaKeyStore from "../../store/use-chroma-key-store";
 import ChromaKeyVideo from "../components/ChromaKeyVideo";
+import ChromaKeyVideoSSR from "../components/ChromaKeyVideoSSR";
 import { useState, useEffect } from "react";
 
 export const Video = ({
@@ -76,18 +77,38 @@ export const Video = ({
 		});
 	}
 
-	// Determine which video component to use based on chroma key
+	// Check if we're in SSR/export mode
+	const isSSR =
+		typeof window === "undefined" || process.env.NODE_ENV === "production";
+
+	// Determine which video component to use based on chroma key and environment
 	const videoElement = chromaKey?.enabled ? (
-		<ChromaKeyVideo
-			src={details.src}
-			chromaKey={chromaKey}
-			style={{
-				width: "100%",
-				height: "100%",
-				objectFit: "cover",
-			}}
-			onError={handleVideoError}
-		/>
+		isSSR ? (
+			<ChromaKeyVideoSSR
+				src={details.src}
+				chromaKey={chromaKey}
+				startFrom={(item.trim?.from! / 1000) * fps}
+				endAt={(item.trim?.to! / 1000) * fps || 1 / fps}
+				playbackRate={playbackRate}
+				volume={(details.volume || 0) / 100}
+				style={{
+					width: "100%",
+					height: "100%",
+					objectFit: "cover",
+				}}
+			/>
+		) : (
+			<ChromaKeyVideo
+				src={details.src}
+				chromaKey={chromaKey}
+				style={{
+					width: "100%",
+					height: "100%",
+					objectFit: "cover",
+				}}
+				onError={handleVideoError}
+			/>
+		)
 	) : (
 		<OffthreadVideo
 			startFrom={(item.trim?.from! / 1000) * fps}

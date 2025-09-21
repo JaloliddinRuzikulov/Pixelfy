@@ -31,7 +31,9 @@ export function LoginForm() {
 			await login(email, password);
 			router.push("/projects"); // Redirect to projects page after successful login
 		} catch (error) {
-			setError(error instanceof Error ? error.message : t("invalidCredentials"));
+			setError(
+				error instanceof Error ? error.message : t("invalidCredentials"),
+			);
 		} finally {
 			setIsLoading(false);
 		}

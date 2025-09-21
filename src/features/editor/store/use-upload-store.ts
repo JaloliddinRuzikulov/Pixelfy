@@ -141,15 +141,28 @@ const useUploadStore = create<IUploadStore>()(
 						callbacks,
 					)
 						.then((uploadData) => {
+							console.log("Upload completed successfully:", uploadData);
 							// Add the complete upload data to the uploads array
 							if (uploadData) {
 								if (Array.isArray(uploadData)) {
 									// URL uploads return an array
-									setUploads((prev) => [...prev, ...uploadData]);
+									console.log("Adding URL upload data:", uploadData);
+									setUploads((prev) => {
+										const newUploads = [...prev, ...uploadData];
+										console.log("Updated uploads array:", newUploads);
+										return newUploads;
+									});
 								} else {
 									// File uploads return a single object
-									setUploads((prev) => [...prev, uploadData]);
+									console.log("Adding file upload data:", uploadData);
+									setUploads((prev) => {
+										const newUploads = [...prev, uploadData];
+										console.log("Updated uploads array:", newUploads);
+										return newUploads;
+									});
 								}
+							} else {
+								console.warn("Upload completed but no data returned");
 							}
 						})
 						.catch((error) => {

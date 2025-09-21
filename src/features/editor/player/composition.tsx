@@ -113,10 +113,10 @@ const Composition = () => {
 	//   handle track and track item events - updates
 	useEffect(() => {
 		const stateEvents = subject.pipe(
-			filter(({ key }) => key.startsWith(ENTER_EDIT_MODE)),
+			filter(({ key }: { key: string }) => key.startsWith(ENTER_EDIT_MODE)),
 		);
 
-		const subscription = stateEvents.subscribe((obj) => {
+		const subscription = stateEvents.subscribe((obj: any) => {
 			if (obj.key === ENTER_EDIT_MODE) {
 				if (editableTextId) {
 					// get element by  data-text-id={id}

@@ -15,6 +15,7 @@ import {
 } from "../../utils/filmstrip";
 import { getFileFromUrl } from "../../utils/file";
 import { SECONDARY_FONT } from "../../constants/constants";
+import { createMediaControls } from "../controls";
 
 // Type declaration for MP4Clip to avoid SSR issues
 type MP4ClipType = any;
@@ -37,6 +38,10 @@ interface VideoProps extends TrimmableProps {
 }
 class Video extends Trimmable {
 	static type = "Video";
+
+	static createControls() {
+		return createMediaControls();
+	}
 	public clip?: MP4ClipType | null;
 	declare id: string;
 	public resourceId = "";
@@ -51,6 +56,26 @@ class Video extends Trimmable {
 	public itemType = "video";
 	public metadata?: Partial<IMetadata>;
 	declare src: string;
+	public objectCaching = false;
+	public rx = 4;
+	public ry = 4;
+	public fill: string = "#27272a";
+	public borderOpacityWhenMoving = 1;
+	public strokeWidth = 0;
+	public transparentCorners = false;
+	public hasBorders = false;
+	public hasControls = true;
+	public selectable = true;
+	public evented = true;
+	public hoverCursor = "move";
+	public moveCursor = "move";
+	public cornerSize = 12;
+	public borderColor = "rgba(0, 216, 214, 1)";
+	public cornerColor = "rgba(0, 216, 214, 1)";
+	public width: number = 0;
+	public height: number = 0;
+	public left: number = 0;
+	public canvas: any;
 
 	public aspectRatio = 1;
 	public scrollLeft = 0;
@@ -82,27 +107,24 @@ class Video extends Trimmable {
 		super(props);
 		this.id = props.id;
 		this.tScale = props.tScale;
-		this.objectCaching = false;
-		this.rx = 4;
-		this.ry = 4;
-		this.display = props.display;
-		this.trim = props.trim;
+
+		// Defensive programming for display property
+		this.display = props.display || { from: 0, to: props.duration || 5000 };
+
+		// Defensive programming for trim property
+		this.trim = props.trim || { from: 0, to: props.duration || 5000 };
+
 		this.duration = props.duration;
 		this.prevDuration = props.duration;
-		this.fill = "#27272a";
-		this.borderOpacityWhenMoving = 1;
 		this.metadata = props.metadata;
-
 		this.aspectRatio = props.aspectRatio;
-
 		this.src = props.src;
-		this.strokeWidth = 0;
-
-		this.transparentCorners = false;
-		this.hasBorders = false;
-
-		this.previewUrl = props.metadata.previewUrl;
+		this.previewUrl = props.metadata?.previewUrl || "";
 		this.initOffscreenCanvas();
+
+		// Set up resize controls
+		this.controls = Video.createControls().controls;
+
 		this.initialize();
 	}
 
@@ -471,7 +493,9 @@ class Video extends Trimmable {
 
 	public setSelected(selected: boolean) {
 		this.isSelected = selected;
-		this.set({ dirty: true });
+		if (this.set) {
+			this.set({ dirty: true });
+		}
 	}
 
 	public calulateWidthOnScreen() {
@@ -529,7 +553,7 @@ class Video extends Trimmable {
 		}
 
 		if (segmentToDraw !== this.fallbackSegmentIndex) {
-			const fillPattern = this.fill as Pattern;
+			const fillPattern = this.fill as unknown as Pattern;
 			if (fillPattern instanceof Pattern) {
 				fillPattern.offsetX =
 					this.segmentSize *
@@ -564,6 +588,16 @@ class Video extends Trimmable {
 		this.nextFilmstrip = { ...EMPTY_FILMSTRIP, segmentIndex: 0 };
 		this.loadingFilmstrip = { ...EMPTY_FILMSTRIP };
 		this.onScrollChange({ scrollLeft: this.scrollLeft, force: true });
+	}
+}
+
+// Register the class with Fabric.js
+if (typeof window !== "undefined") {
+	const fabric = (window as any).fabric;
+	if (fabric && fabric.Object) {
+		fabric.Object.customProperties = fabric.Object.customProperties || [];
+		fabric.Object.customProperties.push("Video");
+		(fabric as any).Video = Video;
 	}
 }
 

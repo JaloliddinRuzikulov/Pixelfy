@@ -1,7 +1,7 @@
 import Draggable from "@/components/shared/draggable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { dispatch } from "@designcombo/events";
-import { ADD_VIDEO } from "@designcombo/state";
+import { ADD_ITEMS } from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
 import { IVideo } from "@designcombo/types";
 import React, { useState, useEffect } from "react";
@@ -33,28 +33,93 @@ export const Videos = () => {
 
 	// Load popular videos on component mount
 	useEffect(() => {
-		loadPopularVideos();
+		const loadInitialVideos = async () => {
+			try {
+				await loadPopularVideos();
+			} catch (error) {
+				console.error("Error loading initial videos:", error);
+			}
+		};
+		loadInitialVideos();
 	}, [loadPopularVideos]);
 
 	const handleAddVideo = (payload: Partial<IVideo>) => {
-		dispatch(ADD_VIDEO, {
-			payload,
-			options: {
-				resourceId: "main",
-				scaleMode: "fit",
-			},
-		});
+		try {
+			// Default duration validation and metadata handling
+			const defaultDuration = 10000; // 10 seconds default for videos
+			const duration =
+				payload.duration ||
+				(payload.details as any)?.duration ||
+				defaultDuration;
+
+			// Ensure duration is in milliseconds
+			const durationInMs =
+				typeof duration === "number" && duration < 1000
+					? duration * 1000
+					: duration;
+
+			const videoItem = {
+				id: generateId(),
+				type: "video" as const,
+				display: {
+					from: 0,
+					to: durationInMs,
+				},
+				trim: {
+					from: 0,
+					to: durationInMs,
+				},
+				duration: durationInMs,
+				details: {
+					src: payload.details?.src || "",
+				},
+				metadata: {
+					previewUrl: payload.preview || payload.metadata?.previewUrl,
+					originalDuration: payload.duration,
+					...payload.metadata,
+				},
+			};
+
+			console.log("Dispatching ADD_ITEMS for video:", videoItem);
+			dispatch(ADD_ITEMS, {
+				payload: {
+					trackItems: [videoItem],
+				},
+			});
+			console.log("ADD_ITEMS dispatched for video");
+		} catch (error) {
+			console.error("Error dispatching ADD_ITEMS for video:", error);
+		}
+	};
+
+	const handleTestVideo = () => {
+		console.log("=== TESTING VIDEO ADD ===");
+		const testVideo = {
+			id: generateId(),
+			details: {
+				src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+			} as any,
+			type: "video" as const,
+			preview:
+				"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg",
+			duration: 10000,
+		};
+
+		console.log("Test video object:", testVideo);
+		handleAddVideo(testVideo);
+		console.log("=== TEST VIDEO ADD COMPLETED ===");
 	};
 
 	const handleSearch = async () => {
-		if (!searchQuery.trim()) {
-			await loadPopularVideos();
-			return;
-		}
-
 		try {
+			if (!searchQuery.trim()) {
+				await loadPopularVideos();
+				return;
+			}
+
 			await searchVideos(searchQuery);
-		} finally {
+		} catch (error) {
+			console.error("Error searching videos:", error);
 		}
 	};
 
@@ -64,32 +129,40 @@ export const Videos = () => {
 		}
 	};
 
-	const handleLoadMore = () => {
-		if (hasNextPage) {
-			if (searchQuery.trim()) {
-				searchVideosAppend(searchQuery, currentPage + 1);
-			} else {
-				loadPopularVideosAppend(currentPage + 1);
+	const handleLoadMore = async () => {
+		try {
+			if (hasNextPage) {
+				if (searchQuery.trim()) {
+					await searchVideosAppend(searchQuery, currentPage + 1);
+				} else {
+					await loadPopularVideosAppend(currentPage + 1);
+				}
 			}
+		} catch (error) {
+			console.error("Error loading more videos:", error);
 		}
 	};
 
-	const handleClearSearch = () => {
-		setSearchQuery("");
-		clearVideos();
-		loadPopularVideos();
+	const handleClearSearch = async () => {
+		try {
+			setSearchQuery("");
+			clearVideos();
+			await loadPopularVideos();
+		} catch (error) {
+			console.error("Error clearing search:", error);
+		}
 	};
 
 	// Use Pexels videos if available, otherwise fall back to empty array
 	const displayVideos = pexelsVideos || [];
 
 	return (
-		<div className="flex flex-1 flex-col">
+		<div className="flex flex-1 flex-col h-full overflow-hidden">
 			<div className="flex h-12 flex-none items-center px-4 text-sm font-medium border-b border-border/20">
 				{t("stockVideos")}
 			</div>
 
-			<div className="p-4 space-y-4">
+			<div className="p-4 space-y-4 flex-none">
 				{/* Search Bar */}
 				<div className="relative">
 					<Input
@@ -127,6 +200,16 @@ export const Videos = () => {
 					</div>
 				</div>
 
+				{/* Test Button for Debugging */}
+				<Button
+					onClick={handleTestVideo}
+					variant="outline"
+					className="w-full"
+					size="sm"
+				>
+					🧪 Test Add Video (Debug)
+				</Button>
+
 				{/* Error Message */}
 				{pexelsError && (
 					<div className="p-3 bg-destructive/5 border border-destructive/20 rounded-lg">
@@ -136,7 +219,7 @@ export const Videos = () => {
 			</div>
 
 			{/* Video Grid */}
-			<ScrollArea className="flex-1">
+			<ScrollArea className="flex-1 overflow-auto">
 				<div className="p-4 pt-0">
 					{displayVideos.length > 0 ? (
 						<div className="grid grid-cols-2 gap-3">
@@ -145,7 +228,7 @@ export const Videos = () => {
 									key={video.id || index}
 									video={video}
 									shouldDisplayPreview={!isDraggingOverTimeline}
-									handleAddImage={handleAddVideo}
+									handleAddVideo={handleAddVideo}
 								/>
 							))}
 						</div>
@@ -158,9 +241,7 @@ export const Videos = () => {
 								{searchQuery ? t("noVideosFound") : t("searchForStockVideos")}
 							</p>
 							<p className="text-xs text-muted-foreground/70">
-								{searchQuery
-									? t("tryDifferentSearch")
-									: t("enterKeywords")}
+								{searchQuery ? t("tryDifferentSearch") : t("enterKeywords")}
 							</p>
 						</div>
 					) : null}
@@ -194,11 +275,11 @@ export const Videos = () => {
 };
 
 const VideoItem = ({
-	handleAddImage,
+	handleAddVideo,
 	video,
 	shouldDisplayPreview,
 }: {
-	handleAddImage: (payload: Partial<IVideo>) => void;
+	handleAddVideo: (payload: Partial<IVideo>) => void;
 	video: Partial<IVideo>;
 	shouldDisplayPreview: boolean;
 }) => {
@@ -227,13 +308,16 @@ const VideoItem = ({
 		>
 			<div
 				onClick={() =>
-					handleAddImage({
+					handleAddVideo({
 						id: generateId(),
 						details: {
 							src: video.details?.src,
 						},
+						preview: video.preview,
+						duration: (video.details as any)?.duration,
 						metadata: {
 							previewUrl: video.preview,
+							...(video.metadata || {}),
 						},
 					} as any)
 				}

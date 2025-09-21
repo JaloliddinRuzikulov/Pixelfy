@@ -101,9 +101,9 @@ export async function renderVideoWithFFmpeg(
 			console.log("First video item:", JSON.stringify(videoTracks[0], null, 2));
 		}
 
-		// Use ffmpeg with environment variable to avoid library conflicts
+		// Use ffmpeg with clean environment to avoid library conflicts
 		let ffmpegCommand =
-			"env -i PATH=/usr/bin:/bin LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:$LD_LIBRARY_PATH /usr/bin/ffmpeg -y ";
+			"env -i PATH=/usr/bin:/bin LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu /usr/bin/ffmpeg -y ";
 		let inputs: string[] = [];
 		let filterComplex = "";
 		let hasVideo = false;
@@ -262,9 +262,8 @@ export async function renderVideoWithFFmpeg(
 						const videoBlur = details.blur || 0;
 						const videoBrightness = (details.brightness || 100) / 100;
 
-						// Check for chroma key settings - this should be passed from client
-						const chromaKey =
-							item.chromaKey || projectData.chromaKeySettings?.[item.id];
+						// Check for chroma key settings - passed from client
+						const chromaKey = projectData.chromaKeySettings?.[item.id];
 
 						// Parse scale from transform
 						const transform = details.transform || "scale(1)";
@@ -383,10 +382,21 @@ export async function renderVideoWithFFmpeg(
 						const imgWidth = Math.round((details.width || width) * scaleX);
 						const imgHeight = Math.round((details.height || height) * scaleY);
 
-						// Parse position (can be negative) - convert from px string
-						const top = parseFloat((details.top || "0").replace("px", "")) || 0;
-						const left =
-							parseFloat((details.left || "0").replace("px", "")) || 0;
+						// Parse position (can be negative) - handle both string and number
+						let top = 0;
+						let left = 0;
+
+						if (typeof details.top === "string") {
+							top = parseFloat(details.top.replace("px", "")) || 0;
+						} else if (typeof details.top === "number") {
+							top = details.top;
+						}
+
+						if (typeof details.left === "string") {
+							left = parseFloat(details.left.replace("px", "")) || 0;
+						} else if (typeof details.left === "number") {
+							left = details.left;
+						}
 
 						// Build image filter chain
 						let imgFilter = `[${i}:v]scale=${imgWidth}:${imgHeight}`;
@@ -529,13 +539,30 @@ export async function renderVideoWithFFmpeg(
 		console.log("Running FFmpeg command:", ffmpegCommand);
 
 		// Execute FFmpeg command
-		const { stdout, stderr } = await execAsync(ffmpegCommand);
+		try {
+			const { stdout, stderr } = await execAsync(ffmpegCommand);
 
-		if (stderr && stderr.includes("error")) {
-			throw new Error(`FFmpeg error: ${stderr}`);
+			console.log("FFmpeg stdout:", stdout);
+			console.log("FFmpeg stderr:", stderr);
+
+			// Check if output file was created
+			const fs = require("fs");
+			if (!fs.existsSync(outputPath)) {
+				throw new Error("FFmpeg did not create output file");
+			}
+
+			const stats = fs.statSync(outputPath);
+			console.log(
+				`Output file created: ${outputPath}, size: ${stats.size} bytes`,
+			);
+
+			if (stats.size < 1000) {
+				throw new Error("Output file is too small, likely corrupted");
+			}
+		} catch (execError) {
+			console.error("FFmpeg execution failed:", execError);
+			throw execError;
 		}
-
-		console.log("FFmpeg output:", stdout);
 
 		// Simulate progress (in production, parse FFmpeg output for real progress)
 		if (onProgress) {

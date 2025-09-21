@@ -19,29 +19,34 @@ const ActiveMenuItem = () => {
 	if (activeMenuItem === "texts") {
 		return <Texts />;
 	}
-	if (activeMenuItem === "shapes") {
-		return <Elements />;
-	}
-	if (activeMenuItem === "videos") {
-		return <Videos />;
+
+	if (activeMenuItem === "uploads") {
+		return <Uploads />;
 	}
 
-	if (activeMenuItem === "audios") {
-		return <Audios />;
+	// Handle legacy "media" for backwards compatibility
+	if (activeMenuItem === "media") {
+		return <Uploads />;
+	}
+
+	if (activeMenuItem === "videos") {
+		return <Videos />;
 	}
 
 	if (activeMenuItem === "images") {
 		return <Images />;
 	}
 
-	if (activeMenuItem === "voiceOver") {
-		return <VoiceOver />;
+	if (activeMenuItem === "audios") {
+		return <Audios />;
 	}
+
 	if (activeMenuItem === "elements") {
 		return <Elements />;
 	}
-	if (activeMenuItem === "uploads") {
-		return <Uploads />;
+
+	if (activeMenuItem === "voiceOver") {
+		return <VoiceOver />;
 	}
 
 	if (activeMenuItem === "presentations") {
@@ -55,7 +60,9 @@ export const MenuItem = () => {
 	const isLargeScreen = useIsLargeScreen();
 
 	return (
-		<div className={`${isLargeScreen ? "w-[300px] border-r-2 border-border bg-background/95" : "w-full"} flex-1 flex`}>
+		<div
+			className={`${isLargeScreen ? "w-[300px] border-r-2 border-border bg-background/95" : "w-full"} flex-1 flex flex-col overflow-hidden`}
+		>
 			<ActiveMenuItem />
 		</div>
 	);

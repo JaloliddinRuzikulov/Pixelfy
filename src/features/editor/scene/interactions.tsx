@@ -70,7 +70,7 @@ export function SceneInteractions({
 			playerRef?.current?.removeEventListener("seeked", onSeeked);
 			clearTimeout(timer);
 		};
-	}, [activeIds, playerRef, trackItemsMap]);
+	}, [activeIds, playerRef]);
 
 	useEffect(() => {
 		const selection = new Selection({
@@ -172,12 +172,23 @@ export function SceneInteractions({
 	}, []);
 
 	useEffect(() => {
-		moveableRef.current?.moveable.updateRect();
-	}, [trackItemsMap]);
+		// Use a timeout to avoid immediate updates that can cause loops
+		const timer = setTimeout(() => {
+			if (moveableRef.current?.moveable) {
+				try {
+					moveableRef.current.moveable.updateRect();
+				} catch (error) {
+					console.warn("Error updating Moveable rect:", error);
+				}
+			}
+		}, 100);
+
+		return () => clearTimeout(timer);
+	}, [Object.keys(trackItemsMap).length]); // Only update when the number of items changes
 
 	useEffect(() => {
 		setSceneMoveableRef(moveableRef as React.RefObject<Moveable>);
-	}, [moveableRef]);
+	}, [setSceneMoveableRef]); // Include setSceneMoveableRef as dependency
 	return (
 		<Moveable
 			ref={moveableRef}

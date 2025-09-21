@@ -10,7 +10,15 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/auth-context";
-import { User, Settings, LogOut, ChevronDown, Languages, Moon, Sun } from "lucide-react";
+import {
+	User,
+	Settings,
+	LogOut,
+	ChevronDown,
+	Languages,
+	Moon,
+	Sun,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useTheme } from "next-themes";
@@ -120,9 +128,15 @@ export function UserMenu() {
 						>
 							<Languages className="mr-2 h-4 w-4" />
 							<span className="flex-1 text-left">
-								{locale === 'uz' ? "O'zbek" : locale === 'ru' ? 'Русский' : 'English'}
+								{locale === "uz"
+									? "O'zbek"
+									: locale === "ru"
+										? "Русский"
+										: "English"}
 							</span>
-							<ChevronDown className={`h-3 w-3 transition-transform ${showLanguages ? 'rotate-180' : ''}`} />
+							<ChevronDown
+								className={`h-3 w-3 transition-transform ${showLanguages ? "rotate-180" : ""}`}
+							/>
 						</Button>
 						{showLanguages && (
 							<div className="ml-6 mt-1 space-y-1">
@@ -130,7 +144,7 @@ export function UserMenu() {
 									variant="ghost"
 									className="w-full justify-start h-7 text-xs font-normal"
 									onClick={() => {
-										changeLocale('uz');
+										changeLocale("uz");
 										setShowLanguages(false);
 									}}
 								>
@@ -140,7 +154,7 @@ export function UserMenu() {
 									variant="ghost"
 									className="w-full justify-start h-7 text-xs font-normal"
 									onClick={() => {
-										changeLocale('ru');
+										changeLocale("ru");
 										setShowLanguages(false);
 									}}
 								>
@@ -150,7 +164,7 @@ export function UserMenu() {
 									variant="ghost"
 									className="w-full justify-start h-7 text-xs font-normal"
 									onClick={() => {
-										changeLocale('en');
+										changeLocale("en");
 										setShowLanguages(false);
 									}}
 								>

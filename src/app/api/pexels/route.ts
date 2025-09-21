@@ -3,12 +3,26 @@ import { NextRequest, NextResponse } from "next/server";
 // Generate sample image data using Unsplash Source API (no auth required)
 function generateSampleImages(count: number, startId: number, theme?: string) {
 	const images = [];
-	const themes = theme ? [theme] : [
-		"nature", "city", "technology", "abstract", "business", 
-		"food", "travel", "animals", "architecture", "people",
-		"landscape", "ocean", "mountain", "forest", "desert"
-	];
-	
+	const themes = theme
+		? [theme]
+		: [
+				"nature",
+				"city",
+				"technology",
+				"abstract",
+				"business",
+				"food",
+				"travel",
+				"animals",
+				"architecture",
+				"people",
+				"landscape",
+				"ocean",
+				"mountain",
+				"forest",
+				"desert",
+			];
+
 	const sizes = [
 		{ width: 1920, height: 1080 },
 		{ width: 1280, height: 720 },
@@ -21,7 +35,7 @@ function generateSampleImages(count: number, startId: number, theme?: string) {
 		const currentTheme = themes[i % themes.length];
 		const size = sizes[i % sizes.length];
 		const imageId = `sample_${startId + i}`;
-		
+
 		images.push({
 			id: imageId,
 			width: size.width,
@@ -40,10 +54,10 @@ function generateSampleImages(count: number, startId: number, theme?: string) {
 				landscape: `https://source.unsplash.com/800x600/?${currentTheme}`,
 				tiny: `https://source.unsplash.com/200x150/?${currentTheme}`,
 			},
-			avg_color: "#" + Math.floor(Math.random()*16777215).toString(16),
+			avg_color: "#" + Math.floor(Math.random() * 16777215).toString(16),
 		});
 	}
-	
+
 	return images;
 }
 
@@ -57,13 +71,20 @@ const STATIC_SAMPLES = [
 		photographer_url: "#",
 		alt: "Beautiful landscape",
 		src: {
-			original: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080",
-			large2x: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&h=900",
-			large: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=675",
-			medium: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=450",
-			small: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=225",
-			portrait: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&h=1080",
+			large2x:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600&h=900",
+			large:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200&h=675",
+			medium:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=450",
+			small:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=225",
+			portrait:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=150",
 		},
 		avg_color: "#4a5568",
@@ -76,13 +97,20 @@ const STATIC_SAMPLES = [
 		photographer_url: "#",
 		alt: "City skyline",
 		src: {
-			original: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&h=1080",
-			large2x: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&h=900",
-			large: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&h=675",
-			medium: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=450",
-			small: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=225",
-			portrait: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920&h=1080",
+			large2x:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600&h=900",
+			large:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200&h=675",
+			medium:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=450",
+			small:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400&h=225",
+			portrait:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=200&h=150",
 		},
 		avg_color: "#2d3748",
@@ -95,13 +123,20 @@ const STATIC_SAMPLES = [
 		photographer_url: "#",
 		alt: "Abstract art",
 		src: {
-			original: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&h=1080",
-			large2x: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1600&h=900",
-			large: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&h=675",
-			medium: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=450",
-			small: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=225",
-			portrait: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920&h=1080",
+			large2x:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1600&h=900",
+			large:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200&h=675",
+			medium:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=450",
+			small:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400&h=225",
+			portrait:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=200&h=150",
 		},
 		avg_color: "#667eea",
@@ -118,20 +153,20 @@ export async function GET(request: NextRequest) {
 		// Combine static samples with generated images
 		const allImages = [
 			...STATIC_SAMPLES,
-			...generateSampleImages(60, 4, query || undefined)
+			...generateSampleImages(60, 4, query || undefined),
 		];
-		
+
 		// Filter images based on search query if provided
 		let filteredImages = allImages;
 		if (query) {
-			filteredImages = allImages.filter(image => 
-				image.alt.toLowerCase().includes(query.toLowerCase())
+			filteredImages = allImages.filter((image) =>
+				image.alt.toLowerCase().includes(query.toLowerCase()),
 			);
 			// If no matches, generate themed images for the query
 			if (filteredImages.length < perPage) {
 				filteredImages = [
 					...filteredImages,
-					...generateSampleImages(perPage, 100, query)
+					...generateSampleImages(perPage, 100, query),
 				];
 			}
 		}
@@ -169,8 +204,12 @@ export async function GET(request: NextRequest) {
 			total_results: filteredImages.length,
 			page: page,
 			per_page: perPage,
-			next_page: hasNextPage ? `?page=${page + 1}&per_page=${perPage}` : undefined,
-			prev_page: hasPrevPage ? `?page=${page - 1}&per_page=${perPage}` : undefined,
+			next_page: hasNextPage
+				? `?page=${page + 1}&per_page=${perPage}`
+				: undefined,
+			prev_page: hasPrevPage
+				? `?page=${page - 1}&per_page=${perPage}`
+				: undefined,
 		});
 	} catch (error) {
 		console.error("Images API error:", error);

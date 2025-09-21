@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import { cookies } from "next/headers";
 import { NextRequest } from "next/server";
 
+export type UserRole = "admin" | "user";
+
 export interface User {
 	id: string;
 	email: string;
@@ -10,8 +12,10 @@ export interface User {
 	lastName?: string;
 	avatarUrl?: string;
 	emailVerified: boolean;
+	role: UserRole;
 	createdAt: string;
 	updatedAt: string;
+	lastLogin?: string;
 }
 
 export interface Session {

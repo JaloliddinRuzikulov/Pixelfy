@@ -9,10 +9,10 @@ export const useChromaKeyEvents = () => {
 
 	useEffect(() => {
 		const chromaKeyEvents = subject.pipe(
-			filter(({ key }) => key === "UPDATE_ITEM_CHROMA_KEY"),
+			filter(({ key }: { key: string }) => key === "UPDATE_ITEM_CHROMA_KEY"),
 		);
 
-		const subscription = chromaKeyEvents.subscribe((obj) => {
+		const subscription = chromaKeyEvents.subscribe((obj: any) => {
 			const { itemId, chromaKey } = obj.value?.payload || {};
 
 			if (itemId && chromaKey !== undefined) {
@@ -34,10 +34,10 @@ export const useChromaKeyEvents = () => {
 
 	useEffect(() => {
 		const colorPickerEvents = subject.pipe(
-			filter(({ key }) => key === "ENABLE_COLOR_PICKER_MODE"),
+			filter(({ key }: { key: string }) => key === "ENABLE_COLOR_PICKER_MODE"),
 		);
 
-		const subscription = colorPickerEvents.subscribe((obj) => {
+		const subscription = colorPickerEvents.subscribe((obj: any) => {
 			const { callback } = obj.value?.payload || {};
 
 			if (callback) {

@@ -1,8 +1,48 @@
 "use client";
 
-import React, { Component, ErrorInfo, ReactNode } from "react";
+import React, { Component, ErrorInfo, ReactNode, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, RefreshCw, Home } from "lucide-react";
+
+// Global error handler component
+export function GlobalErrorHandler() {
+	useEffect(() => {
+		const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+			console.error("Unhandled promise rejection:", event.reason);
+			// Prevent the error from appearing in browser console as unhandled
+			event.preventDefault();
+		};
+
+		const handleError = (event: ErrorEvent) => {
+			const error = event.error;
+			console.error("Global error:", error);
+
+			// Special handling for timeline transition errors
+			if (
+				error &&
+				error.message &&
+				error.message.includes("Cannot read properties of undefined")
+			) {
+				console.warn("Timeline transition error detected, handling gracefully");
+				// Could potentially reset timeline state here
+				event.preventDefault();
+			}
+		};
+
+		window.addEventListener("unhandledrejection", handleUnhandledRejection);
+		window.addEventListener("error", handleError);
+
+		return () => {
+			window.removeEventListener(
+				"unhandledrejection",
+				handleUnhandledRejection,
+			);
+			window.removeEventListener("error", handleError);
+		};
+	}, []);
+
+	return null;
+}
 
 interface Props {
 	children: ReactNode;

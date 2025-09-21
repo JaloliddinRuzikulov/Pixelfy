@@ -79,7 +79,9 @@ const CollapsibleSection = ({
 	);
 };
 
-const TextControlSections = ({ trackItem }: { trackItem: ITrackItem & IText }) => {
+const TextControlSections = ({
+	trackItem,
+}: { trackItem: ITrackItem & IText }) => {
 	const t = useTranslations("editor");
 	return (
 		<>
@@ -105,17 +107,16 @@ const TextControlSections = ({ trackItem }: { trackItem: ITrackItem & IText }) =
 				<BasicText trackItem={trackItem} type="fontStroke" />
 			</CollapsibleSection>
 
-			<CollapsibleSection
-				title="Soya"
-				icon={<Droplet className="h-4 w-4" />}
-			>
+			<CollapsibleSection title="Soya" icon={<Droplet className="h-4 w-4" />}>
 				<BasicText trackItem={trackItem} type="fontShadow" />
 			</CollapsibleSection>
 		</>
 	);
 };
 
-const ImageControlSections = ({ trackItem }: { trackItem: ITrackItem & IImage }) => {
+const ImageControlSections = ({
+	trackItem,
+}: { trackItem: ITrackItem & IImage }) => {
 	const t = useTranslations("editor");
 	return (
 		<>
@@ -131,15 +132,10 @@ const ImageControlSections = ({ trackItem }: { trackItem: ITrackItem & IImage })
 				title="Filtrlash"
 				icon={<Sliders className="h-4 w-4" />}
 			>
-				<div className="p-2 text-sm text-muted-foreground">
-					Tez kunda...
-				</div>
+				<div className="p-2 text-sm text-muted-foreground">Tez kunda...</div>
 			</CollapsibleSection>
 
-			<CollapsibleSection
-				title="Ko'rinish"
-				icon={<Eye className="h-4 w-4" />}
-			>
+			<CollapsibleSection title="Ko'rinish" icon={<Eye className="h-4 w-4" />}>
 				<div className="p-2 text-sm text-muted-foreground">
 					Shaffoflik va blend sozlamalari
 				</div>
@@ -148,7 +144,9 @@ const ImageControlSections = ({ trackItem }: { trackItem: ITrackItem & IImage })
 	);
 };
 
-const VideoControlSections = ({ trackItem }: { trackItem: ITrackItem & IVideo }) => {
+const VideoControlSections = ({
+	trackItem,
+}: { trackItem: ITrackItem & IVideo }) => {
 	const t = useTranslations("editor");
 	return (
 		<>
@@ -169,10 +167,7 @@ const VideoControlSections = ({ trackItem }: { trackItem: ITrackItem & IVideo })
 				</div>
 			</CollapsibleSection>
 
-			<CollapsibleSection
-				title="Audio"
-				icon={<Music className="h-4 w-4" />}
-			>
+			<CollapsibleSection title="Audio" icon={<Music className="h-4 w-4" />}>
 				<div className="p-2 text-sm text-muted-foreground">
 					Audio sozlamalari
 				</div>
@@ -181,7 +176,9 @@ const VideoControlSections = ({ trackItem }: { trackItem: ITrackItem & IVideo })
 	);
 };
 
-const AudioControlSections = ({ trackItem }: { trackItem: ITrackItem & IAudio }) => {
+const AudioControlSections = ({
+	trackItem,
+}: { trackItem: ITrackItem & IAudio }) => {
 	const t = useTranslations("editor");
 	return (
 		<>
@@ -218,13 +215,21 @@ const ActiveControlItem = ({
 	const getControlSections = () => {
 		switch (trackItem.type) {
 			case "text":
-				return <TextControlSections trackItem={trackItem as ITrackItem & IText} />;
+				return (
+					<TextControlSections trackItem={trackItem as ITrackItem & IText} />
+				);
 			case "image":
-				return <ImageControlSections trackItem={trackItem as ITrackItem & IImage} />;
+				return (
+					<ImageControlSections trackItem={trackItem as ITrackItem & IImage} />
+				);
 			case "video":
-				return <VideoControlSections trackItem={trackItem as ITrackItem & IVideo} />;
+				return (
+					<VideoControlSections trackItem={trackItem as ITrackItem & IVideo} />
+				);
 			case "audio":
-				return <AudioControlSections trackItem={trackItem as ITrackItem & IAudio} />;
+				return (
+					<AudioControlSections trackItem={trackItem as ITrackItem & IAudio} />
+				);
 			default:
 				return null;
 		}
@@ -265,9 +270,7 @@ const ActiveControlItem = ({
 			{/* Header */}
 			<div className="px-3 py-2.5 border-b border-border/40 bg-muted/20">
 				<div className="flex items-center gap-2">
-					<div className="text-muted-foreground">
-						{getItemTypeIcon()}
-					</div>
+					<div className="text-muted-foreground">{getItemTypeIcon()}</div>
 					<span className="text-sm font-medium text-foreground/90">
 						{getItemTypeTitle()}
 					</span>
@@ -276,9 +279,7 @@ const ActiveControlItem = ({
 
 			{/* Scrollable content */}
 			<ScrollArea className="flex-1 bg-background/5">
-				<div className="pb-4">
-					{getControlSections()}
-				</div>
+				<div className="pb-4">{getControlSections()}</div>
 			</ScrollArea>
 		</div>
 	);

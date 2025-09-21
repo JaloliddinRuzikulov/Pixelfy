@@ -18,52 +18,16 @@ import { useTranslations } from "next-intl";
 // Labels will be translated dynamically
 const MENU_ITEMS_CONFIG = [
 	{
-		id: "uploads",
-		icon: Icons.upload,
-		labelKey: "media.uploads",
-		ariaLabelKey: "media.uploadsAria",
-	},
-	{
 		id: "texts",
 		icon: Icons.type,
 		labelKey: "media.texts",
 		ariaLabelKey: "media.textsAria",
 	},
 	{
-		id: "videos",
-		icon: Icons.video,
-		labelKey: "media.videos",
-		ariaLabelKey: "media.videosAria",
-	},
-	{
-		id: "images",
+		id: "uploads",
 		icon: Icons.image,
-		labelKey: "media.images",
-		ariaLabelKey: "media.imagesAria",
-	},
-	{
-		id: "audios",
-		icon: Icons.audio,
-		labelKey: "media.audio",
-		ariaLabelKey: "media.audioAria",
-	},
-	{
-		id: "elements",
-		icon: Icons.shapes,
-		labelKey: "media.shapes",
-		ariaLabelKey: "media.shapesAria",
-	},
-	{
-		id: "presentations",
-		icon: Presentation,
-		labelKey: "media.slides",
-		ariaLabelKey: "media.slidesAria",
-	},
-	{
-		id: "voiceOver",
-		icon: Mic,
-		labelKey: "media.voice",
-		ariaLabelKey: "media.voiceAria",
+		labelKey: "media.media",
+		ariaLabelKey: "media.mediaAria",
 	},
 ] as const;
 
@@ -147,7 +111,7 @@ function MenuList() {
 
 	// Create menu items with translations
 	const MENU_ITEMS = useMemo(() => {
-		return MENU_ITEMS_CONFIG.map(item => ({
+		return MENU_ITEMS_CONFIG.map((item) => ({
 			id: item.id,
 			icon: item.icon,
 			label: t(item.labelKey),
@@ -205,7 +169,7 @@ function MenuList() {
 						(drawerOpen && activeMenuItem === item.id) ||
 						(showMenuItem && activeMenuItem === item.id);
 
-					const showDivider = index === 0 || index === 4 || index === 6;
+					const showDivider = index === 0;
 
 					return (
 						<React.Fragment key={item.id}>

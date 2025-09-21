@@ -14,28 +14,29 @@ export interface SubscriptionLimits {
 	hasPrioritySupport: boolean;
 }
 
-export const SUBSCRIPTION_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> = {
-	free: {
-		maxProjects: 3,
-		maxVideoLength: 60, // 1 minute
-		maxExportsPerMonth: 5,
-		aiTokensPerMonth: 1000,
-		hasWatermark: true,
-		hasAdvancedEffects: false,
-		hasCollaboration: false,
-		hasPrioritySupport: false,
-	},
-	pro: {
-		maxProjects: 100,
-		maxVideoLength: 3600, // 1 hour
-		maxExportsPerMonth: 100,
-		aiTokensPerMonth: 50000,
-		hasWatermark: false,
-		hasAdvancedEffects: true,
-		hasCollaboration: true,
-		hasPrioritySupport: true,
-	},
-};
+export const SUBSCRIPTION_LIMITS: Record<SubscriptionPlan, SubscriptionLimits> =
+	{
+		free: {
+			maxProjects: 3,
+			maxVideoLength: 60, // 1 minute
+			maxExportsPerMonth: 5,
+			aiTokensPerMonth: 1000,
+			hasWatermark: true,
+			hasAdvancedEffects: false,
+			hasCollaboration: false,
+			hasPrioritySupport: false,
+		},
+		pro: {
+			maxProjects: 100,
+			maxVideoLength: 3600, // 1 hour
+			maxExportsPerMonth: 100,
+			aiTokensPerMonth: 50000,
+			hasWatermark: false,
+			hasAdvancedEffects: true,
+			hasCollaboration: true,
+			hasPrioritySupport: true,
+		},
+	};
 
 interface SubscriptionUsage {
 	projectsCount: number;
@@ -48,7 +49,7 @@ interface SubscriptionStore {
 	plan: SubscriptionPlan;
 	usage: SubscriptionUsage;
 	subscriptionEndDate?: string;
-	
+
 	// Actions
 	setPlan: (plan: SubscriptionPlan) => void;
 	updateUsage: (usage: Partial<SubscriptionUsage>) => void;
@@ -56,7 +57,7 @@ interface SubscriptionStore {
 	incrementExports: () => void;
 	incrementTokens: (tokens: number) => void;
 	resetMonthlyUsage: () => void;
-	
+
 	// Getters
 	getCurrentLimits: () => SubscriptionLimits;
 	canCreateProject: () => boolean;
@@ -77,14 +78,14 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 				aiTokensUsed: 0,
 				lastResetDate: new Date().toISOString().slice(0, 7), // YYYY-MM
 			},
-			
+
 			setPlan: (plan) => set({ plan }),
-			
+
 			updateUsage: (newUsage) =>
 				set((state) => ({
 					usage: { ...state.usage, ...newUsage },
 				})),
-			
+
 			incrementProjects: () =>
 				set((state) => ({
 					usage: {
@@ -92,7 +93,7 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 						projectsCount: state.usage.projectsCount + 1,
 					},
 				})),
-			
+
 			incrementExports: () =>
 				set((state) => ({
 					usage: {
@@ -100,7 +101,7 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 						exportsThisMonth: state.usage.exportsThisMonth + 1,
 					},
 				})),
-			
+
 			incrementTokens: (tokens) =>
 				set((state) => ({
 					usage: {
@@ -108,7 +109,7 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 						aiTokensUsed: state.usage.aiTokensUsed + tokens,
 					},
 				})),
-			
+
 			resetMonthlyUsage: () => {
 				const currentMonth = new Date().toISOString().slice(0, 7);
 				set((state) => ({
@@ -120,42 +121,42 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 					},
 				}));
 			},
-			
+
 			getCurrentLimits: () => {
 				const { plan } = get();
 				return SUBSCRIPTION_LIMITS[plan];
 			},
-			
+
 			canCreateProject: () => {
 				const { usage, getCurrentLimits } = get();
 				const limits = getCurrentLimits();
 				return usage.projectsCount < limits.maxProjects;
 			},
-			
+
 			canExport: () => {
 				const { usage, getCurrentLimits } = get();
 				const limits = getCurrentLimits();
 				return usage.exportsThisMonth < limits.maxExportsPerMonth;
 			},
-			
+
 			canUseTokens: (tokens) => {
 				const { usage, getCurrentLimits } = get();
 				const limits = getCurrentLimits();
 				return usage.aiTokensUsed + tokens <= limits.aiTokensPerMonth;
 			},
-			
+
 			getRemainingProjects: () => {
 				const { usage, getCurrentLimits } = get();
 				const limits = getCurrentLimits();
 				return Math.max(0, limits.maxProjects - usage.projectsCount);
 			},
-			
+
 			getRemainingExports: () => {
 				const { usage, getCurrentLimits } = get();
 				const limits = getCurrentLimits();
 				return Math.max(0, limits.maxExportsPerMonth - usage.exportsThisMonth);
 			},
-			
+
 			getRemainingTokens: () => {
 				const { usage, getCurrentLimits } = get();
 				const limits = getCurrentLimits();
@@ -164,6 +165,6 @@ export const useSubscriptionStore = create<SubscriptionStore>()(
 		}),
 		{
 			name: "subscription-storage",
-		}
-	)
+		},
+	),
 );
