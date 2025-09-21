@@ -1,11 +1,6 @@
-import {
-	Control,
-	Resizable,
-	ResizableProps,
-} from "@designcombo/timeline";
+import { Control, Resizable, ResizableProps } from "@designcombo/timeline";
 import { IDisplay } from "@designcombo/types";
 import { SECONDARY_FONT } from "../../constants/constants";
-import { createResizeControls } from "../controls";
 
 interface TextProps extends ResizableProps {
 	text: string;
@@ -14,49 +9,24 @@ interface TextProps extends ResizableProps {
 }
 class Text extends Resizable {
 	static type = "Text";
-
-	static createControls() {
-		return createResizeControls();
-	}
 	declare id: string;
 	declare text: string;
-	public display: any;
-	public tScale: any;
-	public fill: string = "#305252";
-	public borderColor: string = "rgba(0, 216, 214, 1)";
-	public stroke: string = "transparent";
-	public width: number = 0;
-	public height: number = 0;
-	public canvas: any;
-	public hasControls = true;
-	public selectable = true;
-	public evented = true;
-	public hoverCursor = "move";
-	public moveCursor = "move";
-	public cornerSize = 12;
-	public cornerColor = "rgba(0, 216, 214, 1)";
 
 	constructor(props: TextProps) {
 		super(props);
+		this.fill = "#305252";
 		this.id = props.id;
+		this.borderColor = "transparent";
+		this.stroke = "transparent";
 		this.text = props.text;
-
-		// Defensive programming for display property
-		this.display = props.display || { from: 0, to: 5000 };
-		this.tScale = props.tScale;
-
-		// Set up resize controls
-		this.controls = Text.createControls().controls;
+		// this.rx = 0;
+		// this.ry = 0;
 	}
 
 	public _render(ctx: CanvasRenderingContext2D) {
 		super._render(ctx);
 		this.drawTextIdentity(ctx);
 		this.updateSelected(ctx);
-	}
-
-	public updateSelected(ctx: CanvasRenderingContext2D) {
-		// Update selected state visual feedback if needed
 	}
 
 	public drawTextIdentity(ctx: CanvasRenderingContext2D) {
@@ -77,16 +47,6 @@ class Text extends Resizable {
 		ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
 		ctx.fill(textPath);
 		ctx.restore();
-	}
-}
-
-// Register the class with Fabric.js
-if (typeof window !== "undefined") {
-	const fabric = (window as any).fabric;
-	if (fabric && fabric.Object) {
-		fabric.Object.customProperties = fabric.Object.customProperties || [];
-		fabric.Object.customProperties.push("Text");
-		(fabric as any).Text = Text;
 	}
 }
 

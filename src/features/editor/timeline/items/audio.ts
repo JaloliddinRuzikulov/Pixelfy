@@ -11,7 +11,6 @@ import {
 } from "@remotion/media-utils";
 import { IMetadata, ITrim } from "@designcombo/types";
 import { SECONDARY_FONT } from "../../constants/constants";
-import { createAudioControls } from "../controls";
 
 const MAX_CANVAS_WIDTH = 12000; // Keep canvas size reasonable
 const CANVAS_SAFE_DRAWING = 2000;
@@ -28,35 +27,11 @@ interface AudioProps extends TrimmableProps {
 
 class Audio extends Trimmable {
 	static type = "Audio";
-
-	static createControls() {
-		return createAudioControls();
-	}
 	public barData?: AudioData;
 	public hasSrc = true;
 	private offscreenCanvas: OffscreenCanvas | null = null;
 	private offscreenCtx: OffscreenCanvasRenderingContext2D | null = null;
-	public fill: string = "#4834d4";
-	public objectCaching: boolean = false;
-	public width: number = 0;
-	public height: number = 0;
-	public left: number = 0;
-	public rx: number = 6;
-	public id: string = "";
-	public hasControls = true;
-	public selectable = true;
-	public evented = true;
-	public hoverCursor = "move";
-	public moveCursor = "move";
-	public cornerSize = 12;
-	public borderColor = "rgba(0, 216, 214, 1)";
-	public cornerColor = "rgba(0, 216, 214, 1)";
-	public tScale: any;
-	public display: any;
-	public trim: ITrim;
-	public duration: number = 0;
-	public src: string = "";
-	public canvas: any;
+
 	public scrollLeft = 0;
 	private isDirty = true;
 	declare playbackRate: number;
@@ -66,19 +41,12 @@ class Audio extends Trimmable {
 		super(props);
 		this.id = props.id;
 		this.tScale = props.tScale;
-
-		// Defensive programming for display property
-		this.display = props.display || { from: 0, to: props.duration || 5000 };
-
-		// Defensive programming for trim property
-		this.trim = props.trim || { from: 0, to: props.duration || 5000 };
-
+		this.display = props.display;
+		this.trim = props.trim;
 		this.duration = props.duration;
+		this.fill = "#4834d4";
 		this.src = props.src;
-
-		// Set up resize controls
-		this.controls = Audio.createControls().controls;
-
+		this.objectCaching = false;
 		this.initOffscreenCanvas();
 		this.initialize();
 	}
@@ -131,7 +99,7 @@ class Audio extends Trimmable {
 		this.src = src;
 		this.initOffscreenCanvas();
 		this.initialize();
-		// this.setCoords();
+		this.setCoords();
 		this.canvas?.requestRenderAll();
 	}
 
@@ -170,10 +138,6 @@ class Audio extends Trimmable {
 			this.offscreenCanvas.height = this.height;
 			this.isDirty = true;
 		}
-	}
-
-	public updateSelected(ctx: CanvasRenderingContext2D) {
-		// Update selected state visual feedback if needed
 	}
 
 	public drawTextIdentity(ctx: CanvasRenderingContext2D) {
@@ -275,16 +239,6 @@ class Audio extends Trimmable {
 	public onScale() {
 		this.bars = this.getBars(0, 0) as any;
 		this.onScrollChange({ scrollLeft: this.scrollLeft });
-	}
-}
-
-// Register the class with Fabric.js
-if (typeof window !== "undefined") {
-	const fabric = (window as any).fabric;
-	if (fabric && fabric.Object) {
-		fabric.Object.customProperties = fabric.Object.customProperties || [];
-		fabric.Object.customProperties.push("Audio");
-		(fabric as any).Audio = Audio;
 	}
 }
 

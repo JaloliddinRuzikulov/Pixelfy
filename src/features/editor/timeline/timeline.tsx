@@ -12,7 +12,7 @@ import {
 import useStore from "../store/use-store";
 import Playhead from "./playhead";
 import { useCurrentPlayerFrame } from "../hooks/use-current-frame";
-import { Audio, Image, Text, Video, Track } from "./items";
+import { Audio, Image, Text, Video } from "./items";
 import StateManager, { REPLACE_MEDIA } from "@designcombo/state";
 import {
 	TIMELINE_OFFSET_CANVAS_LEFT,
@@ -21,32 +21,12 @@ import {
 import { ITrackItem } from "@designcombo/types";
 import { useTimelineOffsetX } from "../hooks/use-timeline-offset";
 import { useStateManagerEvents } from "../hooks/use-state-manager-events";
-import { Canvas, Rect, Text as FabricText } from "fabric";
 
-import { classRegistry } from "@designcombo/timeline";
-
-// Register classes with the proper names (capitalized) for O.getClass to find them
-classRegistry.setClass(Video, "Video");
-classRegistry.setClass(Image, "Image");
-classRegistry.setClass(Audio, "Audio");
-classRegistry.setClass(Text, "Text");
-classRegistry.setClass(Track, "Track");
-
-// Also register lowercase versions for backward compatibility
-classRegistry.setClass(Video, "video");
-classRegistry.setClass(Image, "image");
-classRegistry.setClass(Audio, "audio");
-classRegistry.setClass(Text, "text");
-classRegistry.setClass(Track, "track");
-
-// Register with CanvasTimeline
-// The vendor's cg function capitalizes types (e.g., "video" -> "Video"), so register with capitalized keys
 CanvasTimeline.registerItems({
-	Video, // Registers Video class with key "Video"
-	Image, // Registers Image class with key "Image"
-	Audio, // Registers Audio class with key "Audio"
-	Text, // Registers Text class with key "Text"
-	Track, // Registers Track class with key "Track"
+	Text,
+	Image,
+	Audio,
+	Video,
 });
 
 const EMPTY_SIZE = { width: 0, height: 0 };
@@ -132,217 +112,68 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 
 		const containerWidth = timelineContainerEl.clientWidth - 40;
 		const containerHeight = timelineContainerEl.clientHeight - 90;
-
-		console.log("Creating CanvasTimeline with stateManager:", stateManager);
-		console.log("CanvasTimeline constructor:", CanvasTimeline);
-		console.log("CanvasTimeline prototype:", CanvasTimeline.prototype);
-		console.log(
-			"CanvasTimeline registeredItems:",
-			(CanvasTimeline as any).registeredItems,
-		);
-
-		// Create timeline with error handling wrapper for state updates
-		const wrappedStateManager = new Proxy(stateManager, {
-			get(target, prop) {
-				// Specific handling for getState
-				if (prop === 'getState') {
-					return () => {
-						try {
-							const state = target.getState();
-							return {
-								...state,
-								trackItemsMap: state.trackItemsMap || {},
-								trackItemIds: state.trackItemIds || [],
-								tracks: state.tracks || [],
-							};
-						} catch (error) {
-							console.error("Error getting state:", error);
-							return {
-								trackItemsMap: {},
-								trackItemIds: [],
-								tracks: [],
-								duration: 0,
-							};
-						}
-					};
-				}
-
-				// Handle subscription methods that might be missing
-				if (typeof prop === 'string' && prop.startsWith('subscribeTo')) {
-					const method = target[prop as keyof typeof target];
-					if (typeof method === 'function') {
-						return method.bind(target);
-					} else {
-						// Return dummy subscription for missing methods
-						console.warn(`Missing subscription method: ${prop}`);
-						return () => ({ unsubscribe: () => {} });
-					}
-				}
-
-				// For all other properties, return the original
-				const value = target[prop as keyof typeof target];
-				if (typeof value === 'function') {
-					return value.bind(target);
-				}
-				return value;
-			}
-		});
-
-		// Use basic Fabric.js Canvas instead of CanvasTimeline to avoid state errors
-		console.log("Creating basic Fabric.js Canvas for track resize demo");
-
-		const canvas = new Canvas(canvasEl, {
+		const canvas = new CanvasTimeline(canvasEl, {
 			width: containerWidth,
 			height: containerHeight,
-			selection: true,
-			preserveObjectStacking: true,
+			bounding: {
+				width: containerWidth,
+				height: 0,
+			},
+			selectionColor: "rgba(0, 216, 214,0.1)",
+			selectionBorderColor: "rgba(0, 216, 214,1.0)",
+			onScroll,
+			onResizeCanvas,
+			scale: scale,
+			state: stateManager,
+			duration,
+			spacing: {
+				left: TIMELINE_OFFSET_CANVAS_LEFT,
+				right: TIMELINE_OFFSET_CANVAS_RIGHT,
+			},
+			sizesMap: {
+				text: 32,
+				audio: 36,
+				customTrack: 40,
+				customTrack2: 40,
+				linealAudioBars: 40,
+				radialAudioBars: 40,
+				waveAudioBars: 40,
+				hillAudioBars: 40,
+			},
+			itemTypes: [
+				"text",
+				"image",
+				"audio",
+				"video",
+				"helper",
+				"track",
+				"composition",
+				"template",
+				"linealAudioBars",
+				"radialAudioBars",
+				"progressFrame",
+				"progressBar",
+				"waveAudioBars",
+				"hillAudioBars",
+			],
+			acceptsMap: {
+				text: ["text"],
+				image: ["image", "video"],
+				video: ["video", "image"],
+				audio: ["audio"],
+				template: ["template"],
+				customTrack: ["video", "image"],
+				customTrack2: ["video", "image"],
+				main: ["video", "image"],
+				linealAudioBars: ["audio", "linealAudioBars"],
+				radialAudioBars: ["audio", "radialAudioBars"],
+				waveAudioBars: ["audio", "waveAudioBars"],
+				hillAudioBars: ["audio", "hillAudioBars"],
+			},
+			guideLineColor: "#ffffff",
 		});
-
-		console.log("Basic Fabric.js canvas created");
-
-		// Initialize transition properties to prevent undefined errors
-		if (!canvas.tracks) canvas.tracks = [];
-		if (!canvas.transitionIds) canvas.transitionIds = [];
-		if (!canvas.transitionsMap) canvas.transitionsMap = {};
 
 		canvasRef.current = canvas;
-
-		// Debug: Check what methods are available on the created canvas instance
-		console.log("Created canvas instance:", canvas);
-		console.log("Canvas instance methods:", Object.getOwnPropertyNames(canvas));
-		console.log(
-			"Canvas instance prototype methods:",
-			Object.getOwnPropertyNames(Object.getPrototypeOf(canvas)),
-		);
-		console.log("Canvas constructor name:", canvas.constructor.name);
-		console.log(
-			"Is addTrackItem available?",
-			typeof (canvas as any).addTrackItem,
-		);
-		console.log(
-			"Is alignItemsToTrack available?",
-			typeof (canvas as any).alignItemsToTrack,
-		);
-		console.log(
-			"Is requestRenderAll available?",
-			typeof (canvas as any).requestRenderAll,
-		);
-		console.log("Is getObjects available?", typeof (canvas as any).getObjects);
-		console.log("Canvas state after creation:", {
-			tracks: canvas.tracks,
-			trackItemIds: (canvas as any).trackItemIds,
-			trackItemsMap: (canvas as any).trackItemsMap,
-		});
-
-		// Initialize timeline with current state items
-		const currentState = stateManager.getState();
-		console.log("Timeline initialization - current state:", currentState);
-		console.log(
-			"Timeline initialization - trackItemIds:",
-			currentState.trackItemIds,
-		);
-		console.log(
-			"Timeline initialization - trackItemsMap:",
-			currentState.trackItemsMap,
-		);
-		console.log(
-			"Timeline initialization - tracks:",
-			currentState.tracks,
-		);
-
-		// Create simple Fabric.js rectangles as resizable tracks
-		console.log("Creating Fabric.js track rectangles for resize testing");
-
-		try {
-
-			// Main track (video/image)
-			const mainTrack = new Rect({
-				id: "main-track",
-				width: containerWidth - 80,
-				height: 60,
-				left: 40,
-				top: 50,
-				fill: "#18181b",
-				stroke: "#444",
-				strokeWidth: 1,
-				selectable: true,
-				hasControls: true,
-				hasBorders: true,
-				lockMovementX: false,
-				lockMovementY: true,
-				lockScalingX: true,  // Only vertical resize
-				lockScalingY: false, // Allow vertical resize
-				minScaleY: 0.5,      // Min height: 30px
-				maxScaleY: 1.67,     // Max height: 100px
-			});
-
-			// Audio track
-			const audioTrack = new Rect({
-				id: "audio-track",
-				width: containerWidth - 80,
-				height: 40,
-				left: 40,
-				top: 120,
-				fill: "#18181b",
-				stroke: "#444",
-				strokeWidth: 1,
-				selectable: true,
-				hasControls: true,
-				hasBorders: true,
-				lockMovementX: false,
-				lockMovementY: true,
-				lockScalingX: true,  // Only vertical resize
-				lockScalingY: false, // Allow vertical resize
-				minScaleY: 0.75,     // Min height: 30px
-				maxScaleY: 2.5,      // Max height: 100px
-			});
-
-			// Add labels to tracks
-			const mainLabel = new FabricText("Main Track", {
-				left: 50,
-				top: 65,
-				fontSize: 12,
-				fill: "#fff",
-				selectable: false,
-			});
-
-			const audioLabel = new FabricText("Audio Track", {
-				left: 50,
-				top: 135,
-				fontSize: 12,
-				fill: "#fff",
-				selectable: false,
-			});
-
-			console.log("Adding Fabric.js tracks to canvas");
-			canvas.add(mainTrack);
-			canvas.add(audioTrack);
-			canvas.add(mainLabel);
-			canvas.add(audioLabel);
-
-			// Force canvas render
-			canvas.renderAll();
-
-			console.log("Fabric.js tracks added - fully resizable!");
-
-		} catch (error) {
-			console.error("Error creating Fabric.js tracks:", error);
-		}
-
-		// Skip manual item addition to prevent errors
-		// Let the timeline handle items through state manager events instead
-		console.log("Timeline state:", {
-			trackItemIds: currentState.trackItemIds,
-			trackItemsMap: Object.keys(currentState.trackItemsMap).length + " items",
-			tracks: currentState.tracks
-		});
-
-		// Just initialize the timeline and let state events handle the rest
-		if (currentState.trackItemIds && currentState.trackItemIds.length > 0) {
-			console.log("Items found in state, will be handled by state manager events");
-		} else {
-			console.log("No track items in initial state");
-		}
 
 		setCanvasSize({ width: containerWidth, height: containerHeight });
 		setSize({
@@ -361,13 +192,7 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 		if (canScrollRef.current) {
 			const canvas = canvasRef.current;
 			if (canvas) {
-				// Use Fabric.js viewport transform for scrolling
-				const vpt = canvas.viewportTransform;
-				if (vpt) {
-					vpt[4] = -scrollLeft; // Update horizontal offset
-					canvas.setViewportTransform(vpt);
-					canvas.renderAll();
-				}
+				canvas.scrollTo({ scrollLeft });
 			}
 		}
 		setScrollLeft(scrollLeft);
@@ -378,23 +203,17 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 		if (canScrollRef.current) {
 			const canvas = canvasRef.current;
 			if (canvas) {
-				// Use Fabric.js viewport transform for vertical scrolling
-				const vpt = canvas.viewportTransform;
-				if (vpt) {
-					vpt[5] = -scrollTop; // Update vertical offset
-					canvas.setViewportTransform(vpt);
-					canvas.renderAll();
-				}
+				canvas.scrollTo({ scrollTop });
 			}
 		}
 	};
 
 	useEffect(() => {
 		const addEvents = subject.pipe(
-			filter(({ key }: { key: string }) => key.startsWith(TIMELINE_PREFIX)),
+			filter(({ key }) => key.startsWith(TIMELINE_PREFIX)),
 		);
 
-		const subscription = addEvents.subscribe((obj: any) => {
+		const subscription = addEvents.subscribe((obj) => {
 			if (obj.key === TIMELINE_BOUNDING_CHANGED) {
 				const bounding = obj.value?.payload?.bounding;
 				if (bounding) {
@@ -433,16 +252,10 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 	};
 
 	const onRulerScroll = (newScrollLeft: number) => {
-		// Update the timeline canvas scroll position using Fabric.js viewport transform
+		// Update the timeline canvas scroll position
 		const canvas = canvasRef.current;
 		if (canvas) {
-			// For Fabric.js Canvas, we need to use viewport transform to handle scrolling
-			const vpt = canvas.viewportTransform;
-			if (vpt) {
-				vpt[4] = -newScrollLeft; // Update horizontal offset
-				canvas.setViewportTransform(vpt);
-				canvas.renderAll();
-			}
+			canvas.scrollTo({ scrollLeft: newScrollLeft });
 		}
 
 		// Update the horizontal scrollbar position
@@ -456,20 +269,12 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 
 	useEffect(() => {
 		const availableScroll = horizontalScrollbarVpRef.current?.scrollWidth;
-		const canvas = canvasRef.current;
-		if (!availableScroll || !canvas) return;
-		const canvasWidth = canvasSize.width;
+		if (!availableScroll || !timeline) return;
+		const canvasWidth = timeline.width;
 		if (availableScroll < canvasWidth + scrollLeft) {
-			// Use Fabric.js viewport transform for auto-scrolling
-			const targetScrollLeft = availableScroll - canvasWidth;
-			const vpt = canvas.viewportTransform;
-			if (vpt) {
-				vpt[4] = -targetScrollLeft; // Update horizontal offset
-				canvas.setViewportTransform(vpt);
-				canvas.renderAll();
-			}
+			timeline.scrollTo({ scrollLeft: availableScroll - canvasWidth });
 		}
-	}, [scale, canvasSize.width]);
+	}, [scale]);
 
 	return (
 		<div
