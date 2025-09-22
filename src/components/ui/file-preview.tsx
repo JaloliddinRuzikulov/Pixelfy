@@ -92,7 +92,7 @@ const TextFilePreview = React.forwardRef<HTMLDivElement, FilePreviewProps>(
 				<div className="flex w-full items-center space-x-2">
 					<div className="grid h-10 w-10 shrink-0 place-items-center rounded-sm border bg-muted p-0.5">
 						<div className="h-full w-full overflow-hidden text-[6px] leading-none text-muted-foreground">
-							{preview || "Loading..."}
+							{preview || "Yuklanmoqda..."}
 						</div>
 					</div>
 					<span className="w-full truncate text-muted-foreground">

@@ -39,7 +39,7 @@ export const KeyboardShortcutsDialog = () => {
 
 	// Group shortcuts by category
 	const categories = {
-		"Basic Editing": [
+		"Asosiy tahrirlash": [
 			"Undo",
 			"Redo",
 			"Copy",
@@ -48,12 +48,12 @@ export const KeyboardShortcutsDialog = () => {
 			"Duplicate",
 			"Delete",
 		],
-		Selection: ["Select all", "Deselect"],
-		Playback: ["Play/Pause", "Seek", "Go to"],
-		Timeline: ["Split", "Track", "Marker"],
-		View: ["Zoom"],
-		Project: ["Save", "Export"],
-		Other: ["Group", "Toggle", "Add"],
+		Tanlash: ["Select all", "Deselect"],
+		Ijro: ["Play/Pause", "Seek", "Go to"],
+		"Vaqt chizig'i": ["Split", "Track", "Marker"],
+		"Ko'rinish": ["Zoom"],
+		Loyiha: ["Save", "Export"],
+		Boshqa: ["Group", "Toggle", "Add"],
 	};
 
 	const getCategory = (description: string) => {
@@ -66,7 +66,7 @@ export const KeyboardShortcutsDialog = () => {
 				return category;
 			}
 		}
-		return "Other";
+		return "Boshqa";
 	};
 
 	const groupedShortcuts = shortcuts.reduce(
@@ -85,10 +85,10 @@ export const KeyboardShortcutsDialog = () => {
 				<DialogHeader>
 					<DialogTitle className="flex items-center gap-2">
 						<Keyboard className="h-5 w-5" />
-						Keyboard Shortcuts
+						Klavishlar kombinatsiyasi
 					</DialogTitle>
 					<DialogDescription>
-						Press "?" or "h" anytime to view this help
+						Yordam uchun istalgan vaqt "?" yoki "h" tugmasini bosing
 					</DialogDescription>
 				</DialogHeader>
 

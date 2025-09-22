@@ -74,7 +74,7 @@ export const EditorContextMenu = ({
 					disabled={!hasSelection}
 				>
 					<Scissors className="mr-2 h-4 w-4" />
-					Cut
+					Kesish
 					<ContextMenuShortcut>Ctrl+X</ContextMenuShortcut>
 				</ContextMenuItem>
 
@@ -83,13 +83,13 @@ export const EditorContextMenu = ({
 					disabled={!hasSelection}
 				>
 					<Copy className="mr-2 h-4 w-4" />
-					Copy
+					Nusxalash
 					<ContextMenuShortcut>Ctrl+C</ContextMenuShortcut>
 				</ContextMenuItem>
 
 				<ContextMenuItem onClick={() => handleAction("PASTE_ITEMS")}>
 					<Clipboard className="mr-2 h-4 w-4" />
-					Paste
+					Qo'yish
 					<ContextMenuShortcut>Ctrl+V</ContextMenuShortcut>
 				</ContextMenuItem>
 
@@ -98,7 +98,7 @@ export const EditorContextMenu = ({
 					disabled={!hasSelection}
 				>
 					<Layers className="mr-2 h-4 w-4" />
-					Duplicate
+					Dublikat qilish
 					<ContextMenuShortcut>Ctrl+D</ContextMenuShortcut>
 				</ContextMenuItem>
 
@@ -110,7 +110,7 @@ export const EditorContextMenu = ({
 					className="text-destructive"
 				>
 					<Trash2 className="mr-2 h-4 w-4" />
-					Delete
+					O'chirish
 					<ContextMenuShortcut>Del</ContextMenuShortcut>
 				</ContextMenuItem>
 
@@ -120,26 +120,26 @@ export const EditorContextMenu = ({
 				<ContextMenuSub>
 					<ContextMenuSubTrigger disabled={!hasSelection}>
 						<RotateCw className="mr-2 h-4 w-4" />
-						Transform
+						O'zgartirish
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent className="w-48">
 						<ContextMenuItem onClick={() => handleAction("FLIP_HORIZONTAL")}>
 							<FlipHorizontal className="mr-2 h-4 w-4" />
-							Flip Horizontal
+							Gorizontal aylantirish
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("FLIP_VERTICAL")}>
 							<FlipVertical className="mr-2 h-4 w-4" />
-							Flip Vertical
+							Vertikal aylantirish
 						</ContextMenuItem>
 						<ContextMenuSeparator />
 						<ContextMenuItem onClick={() => handleAction("ROTATE_90")}>
-							Rotate 90° CW
+							90° o'ngga burish
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("ROTATE_NEG_90")}>
-							Rotate 90° CCW
+							90° chapga burish
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("ROTATE_180")}>
-							Rotate 180°
+							180° burish
 						</ContextMenuItem>
 					</ContextMenuSubContent>
 				</ContextMenuSub>
@@ -148,33 +148,33 @@ export const EditorContextMenu = ({
 				<ContextMenuSub>
 					<ContextMenuSubTrigger disabled={!multipleSelected}>
 						<AlignLeft className="mr-2 h-4 w-4" />
-						Align
+						Tekislash
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent className="w-48">
 						<ContextMenuItem onClick={() => handleAction("ALIGN_LEFT")}>
 							<AlignLeft className="mr-2 h-4 w-4" />
-							Align Left
+							Chapga tekislash
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("ALIGN_CENTER")}>
 							<AlignCenter className="mr-2 h-4 w-4" />
-							Align Center
+							Markazga tekislash
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("ALIGN_RIGHT")}>
 							<AlignRight className="mr-2 h-4 w-4" />
-							Align Right
+							O'ngga tekislash
 						</ContextMenuItem>
 						<ContextMenuSeparator />
 						<ContextMenuItem onClick={() => handleAction("ALIGN_TOP")}>
 							<AlignStartVertical className="mr-2 h-4 w-4" />
-							Align Top
+							Yuqoriga tekislash
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("ALIGN_MIDDLE")}>
 							<AlignCenterVertical className="mr-2 h-4 w-4" />
-							Align Middle
+							Markazga tekislash (vertikal)
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("ALIGN_BOTTOM")}>
 							<AlignEndVertical className="mr-2 h-4 w-4" />
-							Align Bottom
+							Pastga tekislash
 						</ContextMenuItem>
 					</ContextMenuSubContent>
 				</ContextMenuSub>
@@ -183,25 +183,25 @@ export const EditorContextMenu = ({
 				<ContextMenuSub>
 					<ContextMenuSubTrigger disabled={!hasSelection}>
 						<Layers className="mr-2 h-4 w-4" />
-						Layer
+						Qatlam
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent className="w-48">
 						<ContextMenuItem onClick={() => handleAction("BRING_TO_FRONT")}>
 							<BringToFront className="mr-2 h-4 w-4" />
-							Bring to Front
+							Eng oldinga
 							<ContextMenuShortcut>Ctrl+]</ContextMenuShortcut>
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("BRING_FORWARD")}>
 							<MoveUp className="mr-2 h-4 w-4" />
-							Bring Forward
+							Oldinga
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("SEND_BACKWARD")}>
 							<MoveDown className="mr-2 h-4 w-4" />
-							Send Backward
+							Orqaga
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("SEND_TO_BACK")}>
 							<SendToBack className="mr-2 h-4 w-4" />
-							Send to Back
+							Eng orqaga
 							<ContextMenuShortcut>Ctrl+[</ContextMenuShortcut>
 						</ContextMenuItem>
 					</ContextMenuSubContent>
@@ -214,12 +214,12 @@ export const EditorContextMenu = ({
 					<>
 						<ContextMenuItem onClick={() => handleAction("GROUP_ITEMS")}>
 							<Group className="mr-2 h-4 w-4" />
-							Group
+							Guruh
 							<ContextMenuShortcut>Ctrl+G</ContextMenuShortcut>
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("UNGROUP_ITEMS")}>
 							<Ungroup className="mr-2 h-4 w-4" />
-							Ungroup
+							Guruhdan chiqarish
 							<ContextMenuShortcut>Ctrl+Shift+G</ContextMenuShortcut>
 						</ContextMenuItem>
 						<ContextMenuSeparator />
@@ -231,21 +231,21 @@ export const EditorContextMenu = ({
 					<>
 						<ContextMenuItem onClick={() => handleAction("SPLIT_AT_PLAYHEAD")}>
 							<SplitSquareHorizontal className="mr-2 h-4 w-4" />
-							Split at Playhead
+							Ijro nuqtasida bo'lish
 							<ContextMenuShortcut>S</ContextMenuShortcut>
 						</ContextMenuItem>
 
 						{isVideo && (
 							<ContextMenuItem onClick={() => handleAction("DETACH_AUDIO")}>
 								<Volume2 className="mr-2 h-4 w-4" />
-								Detach Audio
+								Audioni ajratish
 							</ContextMenuItem>
 						)}
 
 						{isAudio && (
 							<ContextMenuItem onClick={() => handleAction("TOGGLE_MUTE")}>
 								<VolumeX className="mr-2 h-4 w-4" />
-								Toggle Mute
+								Ovozni o'chirish/yoqish
 								<ContextMenuShortcut>Ctrl+M</ContextMenuShortcut>
 							</ContextMenuItem>
 						)}
@@ -260,7 +260,7 @@ export const EditorContextMenu = ({
 					disabled={!hasSelection}
 				>
 					<Eye className="mr-2 h-4 w-4" />
-					Toggle Visibility
+					Ko'rinishni almashtirish
 				</ContextMenuItem>
 
 				<ContextMenuItem
@@ -268,7 +268,7 @@ export const EditorContextMenu = ({
 					disabled={!hasSelection}
 				>
 					<Lock className="mr-2 h-4 w-4" />
-					Toggle Lock
+					Qulflashni almashtirish
 					<ContextMenuShortcut>Ctrl+L</ContextMenuShortcut>
 				</ContextMenuItem>
 
@@ -278,21 +278,21 @@ export const EditorContextMenu = ({
 				<ContextMenuSub>
 					<ContextMenuSubTrigger disabled={!hasSelection}>
 						<Palette className="mr-2 h-4 w-4" />
-						Effects
+						Effektlar
 					</ContextMenuSubTrigger>
 					<ContextMenuSubContent className="w-48">
 						<ContextMenuItem onClick={() => handleAction("ADD_FADE_IN")}>
-							Fade In
+							Ochilish
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("ADD_FADE_OUT")}>
-							Fade Out
+							So'nish
 						</ContextMenuItem>
 						<ContextMenuItem onClick={() => handleAction("ADD_TRANSITION")}>
-							Add Transition
+							O'tish qo'shish
 						</ContextMenuItem>
 						<ContextMenuSeparator />
 						<ContextMenuItem onClick={() => handleAction("RESET_EFFECTS")}>
-							Reset Effects
+							Effektlarni tiklash
 						</ContextMenuItem>
 					</ContextMenuSubContent>
 				</ContextMenuSub>
@@ -304,7 +304,7 @@ export const EditorContextMenu = ({
 					onClick={() => handleAction("SHOW_PROPERTIES")}
 					disabled={!hasSelection}
 				>
-					Properties...
+					Xususiyatlar...
 					<ContextMenuShortcut>Alt+Enter</ContextMenuShortcut>
 				</ContextMenuItem>
 			</ContextMenuContent>

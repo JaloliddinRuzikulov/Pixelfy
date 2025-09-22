@@ -374,7 +374,7 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 
 						<Input
 							type="text"
-							placeholder="Paste media link https://..."
+							placeholder="Media havolasini joylashtiring https://..."
 							value={videoUrl}
 							onChange={(e) => setVideoUrl(e.target.value)}
 						/>

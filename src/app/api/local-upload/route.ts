@@ -3,6 +3,10 @@ import { writeFile, mkdir } from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 
+// Configure max body size for file uploads
+export const maxDuration = 60; // Maximum function duration: 60 seconds
+export const dynamic = 'force-dynamic';
+
 // Helper to ensure upload directory exists
 async function ensureUploadDir(subDir: string = "") {
 	const uploadDir = path.join(process.cwd(), "public", "uploads", subDir);

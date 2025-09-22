@@ -7,21 +7,21 @@ export default function TestWidthPage() {
 	return (
 		<div className="min-h-screen bg-gray-100 p-4">
 			<div className="max-w-2xl mx-auto space-y-8">
-				<h1 className="text-3xl font-bold text-center">Width Test Page</h1>
+				<h1 className="text-3xl font-bold text-center">Kenglik Test Sahifasi</h1>
 
 				{/* Test 1: Minimal card with explicit width */}
 				<div className="bg-white p-8 rounded-lg shadow-lg">
-					<h2 className="text-xl font-semibold mb-4">Test 1: Simple Card</h2>
+					<h2 className="text-xl font-semibold mb-4">Test 1: Oddiy Karta</h2>
 					<div className="space-y-4">
 						<div>
 							<Label>Email</Label>
-							<Input placeholder="test@example.com" />
+							<Input placeholder="test@misol.com" />
 						</div>
 						<div>
-							<Label>Password</Label>
-							<Input type="password" placeholder="Password" />
+							<Label>Parol</Label>
+							<Input type="password" placeholder="Parol" />
 						</div>
-						<Button className="w-full">Sign In</Button>
+						<Button className="w-full">Kirish</Button>
 					</div>
 				</div>
 

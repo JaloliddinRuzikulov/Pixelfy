@@ -20,7 +20,8 @@ const nextConfig = {
 
 	// Compiler optimizations
 	compiler: {
-		removeConsole: process.env.NODE_ENV === "production",
+		// Don't remove console logs in production for debugging
+		removeConsole: false,
 	},
 
 	// Image optimization
@@ -88,8 +89,22 @@ const nextConfig = {
 	experimental: {
 		// Enable server actions
 		serverActions: {
-			bodySizeLimit: "10mb",
+			bodySizeLimit: "50mb",
 		},
+	},
+
+	// Rewrites for serving static files
+	async rewrites() {
+		return [
+			{
+				source: "/uploads/:path*",
+				destination: "/uploads/:path*",
+			},
+			{
+				source: "/media/:path*",
+				destination: "/media/:path*",
+			},
+		];
 	},
 
 	// Skip static generation for problematic pages

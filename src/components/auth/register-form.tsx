@@ -129,11 +129,11 @@ export function RegisterForm() {
 				<form onSubmit={handleSubmit} className="space-y-4">
 					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 						<div className="space-y-2">
-							<Label htmlFor="firstName">First name</Label>
+							<Label htmlFor="firstName">Ism</Label>
 							<Input
 								id="firstName"
 								type="text"
-								placeholder="John"
+								placeholder="Aziz"
 								value={formData.firstName}
 								onChange={(e) =>
 									setFormData((prev) => ({
@@ -145,11 +145,11 @@ export function RegisterForm() {
 							/>
 						</div>
 						<div className="space-y-2">
-							<Label htmlFor="lastName">Last name</Label>
+							<Label htmlFor="lastName">Familiya</Label>
 							<Input
 								id="lastName"
 								type="text"
-								placeholder="Doe"
+								placeholder="Azizov"
 								value={formData.lastName}
 								onChange={(e) =>
 									setFormData((prev) => ({ ...prev, lastName: e.target.value }))
@@ -164,7 +164,7 @@ export function RegisterForm() {
 						<Input
 							id="email"
 							type="email"
-							placeholder="john@example.com"
+							placeholder="aziz@misol.com"
 							value={formData.email}
 							onChange={(e) =>
 								setFormData((prev) => ({ ...prev, email: e.target.value }))
@@ -180,7 +180,7 @@ export function RegisterForm() {
 							<Input
 								id="password"
 								type={showPassword ? "text" : "password"}
-								placeholder="Create a password"
+								placeholder="Parol yarating"
 								value={formData.password}
 								onChange={(e) =>
 									setFormData((prev) => ({ ...prev, password: e.target.value }))
@@ -207,7 +207,7 @@ export function RegisterForm() {
 						{formData.password && (
 							<div className="space-y-2">
 								<p className="text-sm text-muted-foreground">
-									Password requirements:
+									Parol talablari:
 								</p>
 								<div className="space-y-1">
 									{passwordRequirements.map((requirement, index) => (
@@ -237,12 +237,12 @@ export function RegisterForm() {
 					</div>
 
 					<div className="space-y-2">
-						<Label htmlFor="confirmPassword">Confirm password</Label>
+						<Label htmlFor="confirmPassword">Parolni tasdiqlang</Label>
 						<div className="relative">
 							<Input
 								id="confirmPassword"
 								type={showConfirmPassword ? "text" : "password"}
-								placeholder="Confirm your password"
+								placeholder="Parolni qaytaring"
 								value={formData.confirmPassword}
 								onChange={(e) =>
 									setFormData((prev) => ({

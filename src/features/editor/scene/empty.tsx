@@ -58,9 +58,9 @@ const SceneEmpty = () => {
 								<PlusIcon className="h-5 w-5" aria-hidden="true" />
 							</div>
 							<div className="flex flex-col gap-px">
-								<p className="text-sm text-muted-foreground">Click to upload</p>
+								<p className="text-sm text-muted-foreground">Yuklash uchun bosing</p>
 								<p className="text-xs text-muted-foreground/70">
-									Or drag and drop files here
+									Yoki fayllarni shu yerga tashlang
 								</p>
 							</div>
 						</div>

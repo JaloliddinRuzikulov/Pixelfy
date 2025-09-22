@@ -172,7 +172,7 @@ const Header = () => {
 							className="flex items-center gap-1 px-2"
 						>
 							<Trash size={14} />{" "}
-							<span className="hidden lg:block">Delete</span>
+							<span className="hidden lg:block">O'chirish</span>
 						</Button>
 
 						<Button
@@ -183,7 +183,7 @@ const Header = () => {
 							className="flex items-center gap-1 px-2"
 						>
 							<SquareSplitHorizontal size={15} />{" "}
-							<span className="hidden lg:block">Split</span>
+							<span className="hidden lg:block">Bo'lish</span>
 						</Button>
 						<Button
 							disabled={!activeIds.length}
@@ -195,7 +195,7 @@ const Header = () => {
 							className="flex items-center gap-1 px-2"
 						>
 							<SquareSplitHorizontal size={15} />{" "}
-							<span className="hidden lg:block">Clone</span>
+							<span className="hidden lg:block">Nusxalash</span>
 						</Button>
 					</div>
 					<div className="flex items-center justify-center">

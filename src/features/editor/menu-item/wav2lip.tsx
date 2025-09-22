@@ -104,7 +104,8 @@ export default function Wav2LipMenuItem() {
 			setState(prev => ({ ...prev, progress: 10 }));
 			setProgressMessage("Video yuklanmoqda...");
 
-			console.log("Sending request to:", "http://localhost:8001/generate-from-text");
+			const apiUrl = "https://api-ai.jprq.site/generate-from-text";
+			console.log("Sending request to:", apiUrl);
 
 			// Start progress simulation while waiting for response
 			progressInterval = setInterval(() => {
@@ -135,7 +136,7 @@ export default function Wav2LipMenuItem() {
 			controller = new AbortController();
 			timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes
 
-			const response = await fetch("http://localhost:8001/generate-from-text", {
+			const response = await fetch(apiUrl, {
 				method: "POST",
 				body: formData,
 				signal: controller.signal,
@@ -403,7 +404,7 @@ export default function Wav2LipMenuItem() {
 						<CardContent className="pt-4 space-y-3">
 							<div className="grid grid-cols-2 gap-3">
 								<div>
-									<Label className="text-xs">Face Detection Batch</Label>
+									<Label className="text-xs">Yuz aniqlash partiyasi</Label>
 									<Input
 										type="number"
 										value={settings.faceDetBatchSize}
@@ -417,7 +418,7 @@ export default function Wav2LipMenuItem() {
 									/>
 								</div>
 								<div>
-									<Label className="text-xs">Wav2Lip Batch</Label>
+									<Label className="text-xs">Wav2Lip partiyasi</Label>
 									<Input
 										type="number"
 										value={settings.wav2lipBatchSize}
@@ -431,7 +432,7 @@ export default function Wav2LipMenuItem() {
 									/>
 								</div>
 								<div>
-									<Label className="text-xs">Resize Factor</Label>
+									<Label className="text-xs">O'lcham koeffitsienti</Label>
 									<Input
 										type="number"
 										value={settings.resizeFactor}

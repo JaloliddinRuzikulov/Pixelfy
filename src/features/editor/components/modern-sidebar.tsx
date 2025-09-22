@@ -40,35 +40,35 @@ export default function ModernSidebar({
 	const [activeTab, setActiveTab] = useState("videos");
 
 	const menuItems = [
-		{ id: "videos", label: "Videos", icon: Film, component: MenuItemVideos },
-		{ id: "images", label: "Images", icon: Image, component: MenuItemImages },
+		{ id: "videos", label: "Videolar", icon: Film, component: MenuItemVideos },
+		{ id: "images", label: "Rasmlar", icon: Image, component: MenuItemImages },
 		{ id: "audio", label: "Audio", icon: Music, component: MenuItemAudios },
-		{ id: "text", label: "Text", icon: Type, component: MenuItemTexts },
+		{ id: "text", label: "Matn", icon: Type, component: MenuItemTexts },
 		{
 			id: "elements",
-			label: "Elements",
+			label: "Elementlar",
 			icon: Shapes,
 			component: MenuItemElements,
 		},
 		{
 			id: "uploads",
-			label: "Uploads",
+			label: "Yuklashlar",
 			icon: Upload,
 			component: MenuItemUploads,
 		},
 	];
 
 	const quickActions = [
-		{ icon: Clock, label: "Recent", badge: "12" },
-		{ icon: Star, label: "Favorites", badge: "5" },
-		{ icon: TrendingUp, label: "Trending", badge: "New" },
+		{ icon: Clock, label: "Oxirgilar", badge: "12" },
+		{ icon: Star, label: "Sevimlilar", badge: "5" },
+		{ icon: TrendingUp, label: "Mashhur", badge: "Yangi" },
 	];
 
 	return (
 		<div className="flex flex-col h-full">
 			{/* Header */}
 			<div className="p-4 border-b border-slate-800">
-				<h2 className="text-lg font-semibold text-white mb-3">Media Library</h2>
+				<h2 className="text-lg font-semibold text-white mb-3">Media kutubxonasi</h2>
 
 				{/* Search Bar */}
 				<div className="relative">
@@ -137,7 +137,7 @@ export default function ModernSidebar({
 			<div className="p-4 border-t border-slate-800">
 				<Button className="w-full bg-blue-600 hover:bg-blue-500 text-white">
 					<Upload className="h-4 w-4 mr-2" />
-					Upload Media
+					Media yuklash
 				</Button>
 				<div className="mt-2 flex gap-2">
 					<Button
@@ -146,7 +146,7 @@ export default function ModernSidebar({
 						className="flex-1 border-slate-700 text-slate-300"
 					>
 						<Folder className="h-3 w-3 mr-1" />
-						Browse
+						Ko'rish
 					</Button>
 					<Button
 						variant="outline"
@@ -154,7 +154,7 @@ export default function ModernSidebar({
 						className="flex-1 border-slate-700 text-slate-300"
 					>
 						<Plus className="h-3 w-3 mr-1" />
-						Create
+						Yaratish
 					</Button>
 				</div>
 			</div>
