@@ -343,21 +343,49 @@ export default function Wav2LipMenuItem() {
 						<span className="text-sm text-muted-foreground">
 							{state.text.length} ta belgi
 						</span>
-						<Select
-							value={settings.ttsMethod}
-							onValueChange={(value) => setSettings(prev => ({ ...prev, ttsMethod: value }))}
-						>
-							<SelectTrigger className="w-32">
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value="pyttsx3">Pyttsx3</SelectItem>
-								<SelectItem value="espeak">Espeak</SelectItem>
-								<SelectItem value="auto">Avtomatik</SelectItem>
-								<SelectItem value="google">Google TTS</SelectItem>
-								<SelectItem value="azure">Azure TTS</SelectItem>
-							</SelectContent>
-						</Select>
+						<div className="flex items-center gap-2">
+							<Label className="text-xs text-muted-foreground">Audio:</Label>
+							<Select
+								value={settings.ttsMethod}
+								onValueChange={(value) => setSettings(prev => ({ ...prev, ttsMethod: value }))}
+							>
+								<SelectTrigger className="w-32">
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value="pyttsx3">
+										<div className="flex items-center gap-1">
+											<span className="text-green-500 text-xs">●</span>
+											Pyttsx3
+										</div>
+									</SelectItem>
+									<SelectItem value="espeak">
+										<div className="flex items-center gap-1">
+											<span className="text-green-500 text-xs">●</span>
+											Espeak
+										</div>
+									</SelectItem>
+									<SelectItem value="auto">
+										<div className="flex items-center gap-1">
+											<span className="text-blue-500 text-xs">●</span>
+											Avtomatik
+										</div>
+									</SelectItem>
+									<SelectItem value="google">
+										<div className="flex items-center gap-1">
+											<span className="text-yellow-500 text-xs">●</span>
+											Google TTS
+										</div>
+									</SelectItem>
+									<SelectItem value="azure">
+										<div className="flex items-center gap-1">
+											<span className="text-yellow-500 text-xs">●</span>
+											Azure TTS
+										</div>
+									</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
 					</div>
 				</CardContent>
 			</Card>
