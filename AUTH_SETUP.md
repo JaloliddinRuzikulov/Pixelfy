@@ -25,16 +25,16 @@ This guide will help you set up the complete user authentication system for the 
    ```env
    # Authentication (REQUIRED)
    JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-   
+
    # Database (REQUIRED)
    DATABASE_URL=postgresql://username:password@localhost:5432/video_editor
-   
+
    # Optional but recommended
    PEXELS_API_KEY=your_pexels_api_key_here
    GOOGLE_AI_API_KEY=your_google_ai_key_here
    ```
 
-   **Important**: 
+   **Important**:
    - Use a strong, unique JWT_SECRET in production
    - Replace database credentials with your actual PostgreSQL connection details
 
