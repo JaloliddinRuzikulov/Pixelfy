@@ -2,7 +2,7 @@ import React, { memo, useCallback, useMemo } from "react";
 import useLayoutStore from "./store/use-layout-store";
 import { Icons } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
-import { Mic, Presentation } from "lucide-react";
+import { Mic, Presentation, UserCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
 	Drawer,
@@ -28,6 +28,12 @@ const MENU_ITEMS_CONFIG = [
 		icon: Icons.image,
 		labelKey: "media.media",
 		ariaLabelKey: "media.mediaAria",
+	},
+	{
+		id: "wav2lip",
+		icon: UserCheck,
+		labelKey: "media.wav2lip",
+		ariaLabelKey: "media.wav2lipAria",
 	},
 ] as const;
 

@@ -34,15 +34,15 @@ For PowerPoint/PDF to video conversion:
 
 ## Architecture Overview
 
-Pixelfy is a browser-based video editor built with Next.js 15, TypeScript, and Remotion for video rendering. The application follows a component-driven architecture with state management via Zustand and event-driven updates through vendored @designcombo packages.
+Pixelfy is a browser-based video editor built with Next.js 15, TypeScript, and Remotion for video rendering. The application follows a component-driven architecture with state management via Zustand and event-driven updates through @designcombo packages.
 
 ### Core Technology Stack
 - **Framework**: Next.js 15.3.2 with App Router
-- **Language**: TypeScript 5 (strict mode enabled)
+- **Language**: TypeScript 5 (strict mode disabled for development flexibility)
 - **Runtime**: React 19
-- **State Management**: Zustand 5 stores with vendored @designcombo/state StateManager
+- **State Management**: Zustand 5 stores with @designcombo/state StateManager
 - **Video Processing**: Remotion 4.0.315 for video composition and export
-- **Timeline**: Vendored @designcombo/timeline for timeline UI and interactions
+- **Timeline**: @designcombo/timeline for timeline UI and interactions
 - **UI Components**: Radix UI primitives with Tailwind CSS v4
 - **Code Style**: Biome 1.9.4 formatter (tabs for indentation, double quotes)
 - **Testing**: Jest 30 with React Testing Library 16 and jsdom environment
@@ -53,8 +53,8 @@ Pixelfy is a browser-based video editor built with Next.js 15, TypeScript, and R
 - **Authentication**: JWT-based with bcryptjs for password hashing
 - **Internationalization**: next-intl with support for en, ru, uz locales
 
-### Vendored @designcombo Packages
-Located in `src/vendor/designcombo/`:
+### @designcombo Package Dependencies
+External npm packages used for core functionality:
 - **@designcombo/state**: Central state management with event dispatching
 - **@designcombo/timeline**: Canvas-based timeline rendering engine
 - **@designcombo/events**: Pub/sub event bus for component communication
@@ -64,7 +64,6 @@ Located in `src/vendor/designcombo/`:
 ### Path Aliases Configuration
 From `tsconfig.json`:
 - `@/*` → `./src/*`
-- `@designcombo/*` → `./src/vendor/designcombo/*`
 
 ### Key Architectural Components
 
@@ -209,7 +208,7 @@ PRESENTATIONS_OUTPUT_DIR="/public/uploads/presentation-pages"
 1. Create component in `src/features/editor/player/items/`
 2. Register in `src/features/editor/player/sequence-item.tsx`
 3. Add timeline rendering in `src/features/editor/timeline/items/`
-4. Update type definitions if needed in vendored @designcombo/types
+4. Update type definitions if needed in @designcombo/types package
 
 ### Modifying State Management
 1. Update relevant Zustand store in `src/features/editor/store/`
@@ -286,8 +285,8 @@ Supports converting presentations (PPT/PPTX/PDF) to video:
 - Auth utilities: `src/lib/auth.ts`, `src/lib/auth-server.ts`
 - Role utilities: `src/lib/role-utils.ts`
 
-### Vendored Libraries
-- All @designcombo packages: `src/vendor/designcombo/`
+### External Package Dependencies
+- All @designcombo packages: Available as npm dependencies
 
 ### Internationalization
 - Locale configuration: `src/i18n/config.ts`

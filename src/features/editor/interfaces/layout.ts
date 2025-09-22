@@ -10,7 +10,8 @@ export type IMenuItem =
 	| "texts"
 	| "voiceOver"
 	| "elements"
-	| "presentations";
+	| "presentations"
+	| "wav2lip";
 export interface ILayoutState {
 	cropTarget: ITrackItem | null;
 	trackItem: ITrackItem | null;

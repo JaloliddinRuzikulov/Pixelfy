@@ -8,6 +8,7 @@ import { VoiceOver } from "./voice-over";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
 import { Uploads } from "./uploads";
 import { Presentations } from "./presentations";
+import Wav2LipMenuItem from "./wav2lip";
 
 const ActiveMenuItem = () => {
 	const { activeMenuItem } = useLayoutStore();
@@ -51,6 +52,10 @@ const ActiveMenuItem = () => {
 
 	if (activeMenuItem === "presentations") {
 		return <Presentations />;
+	}
+
+	if (activeMenuItem === "wav2lip") {
+		return <Wav2LipMenuItem />;
 	}
 
 	return null;
