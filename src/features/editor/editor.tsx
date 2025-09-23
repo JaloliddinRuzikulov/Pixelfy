@@ -324,46 +324,58 @@ const Editor = ({
 				setProjectName={setProjectName}
 			/>
 			<div className="flex flex-1">
-				{isLargeScreen && (
-					<div className="flex flex-none h-[calc(100vh-56px)]">
-						<MenuList />
-						{showMenuItem && <MenuItem />}
-					</div>
-				)}
-				<ResizablePanelGroup style={{ flex: 1 }} direction="vertical">
-					<ResizablePanel
-						className="relative border-r-2 border-border"
-						defaultSize={70}
-					>
-						<FloatingControl />
-						<div className="flex h-full flex-1">
-							{/* Sidebar only on large screens - conditionally mounted */}
-
-							<div
-								style={{
-									width: "100%",
-									height: "100%",
-									position: "relative",
-									flex: 1,
-									overflow: "hidden",
-								}}
+				<ResizablePanelGroup style={{ flex: 1 }} direction="horizontal">
+					{isLargeScreen && (
+						<>
+							<ResizablePanel
+								defaultSize={25}
+								minSize={15}
+								maxSize={40}
+								className="flex flex-none h-[calc(100vh-56px)]"
 							>
-								<CropModal />
-								<Scene ref={sceneRef} stateManager={stateManager} />
-							</div>
-						</div>
+								<MenuList />
+								{showMenuItem && <MenuItem />}
+							</ResizablePanel>
+							<ResizableHandle className="w-1 bg-border hover:bg-primary/60 transition-colors" />
+						</>
+					)}
+					<ResizablePanel defaultSize={isLargeScreen ? 75 : 100}>
+						<ResizablePanelGroup style={{ flex: 1 }} direction="vertical">
+							<ResizablePanel
+								className="relative border-r-2 border-border"
+								defaultSize={70}
+							>
+								<FloatingControl />
+								<div className="flex h-full flex-1">
+									{/* Sidebar only on large screens - conditionally mounted */}
+
+									<div
+										style={{
+											width: "100%",
+											height: "100%",
+											position: "relative",
+											flex: 1,
+											overflow: "hidden",
+										}}
+									>
+										<CropModal />
+										<Scene ref={sceneRef} stateManager={stateManager} />
+									</div>
+								</div>
+							</ResizablePanel>
+							<ResizableHandle className="bg-border hover:bg-primary/60 transition-colors h-1" />
+							<ResizablePanel
+								className="min-h-[50px] border-t-2 border-border border-r-2"
+								ref={timelinePanelRef}
+								defaultSize={30}
+								onResize={handleTimelineResize}
+							>
+								{playerRef && <Timeline stateManager={stateManager} />}
+							</ResizablePanel>
+							{!isLargeScreen && !trackItem && loaded && <MenuListHorizontal />}
+							{!isLargeScreen && trackItem && <ControlItemHorizontal />}
+						</ResizablePanelGroup>
 					</ResizablePanel>
-					<ResizableHandle className="bg-border hover:bg-primary/60 transition-colors h-1" />
-					<ResizablePanel
-						className="min-h-[50px] border-t-2 border-border border-r-2"
-						ref={timelinePanelRef}
-						defaultSize={30}
-						onResize={handleTimelineResize}
-					>
-						{playerRef && <Timeline stateManager={stateManager} />}
-					</ResizablePanel>
-					{!isLargeScreen && !trackItem && loaded && <MenuListHorizontal />}
-					{!isLargeScreen && trackItem && <ControlItemHorizontal />}
 				</ResizablePanelGroup>
 				<ControlMenuList />
 			</div>

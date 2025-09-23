@@ -19,6 +19,7 @@ import {
 	Clock,
 	Star,
 	TrendingUp,
+	FileSpreadsheet,
 } from "lucide-react";
 import { Videos as MenuItemVideos } from "../menu-item/videos";
 import { Images as MenuItemImages } from "../menu-item/images";
@@ -26,6 +27,7 @@ import { Audios as MenuItemAudios } from "../menu-item/audios";
 import { Texts as MenuItemTexts } from "../menu-item/texts";
 import { Elements as MenuItemElements } from "../menu-item/elements";
 import { Uploads as MenuItemUploads } from "../menu-item/uploads";
+import { Office as MenuItemOffice } from "../menu-item/office";
 
 interface ModernSidebarProps {
 	stateManager: any;
@@ -51,6 +53,12 @@ export default function ModernSidebar({
 			component: MenuItemElements,
 		},
 		{
+			id: "office",
+			label: "Office",
+			icon: FileSpreadsheet,
+			component: MenuItemOffice,
+		},
+		{
 			id: "uploads",
 			label: "Yuklashlar",
 			icon: Upload,
@@ -68,7 +76,9 @@ export default function ModernSidebar({
 		<div className="flex flex-col h-full">
 			{/* Header */}
 			<div className="p-4 border-b border-slate-800">
-				<h2 className="text-lg font-semibold text-white mb-3">Media kutubxonasi</h2>
+				<h2 className="text-lg font-semibold text-white mb-3">
+					Media kutubxonasi
+				</h2>
 
 				{/* Search Bar */}
 				<div className="relative">

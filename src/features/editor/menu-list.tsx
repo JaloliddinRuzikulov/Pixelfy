@@ -2,7 +2,16 @@ import React, { memo, useCallback, useMemo } from "react";
 import useLayoutStore from "./store/use-layout-store";
 import { Icons } from "@/components/shared/icons";
 import { Button } from "@/components/ui/button";
-import { Mic, Presentation, UserCheck } from "lucide-react";
+import {
+	Mic,
+	Presentation,
+	UserCheck,
+	FileSpreadsheet,
+	PenTool,
+	Library,
+	Type,
+	Upload,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
 	Drawer,
@@ -18,14 +27,8 @@ import { useTranslations } from "next-intl";
 // Labels will be translated dynamically
 const MENU_ITEMS_CONFIG = [
 	{
-		id: "texts",
-		icon: Icons.type,
-		labelKey: "media.texts",
-		ariaLabelKey: "media.textsAria",
-	},
-	{
-		id: "uploads",
-		icon: Icons.image,
+		id: "media",
+		icon: Upload,
 		labelKey: "media.media",
 		ariaLabelKey: "media.mediaAria",
 	},
@@ -34,6 +37,30 @@ const MENU_ITEMS_CONFIG = [
 		icon: UserCheck,
 		labelKey: "media.wav2lip",
 		ariaLabelKey: "media.wav2lipAria",
+	},
+	{
+		id: "office",
+		icon: FileSpreadsheet,
+		labelKey: "media.office",
+		ariaLabelKey: "media.officeAria",
+	},
+	{
+		id: "recording",
+		icon: PenTool,
+		labelKey: "media.recording",
+		ariaLabelKey: "media.recordingAria",
+	},
+	{
+		id: "content-library",
+		icon: Library,
+		labelKey: "media.contentLibrary",
+		ariaLabelKey: "media.contentLibraryAria",
+	},
+	{
+		id: "texts",
+		icon: Type,
+		labelKey: "media.texts",
+		ariaLabelKey: "media.textsAria",
 	},
 ] as const;
 

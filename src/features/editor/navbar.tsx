@@ -1,11 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { dispatch } from "@designcombo/events";
-import {
-	HISTORY_UNDO,
-	HISTORY_REDO,
-	DESIGN_RESIZE,
-} from "@designcombo/state";
+import { HISTORY_UNDO, HISTORY_REDO, DESIGN_RESIZE } from "@designcombo/state";
 import { Icons } from "@/components/shared/icons";
 import {
 	Download,

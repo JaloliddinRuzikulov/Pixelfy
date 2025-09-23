@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 export default function Error({
 	error,
@@ -12,7 +12,7 @@ export default function Error({
 			<div className="text-center">
 				<h1 className="text-4xl font-bold">Xatolik yuz berdi!</h1>
 				<p className="mt-4 text-lg text-muted-foreground">
-					{error.message || 'Kutilmagan xatolik yuz berdi'}
+					{error.message || "Kutilmagan xatolik yuz berdi"}
 				</p>
 				<button
 					onClick={reset}

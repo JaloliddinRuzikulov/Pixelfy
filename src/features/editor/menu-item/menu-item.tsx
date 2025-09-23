@@ -9,6 +9,9 @@ import { useIsLargeScreen } from "@/hooks/use-media-query";
 import { Uploads } from "./uploads";
 import { Presentations } from "./presentations";
 import Wav2LipMenuItem from "./wav2lip";
+import { Office } from "./office";
+import { Recording } from "./recording";
+import { ContentLibrary } from "./content-library";
 
 const ActiveMenuItem = () => {
 	const { activeMenuItem } = useLayoutStore();
@@ -17,16 +20,15 @@ const ActiveMenuItem = () => {
 		return null;
 	}
 
+	if (activeMenuItem === "media") {
+		return <Uploads />;
+	}
+
 	if (activeMenuItem === "texts") {
 		return <Texts />;
 	}
 
 	if (activeMenuItem === "uploads") {
-		return <Uploads />;
-	}
-
-	// Handle legacy "media" for backwards compatibility
-	if (activeMenuItem === "media") {
 		return <Uploads />;
 	}
 
@@ -52,6 +54,18 @@ const ActiveMenuItem = () => {
 
 	if (activeMenuItem === "presentations") {
 		return <Presentations />;
+	}
+
+	if (activeMenuItem === "office") {
+		return <Office />;
+	}
+
+	if (activeMenuItem === "recording") {
+		return <Recording />;
+	}
+
+	if (activeMenuItem === "content-library") {
+		return <ContentLibrary />;
 	}
 
 	if (activeMenuItem === "wav2lip") {

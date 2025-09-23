@@ -33,10 +33,33 @@ export async function renderWithActualComposition(
 
 	// Collect unique asset paths from design
 	const requiredAssets = new Set<string>();
+	const httpAssets = new Set<string>(); // Track HTTP/HTTPS URLs separately
+
 	if (design.trackItemsMap) {
 		Object.values(design.trackItemsMap).forEach((item: any) => {
-			if (item.details?.src?.startsWith("/uploads/")) {
-				requiredAssets.add(item.details.src);
+			const src = item.details?.src;
+			if (!src) return;
+
+			// Handle different types of URLs
+			if (src.startsWith("/uploads/")) {
+				requiredAssets.add(src);
+			} else if (src.startsWith("uploads/")) {
+				requiredAssets.add("/" + src);
+			} else if (src.startsWith("/api/local-upload/")) {
+				// Local uploaded files via API
+				requiredAssets.add(src);
+			} else if (src.startsWith("http://") || src.startsWith("https://")) {
+				// External URLs (like stock videos from Pexels)
+				httpAssets.add(src);
+			} else if (src.startsWith("/") && !src.startsWith("/uploads/")) {
+				// Other local files
+				requiredAssets.add(src);
+			}
+
+			// Also check for preview URLs in metadata
+			const previewUrl = item.metadata?.previewUrl;
+			if (previewUrl && previewUrl.startsWith("/uploads/")) {
+				requiredAssets.add(previewUrl);
 			}
 		});
 	}
@@ -45,10 +68,31 @@ export async function renderWithActualComposition(
 	const tempUploadsDir = path.join(tempPublicDir, "uploads");
 	await fs.mkdir(tempUploadsDir, { recursive: true });
 
+	// Also create api directory for local-upload files
+	const tempApiDir = path.join(tempPublicDir, "api", "local-upload");
+	await fs.mkdir(tempApiDir, { recursive: true });
+
+	let copiedCount = 0;
 	for (const assetPath of requiredAssets) {
 		try {
-			const sourceFile = path.join(publicDir, assetPath);
-			const targetFile = path.join(tempPublicDir, assetPath);
+			let sourceFile = path.join(publicDir, assetPath);
+			let targetFile = path.join(tempPublicDir, assetPath);
+
+			// Handle API uploaded files differently
+			if (assetPath.startsWith("/api/local-upload/")) {
+				// These files might be in uploads directory
+				const filename = assetPath.split("/").pop();
+				sourceFile = path.join(publicDir, "uploads", filename);
+
+				// Check if file exists in uploads directory
+				try {
+					await fs.access(sourceFile);
+				} catch {
+					// Try without extension or with different path
+					console.warn(`Asset not found at expected location: ${sourceFile}`);
+					continue;
+				}
+			}
 
 			// Ensure target directory exists
 			const targetDir = path.dirname(targetFile);
@@ -56,13 +100,14 @@ export async function renderWithActualComposition(
 
 			// Copy individual file
 			await fs.copyFile(sourceFile, targetFile);
+			copiedCount++;
 		} catch (error) {
 			console.warn(`Could not copy asset ${assetPath}:`, error.message);
 		}
 	}
 
 	console.log(
-		`Copied ${requiredAssets.size} required assets instead of entire uploads directory`,
+		`Copied ${copiedCount} assets (${httpAssets.size} external URLs will be fetched directly)`,
 	);
 
 	// Create entry point that imports actual composition
@@ -93,23 +138,47 @@ const chromaKeyData = ${JSON.stringify(chromaKeySettings || {})};
 // Helper to resolve asset URLs
 const resolveAssetUrl = (src) => {
 	if (!src) return src;
-	if (src.startsWith('http')) return src;
-	
+
+	// Handle blob URLs - these need to be converted to actual files
+	if (src.startsWith('blob:')) {
+		console.warn('Blob URL detected:', src, '- blob URLs cannot be used in Remotion render');
+		// Return a placeholder or skip rendering this item
+		return null;
+	}
+
+	// Handle data URLs (base64 encoded images/videos)
+	if (src.startsWith('data:')) {
+		// Data URLs can be used directly
+		return src;
+	}
+
+	// Handle HTTP/HTTPS URLs
+	if (src.startsWith('http://') || src.startsWith('https://')) {
+		return src;
+	}
+
+	// Handle API uploaded files
+	if (src.startsWith('/api/local-upload/')) {
+		// Extract filename and use staticFile
+		const filename = src.split('/').pop();
+		return staticFile('uploads/' + filename);
+	}
+
 	// Use staticFile for bundled assets - this will work with the temp directory
 	if (src.startsWith('/uploads/')) {
 		// Remove leading slash for staticFile
 		return staticFile(src.substring(1));
 	}
-	
+
 	if (src.startsWith('uploads/')) {
 		return staticFile(src);
 	}
-	
+
 	// For other paths, try staticFile
 	if (src.startsWith('/')) {
 		return staticFile(src.substring(1));
 	}
-	
+
 	return src;
 };
 
@@ -237,7 +306,7 @@ const VideoComponent = ({ item }) => {
 	const fps = designData.fps || 30;
 	const playbackRate = item.playbackRate || 1;
 	const chromaKey = chromaKeyData[item.id];
-	
+
 	const crop = details?.crop || {
 		x: 0,
 		y: 0,
@@ -247,6 +316,12 @@ const VideoComponent = ({ item }) => {
 
 	// Use helper to resolve asset URLs
 	const videoSrc = resolveAssetUrl(details.src);
+
+	// Skip rendering if no valid URL
+	if (!videoSrc) {
+		console.warn('Skipping video item due to invalid URL:', item.id, details.src);
+		return null;
+	}
 
 	// Use OffthreadVideo for now (chroma key support can be added later)
 	const videoElement = React.createElement(OffthreadVideo, {
@@ -277,6 +352,12 @@ const AudioComponent = ({ item }) => {
 	// Use helper to resolve asset URLs
 	const audioSrc = resolveAssetUrl(details.src);
 
+	// Skip rendering if no valid URL
+	if (!audioSrc) {
+		console.warn('Skipping audio item due to invalid URL:', item.id, details.src);
+		return null;
+	}
+
 	const audioElement = React.createElement(Audio, {
 		startFrom: (item.trim?.from || 0) / 1000 * (designData.fps || 30),
 		endAt: (item.trim?.to || item.display.to - item.display.from) / 1000 * (designData.fps || 30),
@@ -300,6 +381,12 @@ const ImageComponent = ({ item }) => {
 
 	// Use helper to resolve asset URLs
 	const imageSrc = resolveAssetUrl(details.src);
+
+	// Skip rendering if no valid URL
+	if (!imageSrc) {
+		console.warn('Skipping image item due to invalid URL:', item.id, details.src);
+		return null;
+	}
 
 	const imageElement = React.createElement(Img, {
 		src: imageSrc,

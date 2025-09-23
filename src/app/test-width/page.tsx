@@ -7,7 +7,9 @@ export default function TestWidthPage() {
 	return (
 		<div className="min-h-screen bg-gray-100 p-4">
 			<div className="max-w-2xl mx-auto space-y-8">
-				<h1 className="text-3xl font-bold text-center">Kenglik Test Sahifasi</h1>
+				<h1 className="text-3xl font-bold text-center">
+					Kenglik Test Sahifasi
+				</h1>
 
 				{/* Test 1: Minimal card with explicit width */}
 				<div className="bg-white p-8 rounded-lg shadow-lg">

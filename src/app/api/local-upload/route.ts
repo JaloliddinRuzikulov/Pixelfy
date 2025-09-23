@@ -5,7 +5,7 @@ import crypto from "crypto";
 
 // Configure max body size for file uploads
 export const maxDuration = 60; // Maximum function duration: 60 seconds
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 // Helper to ensure upload directory exists
 async function ensureUploadDir(subDir: string = "") {

@@ -109,7 +109,7 @@ const nextConfig = {
 
 	// Skip static generation for problematic pages
 	generateBuildId: async () => {
-		return 'build-' + Date.now();
+		return "build-" + Date.now();
 	},
 
 	// External packages for server-side only

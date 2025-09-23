@@ -61,7 +61,7 @@ const getFileExtension = (filename: string) => {
 	return filename.split(".").pop()?.toUpperCase() || "";
 };
 
-export const Uploads = () => {
+export const UploadsImproved = () => {
 	const t = useTranslations("media");
 	const { setShowUploadModal, uploads, pendingUploads, activeUploads } =
 		useUploadStore();
@@ -130,11 +130,10 @@ export const Uploads = () => {
 				src: srcVideo,
 			},
 			metadata: {
-				previewUrl: video.metadata?.thumbnailUrl || srcVideo,
+				previewUrl: srcVideo,
 				originalDuration: duration / 1000,
 				volume: 1,
 			},
-			aspectRatio: video.metadata?.aspectRatio || 16 / 9,
 		};
 
 		console.log("Adding video to timeline:", videoItem);
@@ -252,68 +251,47 @@ export const Uploads = () => {
 
 	// Add stock video to timeline with proper format
 	const handleAddStockVideo = useCallback((video: any) => {
-		try {
-			// Get the best quality video file
-			const videoFile = video.video_files?.find((file: any) =>
-				file.quality === "hd" || file.quality === "sd"
-			) || video.video_files?.[0];
+		// Get the best quality video file
+		const videoFile = video.video_files?.find((file: any) =>
+			file.quality === "hd" || file.quality === "sd"
+		) || video.video_files?.[0];
 
-			if (!videoFile || !videoFile.link) {
-				console.error("No valid video file found:", video);
-				showSuccessMessage("Video fayl topilmadi!");
-				return;
-			}
+		const srcVideo = videoFile?.link || video.url;
+		const duration = (video.duration || 10) * 1000; // Convert to milliseconds
 
-			const srcVideo = videoFile.link;
-			const duration = (video.duration || 10) * 1000; // Convert to milliseconds
+		const videoItem = {
+			id: generateId(),
+			type: "video" as const,
+			name: `Stock Video - ${video.user?.name || "Pexels"}`,
+			display: {
+				from: 0,
+				to: duration,
+			},
+			trim: {
+				from: 0,
+				to: duration,
+			},
+			duration: duration,
+			details: {
+				src: srcVideo,
+			},
+			metadata: {
+				previewUrl: video.image || video.video_pictures?.[0]?.picture,
+				originalDuration: video.duration || 10,
+				volume: 1,
+				author: video.user?.name,
+				url: video.url,
+			},
+		};
 
-			// Get preview image
-			let previewUrl = video.image;
-			if (!previewUrl && video.video_pictures && video.video_pictures.length > 0) {
-				previewUrl = video.video_pictures[0].picture;
-			}
-			if (!previewUrl) {
-				previewUrl = srcVideo; // Fallback to video URL
-			}
+		console.log("Adding stock video to timeline:", videoItem);
+		dispatch(ADD_ITEMS, {
+			payload: {
+				trackItems: [videoItem],
+			},
+		});
 
-			const videoItem = {
-				id: generateId(),
-				type: "video" as const,
-				name: `Stock Video - ${video.user?.name || "Pexels"}`,
-				display: {
-					from: 0,
-					to: duration,
-				},
-				trim: {
-					from: 0,
-					to: duration,
-				},
-				duration: duration,
-				details: {
-					src: srcVideo,
-				},
-				metadata: {
-					previewUrl: previewUrl,
-					originalDuration: video.duration || 10,
-					volume: 1,
-					author: video.user?.name,
-					url: video.url,
-				},
-				aspectRatio: (video.width && video.height) ? (video.width / video.height) : (16 / 9),
-			};
-
-			console.log("Adding stock video to timeline:", videoItem);
-			dispatch(ADD_ITEMS, {
-				payload: {
-					trackItems: [videoItem],
-				},
-			});
-
-			showSuccessMessage("Stock video timeline'ga qo'shildi!");
-		} catch (error) {
-			console.error("Error adding stock video:", error);
-			showSuccessMessage("Video qo'shishda xato yuz berdi!");
-		}
+		showSuccessMessage("Stock video timeline'ga qo'shildi!");
 	}, []);
 
 	// Show success message
@@ -679,7 +657,7 @@ export const Uploads = () => {
 											>
 												<div className="aspect-square relative overflow-hidden">
 													<ImageLoading
-														src={image.src?.medium || image.src?.original || ""}
+														src={image.src.medium}
 														alt={image.alt || "Stock image"}
 														className="object-cover w-full h-full group-hover:scale-105 transition-transform"
 													/>

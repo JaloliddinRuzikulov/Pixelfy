@@ -25,13 +25,7 @@ import BasicText from "./control-item/basic-text";
 import BasicImage from "./control-item/basic-image";
 import BasicVideo from "./control-item/basic-video";
 import BasicAudio from "./control-item/basic-audio";
-import {
-	ITrackItem,
-	IText,
-	IImage,
-	IVideo,
-	IAudio,
-} from "@designcombo/types";
+import { ITrackItem, IText, IImage, IVideo, IAudio } from "@designcombo/types";
 
 // Define control menu items configuration
 const CONTROL_MENU_CONFIG = {

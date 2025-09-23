@@ -54,13 +54,81 @@ export async function processFileUpload(
 
 		const uploadInfo = response.data;
 
+		// Generate media metadata
+		let mediaMetadata = {};
+		if (file.type.startsWith("video/")) {
+			try {
+				const videoUrl = uploadInfo.url;
+				const video = document.createElement("video");
+				video.src = videoUrl;
+				video.crossOrigin = "anonymous";
+
+				await new Promise((resolve, reject) => {
+					video.onloadedmetadata = resolve;
+					video.onerror = reject;
+				});
+
+				// Get video duration and aspect ratio
+				const duration = video.duration * 1000; // Convert to ms
+				const aspectRatio = video.videoWidth / video.videoHeight;
+
+				// Generate thumbnail
+				const canvas = document.createElement("canvas");
+				const context = canvas.getContext("2d");
+
+				// Seek to 1 second or 10% of video duration (whichever is smaller)
+				video.currentTime = Math.min(1, video.duration * 0.1);
+
+				await new Promise((resolve) => {
+					video.onseeked = resolve;
+				});
+
+				if (context) {
+					canvas.width = video.videoWidth;
+					canvas.height = video.videoHeight;
+					context.drawImage(video, 0, 0, canvas.width, canvas.height);
+					const thumbnailUrl = canvas.toDataURL("image/jpeg", 0.8);
+
+					mediaMetadata = {
+						duration,
+						aspectRatio,
+						thumbnailUrl,
+						width: video.videoWidth,
+						height: video.videoHeight,
+					};
+				}
+			} catch (error) {
+				console.warn("Failed to generate video metadata:", error);
+			}
+		} else if (file.type.startsWith("audio/")) {
+			try {
+				const audioUrl = uploadInfo.url;
+				const audio = new Audio(audioUrl);
+
+				await new Promise((resolve, reject) => {
+					audio.onloadedmetadata = resolve;
+					audio.onerror = reject;
+				});
+
+				const duration = audio.duration * 1000; // Convert to ms
+				mediaMetadata = {
+					duration
+				};
+			} catch (error) {
+				console.warn("Failed to generate audio metadata:", error);
+			}
+		}
+
 		// Construct upload data
 		const uploadData = {
 			fileName: uploadInfo.fileName,
 			filePath: uploadInfo.filePath,
 			fileSize: file.size,
 			contentType: file.type,
-			metadata: { uploadedUrl: uploadInfo.url },
+			metadata: {
+				uploadedUrl: uploadInfo.url,
+				...mediaMetadata
+			},
 			folder: uploadInfo.folder || null,
 			type: file.type.split("/")[0],
 			method: "direct",
