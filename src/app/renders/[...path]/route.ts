@@ -36,7 +36,7 @@ const mimeTypes: Record<string, string> = {
 // Serve static files from the renders directory
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { path: string[] } }
+	{ params }: { params: { path: string[] } },
 ) {
 	try {
 		// Reconstruct the file path from the URL segments

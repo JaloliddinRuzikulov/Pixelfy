@@ -38,7 +38,7 @@ import ModalUpload from "@/components/modal-upload";
 import { useTranslations } from "next-intl";
 import { usePexelsImages } from "@/hooks/use-pexels-images";
 import { usePexelsVideos } from "@/hooks/use-pexels-videos";
-import { ImageLoading } from "@/components/ui/image-loading";
+// import { ImageLoading } from "@/components/ui/image-loading"; // Not needed anymore
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
@@ -48,7 +48,7 @@ const formatFileSize = (bytes: number) => {
 	const k = 1024;
 	const sizes = ["Bytes", "KB", "MB", "GB"];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+	return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 };
 
 const formatDuration = (seconds: number) => {
@@ -98,188 +98,323 @@ export const Uploads = () => {
 	}, [loadPopularImages, loadPopularVideos]);
 
 	// Group completed uploads by type
-	const videos = uploads.filter(
-		(upload) => upload.type?.startsWith("video/") || upload.type === "video",
-	);
-	const images = uploads.filter(
-		(upload) => upload.type?.startsWith("image/") || upload.type === "image",
-	);
-	const audios = uploads.filter(
-		(upload) => upload.type?.startsWith("audio/") || upload.type === "audio",
-	);
+	const videos = uploads.filter((upload) => {
+		console.log(`[UI] Checking video filter for:`, { type: upload.type, contentType: upload.contentType });
+		return upload.type === "video" || upload.contentType?.startsWith("video/");
+	});
+	const images = uploads.filter((upload) => {
+		console.log(`[UI] Checking image filter for:`, { type: upload.type, contentType: upload.contentType });
+		return upload.type === "image" || upload.contentType?.startsWith("image/");
+	});
+	const audios = uploads.filter((upload) => {
+		console.log(`[UI] Checking audio filter for:`, { type: upload.type, contentType: upload.contentType });
+		return upload.type === "audio" || upload.contentType?.startsWith("audio/");
+	});
 
 	// Add video to timeline with proper format
-	const handleAddVideo = useCallback((video: any) => {
-		const srcVideo = video.metadata?.uploadedUrl || video.url;
-		const duration = video.metadata?.duration || 10000; // Default 10 seconds
-
-		const videoItem = {
-			id: generateId(),
-			type: "video" as const,
-			name: video.file?.name || "Video",
-			display: {
-				from: 0,
-				to: duration,
-			},
-			trim: {
-				from: 0,
-				to: duration,
-			},
-			duration: duration,
-			details: {
-				src: srcVideo,
-			},
-			metadata: {
-				previewUrl: video.metadata?.thumbnailUrl || srcVideo,
-				originalDuration: duration / 1000,
-				volume: 1,
-			},
-			aspectRatio: video.metadata?.aspectRatio || 16 / 9,
-		};
-
-		console.log("Adding video to timeline:", videoItem);
-		dispatch(ADD_ITEMS, {
-			payload: {
-				trackItems: [videoItem],
-			},
-		});
-
-		// Show success notification
-		showSuccessMessage("Video timeline'ga qo'shildi!");
-	}, []);
-
-	// Add image to timeline
-	const handleAddImage = useCallback((image: any) => {
-		const srcImage = image.metadata?.uploadedUrl || image.url;
-
-		const imageItem = {
-			id: generateId(),
-			type: "image" as const,
-			name: image.file?.name || "Image",
-			display: {
-				from: 0,
-				to: 5000,
-			},
-			trim: {
-				from: 0,
-				to: 5000,
-			},
-			duration: 5000,
-			details: {
-				src: srcImage,
-			},
-			metadata: {},
-		};
-
-		dispatch(ADD_ITEMS, {
-			payload: {
-				trackItems: [imageItem],
-			},
-		});
-
-		showSuccessMessage("Rasm timeline'ga qo'shildi!");
-	}, []);
-
-	// Add audio to timeline
-	const handleAddAudio = useCallback((audio: any) => {
-		const srcAudio = audio.metadata?.uploadedUrl || audio.url;
-		const duration = audio.metadata?.duration || 10000;
-
-		const audioItem = {
-			id: generateId(),
-			type: "audio" as const,
-			name: audio.file?.name || "Audio",
-			display: {
-				from: 0,
-				to: duration,
-			},
-			trim: {
-				from: 0,
-				to: duration,
-			},
-			duration: duration,
-			details: {
-				src: srcAudio,
-			},
-			metadata: {
-				author: "User Upload",
-				originalDuration: duration / 1000,
-				volume: 1,
-			},
-		};
-
-		dispatch(ADD_ITEMS, {
-			payload: {
-				trackItems: [audioItem],
-			},
-		});
-
-		showSuccessMessage("Audio timeline'ga qo'shildi!");
-	}, []);
-
-	// Add stock image to timeline
-	const handleAddStockImage = useCallback((image: any) => {
-		const imageItem = {
-			id: generateId(),
-			type: "image" as const,
-			name: image.alt || "Stock Image",
-			display: {
-				from: 0,
-				to: 5000,
-			},
-			trim: {
-				from: 0,
-				to: 5000,
-			},
-			duration: 5000,
-			details: {
-				src: image.src.large,
-			},
-			metadata: {
-				photographer: image.photographer,
-				url: image.url,
-			},
-		};
-
-		dispatch(ADD_ITEMS, {
-			payload: {
-				trackItems: [imageItem],
-			},
-		});
-
-		showSuccessMessage("Stock rasm timeline'ga qo'shildi!");
-	}, []);
-
-	// Add stock video to timeline with proper format
-	const handleAddStockVideo = useCallback((video: any) => {
+	const handleAddVideo = useCallback(async (video: any) => {
 		try {
-			// Get the best quality video file
-			const videoFile = video.video_files?.find((file: any) =>
-				file.quality === "hd" || file.quality === "sd"
-			) || video.video_files?.[0];
+			const srcVideo = video.metadata?.uploadedUrl || video.url;
+			const duration = video.metadata?.duration || 10000; // Default 10 seconds
 
-			if (!videoFile || !videoFile.link) {
-				console.error("No valid video file found:", video);
-				showSuccessMessage("Video fayl topilmadi!");
+			// Validate required data
+			if (!srcVideo) {
+				console.error("No video source found:", video);
+				showSuccessMessage("Video fayli topilmadi!");
 				return;
 			}
 
-			const srcVideo = videoFile.link;
-			const duration = (video.duration || 10) * 1000; // Convert to milliseconds
+			// Get thumbnail URL - prioritize client-side generated thumbnail, then storage service thumbnail, then video itself
+			const thumbnailUrl = video.metadata?.thumbnailUrl ||
+								 (video.metadata?.thumbnail ? `/storage/${video.metadata.thumbnail}` : srcVideo);
 
-			// Get preview image
-			let previewUrl = video.image;
-			if (!previewUrl && video.video_pictures && video.video_pictures.length > 0) {
-				previewUrl = video.video_pictures[0].picture;
+			console.log("[VIDEO THUMBNAIL DEBUG]", {
+				originalVideo: video,
+				thumbnailUrl: video.metadata?.thumbnailUrl,
+				thumbnailPath: video.metadata?.thumbnail,
+				finalThumbnailUrl: thumbnailUrl,
+				srcVideo
+			});
+
+			const videoItem = {
+				id: generateId(),
+				type: "video" as const,
+				name: video.file?.name || "Video",
+				display: {
+					from: 0,
+					to: duration,
+				},
+				trim: {
+					from: 0,
+					to: duration,
+				},
+				duration: duration,
+				details: {
+					src: srcVideo,
+				},
+				metadata: {
+					previewUrl: thumbnailUrl,
+					originalDuration: duration / 1000,
+					volume: 1,
+				},
+				aspectRatio: video.metadata?.aspectRatio || 16 / 9,
+			};
+
+			console.log("Adding video to timeline:", videoItem);
+
+			await new Promise<void>((resolve, reject) => {
+				try {
+					dispatch(ADD_ITEMS, {
+						payload: {
+							trackItems: [videoItem],
+						},
+					});
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			});
+
+			// Show success notification
+			showSuccessMessage("Video timeline'ga qo'shildi!");
+		} catch (error) {
+			console.error("Video qo'shishda xato:", error);
+			showSuccessMessage("Video qo'shishda xato yuz berdi!");
+		}
+	}, []);
+
+	// Add image to timeline
+	const handleAddImage = useCallback(async (image: any) => {
+		try {
+			const srcImage = image.metadata?.uploadedUrl || image.url;
+
+			// Validate required data
+			if (!srcImage) {
+				console.error("No image source found:", image);
+				showSuccessMessage("Rasm fayli topilmadi!");
+				return;
 			}
-			if (!previewUrl) {
-				previewUrl = srcVideo; // Fallback to video URL
+
+			const imageItem = {
+				id: generateId(),
+				type: "image" as const,
+				name: image.file?.name || "Image",
+				display: {
+					from: 0,
+					to: 5000,
+				},
+				trim: {
+					from: 0,
+					to: 5000,
+				},
+				duration: 5000,
+				details: {
+					src: srcImage,
+				},
+				metadata: {},
+			};
+
+			await new Promise<void>((resolve, reject) => {
+				try {
+					dispatch(ADD_ITEMS, {
+						payload: {
+							trackItems: [imageItem],
+						},
+					});
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			});
+
+			showSuccessMessage("Rasm timeline'ga qo'shildi!");
+		} catch (error) {
+			console.error("Rasm qo'shishda xato:", error);
+			showSuccessMessage("Rasm qo'shishda xato yuz berdi!");
+		}
+	}, []);
+
+	// Add audio to timeline
+	const handleAddAudio = useCallback(async (audio: any) => {
+		try {
+			const srcAudio = audio.metadata?.uploadedUrl || audio.url;
+			const duration = audio.metadata?.duration || 10000;
+
+			// Validate required data
+			if (!srcAudio) {
+				console.error("No audio source found:", audio);
+				showSuccessMessage("Audio fayli topilmadi!");
+				return;
+			}
+
+			const audioItem = {
+				id: generateId(),
+				type: "audio" as const,
+				name: audio.file?.name || "Audio",
+				display: {
+					from: 0,
+					to: duration,
+				},
+				trim: {
+					from: 0,
+					to: duration,
+				},
+				duration: duration,
+				details: {
+					src: srcAudio,
+				},
+				metadata: {
+					author: "User Upload",
+					originalDuration: duration / 1000,
+					volume: 1,
+				},
+			};
+
+			await new Promise<void>((resolve, reject) => {
+				try {
+					dispatch(ADD_ITEMS, {
+						payload: {
+							trackItems: [audioItem],
+						},
+					});
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			});
+
+			showSuccessMessage("Audio timeline'ga qo'shildi!");
+		} catch (error) {
+			console.error("Audio qo'shishda xato:", error);
+			showSuccessMessage("Audio qo'shishda xato yuz berdi!");
+		}
+	}, []);
+
+	// Add stock image to timeline (supports both stock and local images)
+	const handleAddStockImage = useCallback(async (image: any) => {
+		try {
+			// Handle different image formats
+			let imageSrc: string;
+			let imageName: string;
+			let photographer: string;
+
+			if (image.details?.src) {
+				// Local media format
+				imageSrc = image.details.src;
+				imageName = image.details.alt || "Local Image";
+				photographer = image.details.photographer || "Local Asset";
+			} else if (image.src?.large) {
+				// Pexels format
+				imageSrc = image.src.large;
+				imageName = image.alt || "Stock Image";
+				photographer = image.photographer || "Pexels";
+			} else {
+				console.error("Unsupported image format:", image);
+				showSuccessMessage("Rasm formatini qo'llab-quvvatlanmaydi!");
+				return;
+			}
+
+			const imageItem = {
+				id: generateId(),
+				type: "image" as const,
+				name: imageName,
+				display: {
+					from: 0,
+					to: 5000,
+				},
+				trim: {
+					from: 0,
+					to: 5000,
+				},
+				duration: 5000,
+				details: {
+					src: imageSrc,
+				},
+				metadata: {
+					photographer: photographer,
+					url: image.url,
+				},
+			};
+
+			console.log("Adding image to timeline:", imageItem);
+
+			await new Promise<void>((resolve, reject) => {
+				try {
+					dispatch(ADD_ITEMS, {
+						payload: {
+							trackItems: [imageItem],
+						},
+					});
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
+			});
+
+			showSuccessMessage("Rasm timeline'ga qo'shildi!");
+		} catch (error) {
+			console.error("Stock rasm qo'shishda xato:", error);
+			showSuccessMessage("Rasm qo'shishda xato yuz berdi!");
+		}
+	}, []);
+
+	// Add stock video to timeline with proper format (supports both stock and local videos)
+	const handleAddStockVideo = useCallback(async (video: any) => {
+		try {
+			let srcVideo: string;
+			let duration: number;
+			let previewUrl: string;
+			let videoName: string;
+			let authorName: string;
+
+			if (video.details?.src) {
+				// Local media format
+				srcVideo = video.details.src;
+				duration = (video.details.duration || 10) * 1000; // Convert to milliseconds
+				previewUrl = video.preview || srcVideo;
+				videoName = `Local Video - ${video.metadata?.photographer || "Local Asset"}`;
+				authorName = video.metadata?.photographer || "Local Asset";
+			} else if (video.video_files) {
+				// Pexels format
+				const videoFile =
+					video.video_files.find(
+						(file: any) => file.quality === "hd" || file.quality === "sd",
+					) || video.video_files[0];
+
+				if (!videoFile || !videoFile.link) {
+					console.error("No valid video file found:", video);
+					showSuccessMessage("Video fayl topilmadi!");
+					return;
+				}
+
+				srcVideo = videoFile.link;
+				duration = (video.duration || 10) * 1000; // Convert to milliseconds
+
+				// Get preview image
+				previewUrl = video.image;
+				if (
+					!previewUrl &&
+					video.video_pictures &&
+					video.video_pictures.length > 0
+				) {
+					previewUrl = video.video_pictures[0].picture;
+				}
+				if (!previewUrl) {
+					previewUrl = srcVideo; // Fallback to video URL
+				}
+
+				videoName = `Stock Video - ${video.user?.name || "Pexels"}`;
+				authorName = video.user?.name || "Pexels";
+			} else {
+				console.error("Unsupported video format:", video);
+				showSuccessMessage("Video formatini qo'llab-quvvatlanmaydi!");
+				return;
 			}
 
 			const videoItem = {
 				id: generateId(),
 				type: "video" as const,
-				name: `Stock Video - ${video.user?.name || "Pexels"}`,
+				name: videoName,
 				display: {
 					from: 0,
 					to: duration,
@@ -294,22 +429,35 @@ export const Uploads = () => {
 				},
 				metadata: {
 					previewUrl: previewUrl,
-					originalDuration: video.duration || 10,
+					originalDuration: duration / 1000,
 					volume: 1,
-					author: video.user?.name,
+					author: authorName,
 					url: video.url,
 				},
-				aspectRatio: (video.width && video.height) ? (video.width / video.height) : (16 / 9),
+				aspectRatio:
+					video.details?.width && video.details?.height
+						? video.details.width / video.details.height
+						: video.width && video.height
+							? video.width / video.height
+							: 16 / 9,
 			};
 
-			console.log("Adding stock video to timeline:", videoItem);
-			dispatch(ADD_ITEMS, {
-				payload: {
-					trackItems: [videoItem],
-				},
+			console.log("Adding video to timeline:", videoItem);
+
+			await new Promise<void>((resolve, reject) => {
+				try {
+					dispatch(ADD_ITEMS, {
+						payload: {
+							trackItems: [videoItem],
+						},
+					});
+					resolve();
+				} catch (error) {
+					reject(error);
+				}
 			});
 
-			showSuccessMessage("Stock video timeline'ga qo'shildi!");
+			showSuccessMessage("Video timeline'ga qo'shildi!");
 		} catch (error) {
 			console.error("Error adding stock video:", error);
 			showSuccessMessage("Video qo'shishda xato yuz berdi!");
@@ -319,7 +467,8 @@ export const Uploads = () => {
 	// Show success message
 	const showSuccessMessage = (message: string) => {
 		const successDiv = document.createElement("div");
-		successDiv.className = "fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-bottom";
+		successDiv.className =
+			"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-bottom";
 		successDiv.textContent = message;
 		document.body.appendChild(successDiv);
 		setTimeout(() => successDiv.remove(), 3000);
@@ -355,6 +504,22 @@ export const Uploads = () => {
 	const stockImages = pexelsImages || [];
 	const stockVideos = pexelsVideos || [];
 
+	// Debug logging
+	console.log(`[UI] Uploads state:`, {
+		totalUploads: uploads.length,
+		uploadsData: uploads.map(u => ({
+			type: u.type,
+			contentType: u.contentType,
+			fileName: u.file?.name || u.fileName,
+			url: u.url || u.metadata?.uploadedUrl
+		})),
+		filteredVideos: videos.length,
+		filteredImages: images.length,
+		filteredAudios: audios.length,
+		hasUploads,
+		hasActivity
+	});
+
 	return (
 		<div className="flex flex-1 flex-col h-full overflow-hidden">
 			<div className="flex h-12 flex-none items-center px-4 text-sm font-medium border-b bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent">
@@ -368,24 +533,26 @@ export const Uploads = () => {
 				defaultValue="uploads"
 				className="flex-1 flex flex-col overflow-hidden"
 			>
-				<TabsList className="w-full justify-start rounded-none bg-transparent border-b px-4 h-10">
-					<TabsTrigger value="uploads" className="text-xs">
-						<UploadIcon className="h-3.5 w-3.5 mr-1.5" />
-						Yuklangan
-					</TabsTrigger>
-					<TabsTrigger value="images" className="text-xs">
-						<FileImage className="h-3.5 w-3.5 mr-1.5" />
-						Stock Rasmlar
-					</TabsTrigger>
-					<TabsTrigger value="videos" className="text-xs">
-						<Film className="h-3.5 w-3.5 mr-1.5" />
-						Stock Videolar
-					</TabsTrigger>
-				</TabsList>
+				<div className="flex-shrink-0 border-b px-4 py-2">
+					<TabsList className="w-full h-auto rounded-none bg-transparent border-0 p-0 flex flex-wrap gap-2">
+						<TabsTrigger value="uploads" className="text-xs flex-1 min-w-[90px]">
+							<UploadIcon className="h-3.5 w-3.5 mr-1.5" />
+							Yuklangan
+						</TabsTrigger>
+						<TabsTrigger value="images" className="text-xs flex-1 min-w-[90px]">
+							<FileImage className="h-3.5 w-3.5 mr-1.5" />
+							Stock Rasmlar
+						</TabsTrigger>
+						<TabsTrigger value="videos" className="text-xs flex-1 min-w-[90px]">
+							<Film className="h-3.5 w-3.5 mr-1.5" />
+							Stock Videolar
+						</TabsTrigger>
+					</TabsList>
+				</div>
 
-				<TabsContent value="uploads" className="flex-1 overflow-hidden mt-0">
-					<ScrollArea className="h-full">
-						<div className="p-4 space-y-4">
+				<TabsContent value="uploads" className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden">
+					<ScrollArea className="flex-1 h-full">
+						<div className="p-2 sm:p-4 space-y-3">
 							{/* Upload Button */}
 							<Button
 								onClick={() => setShowUploadModal(true)}
@@ -402,7 +569,9 @@ export const Uploads = () => {
 									<CardContent className="p-4 space-y-3">
 										<div className="flex items-center gap-2">
 											<Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-											<span className="text-sm font-medium">Yuklanmoqda...</span>
+											<span className="text-sm font-medium">
+												Yuklanmoqda...
+											</span>
 										</div>
 
 										{pendingUploads.map((upload) => (
@@ -429,7 +598,10 @@ export const Uploads = () => {
 														{upload.progress ?? 0}%
 													</span>
 												</div>
-												<Progress value={upload.progress ?? 0} className="h-1" />
+												<Progress
+													value={upload.progress ?? 0}
+													className="h-1"
+												/>
 											</div>
 										))}
 									</CardContent>
@@ -450,7 +622,7 @@ export const Uploads = () => {
 												</div>
 											</div>
 
-											<div className="grid grid-cols-2 gap-3">
+											<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 												{videos.map((video, idx) => (
 													<Card
 														key={video.id || idx}
@@ -475,7 +647,10 @@ export const Uploads = () => {
 															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
 																<div className="absolute bottom-2 left-2 right-2">
 																	<p className="text-white text-xs font-medium truncate">
-																		{video.file?.name?.replace(/\.[^/.]+$/, "") || "Video"}
+																		{video.file?.name?.replace(
+																			/\.[^/.]+$/,
+																			"",
+																		) || "Video"}
 																	</p>
 																	<div className="flex items-center gap-2 mt-1">
 																		<Badge className="text-[10px] px-1 py-0 h-4 bg-white/20 text-white border-0">
@@ -514,7 +689,7 @@ export const Uploads = () => {
 												</div>
 											</div>
 
-											<div className="grid grid-cols-3 gap-2">
+											<div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
 												{images.map((image, idx) => (
 													<Card
 														key={image.id || idx}
@@ -538,7 +713,10 @@ export const Uploads = () => {
 															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
 																<div className="absolute bottom-2 left-2 right-2">
 																	<p className="text-white text-xs font-medium truncate">
-																		{image.file?.name?.replace(/\.[^/.]+$/, "") || "Rasm"}
+																		{image.file?.name?.replace(
+																			/\.[^/.]+$/,
+																			"",
+																		) || "Rasm"}
 																	</p>
 																	<Badge className="text-[10px] px-1 py-0 h-4 bg-white/20 text-white border-0 mt-1">
 																		{getFileExtension(image.file?.name || "")}
@@ -565,7 +743,9 @@ export const Uploads = () => {
 											<div className="flex items-center justify-between">
 												<div className="flex items-center gap-2">
 													<Music className="w-4 h-4 text-green-500" />
-													<span className="text-sm font-medium">Audio fayllar</span>
+													<span className="text-sm font-medium">
+														Audio fayllar
+													</span>
 													<Badge variant="secondary">{audios.length}</Badge>
 												</div>
 											</div>
@@ -585,9 +765,15 @@ export const Uploads = () => {
 																<div className="flex-1 min-w-0">
 																	<div className="flex items-center gap-2">
 																		<p className="text-sm font-medium truncate">
-																			{audio.file?.name?.replace(/\.[^/.]+$/, "") || "Audio fayl"}
+																			{audio.file?.name?.replace(
+																				/\.[^/.]+$/,
+																				"",
+																			) || "Audio fayl"}
 																		</p>
-																		<Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
+																		<Badge
+																			variant="outline"
+																			className="text-[10px] px-1 py-0 h-4"
+																		>
 																			{getFileExtension(audio.file?.name || "")}
 																		</Badge>
 																	</div>
@@ -599,12 +785,18 @@ export const Uploads = () => {
 																		)}
 																		{audio.metadata?.duration && (
 																			<span className="text-xs text-muted-foreground">
-																				{formatDuration(audio.metadata.duration)}
+																				{formatDuration(
+																					audio.metadata.duration,
+																				)}
 																			</span>
 																		)}
 																	</div>
 																</div>
-																<Button size="sm" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
+																<Button
+																	size="sm"
+																	variant="ghost"
+																	className="opacity-0 group-hover:opacity-100 transition-opacity"
+																>
 																	<Plus className="h-4 w-4" />
 																</Button>
 															</div>
@@ -620,7 +812,9 @@ export const Uploads = () => {
 									<div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center mb-4">
 										<UploadIcon className="w-8 h-8 text-blue-500" />
 									</div>
-									<p className="text-sm font-medium mb-2">Hali fayl yuklanmagan</p>
+									<p className="text-sm font-medium mb-2">
+										Hali fayl yuklanmagan
+									</p>
 									<p className="text-xs text-muted-foreground">
 										Yuqoridagi tugmani bosib fayl yuklang
 									</p>
@@ -631,9 +825,9 @@ export const Uploads = () => {
 				</TabsContent>
 
 				{/* Stock Images Tab */}
-				<TabsContent value="images" className="flex-1 overflow-hidden mt-0">
-					<div className="flex flex-col h-full">
-						<div className="p-4 space-y-3 flex-none">
+				<TabsContent value="images" className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden">
+					<div className="flex flex-col flex-1 h-full overflow-hidden">
+						<div className="p-2 sm:p-4 space-y-3 flex-none">
 							<div className="relative">
 								<Input
 									placeholder="Stock rasmlarni qidirish..."
@@ -656,21 +850,26 @@ export const Uploads = () => {
 											<X className="h-3.5 w-3.5" />
 										</Button>
 									)}
-									<Button size="sm" onClick={handleSearchImages} className="h-7">
+									<Button
+										size="sm"
+										onClick={handleSearchImages}
+										className="h-7"
+									>
 										<Search className="h-3.5 w-3.5" />
 									</Button>
 								</div>
 							</div>
 						</div>
 
-						<ScrollArea className="flex-1">
-							<div className="p-4 pt-0">
-								{pexelsLoading ? (
-									<div className="flex items-center justify-center py-8">
-										<Loader2 className="w-6 h-6 animate-spin text-primary" />
-									</div>
-								) : stockImages.length > 0 ? (
-									<div className="grid grid-cols-2 gap-3">
+						<div className="flex-1 overflow-hidden">
+							<ScrollArea className="h-full">
+								<div className="p-2 sm:p-4 pt-0">
+									{pexelsLoading ? (
+										<div className="flex items-center justify-center py-8">
+											<Loader2 className="w-6 h-6 animate-spin text-primary" />
+										</div>
+									) : stockImages.length > 0 ? (
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 										{stockImages.map((image: any) => (
 											<Card
 												key={image.id}
@@ -678,10 +877,25 @@ export const Uploads = () => {
 												onClick={() => handleAddStockImage(image)}
 											>
 												<div className="aspect-square relative overflow-hidden">
-													<ImageLoading
-														src={image.src?.medium || image.src?.original || ""}
-														alt={image.alt || "Stock image"}
+													<img
+														src={
+															image.preview ||
+															image.src?.medium ||
+															image.src?.original ||
+															""
+														}
+														alt={
+															image.alt || image.details?.alt || "Stock image"
+														}
 														className="object-cover w-full h-full group-hover:scale-105 transition-transform"
+														loading="lazy"
+														onError={(e) => {
+															console.error(
+																"Image failed to load:",
+																e.currentTarget.src,
+															);
+															e.currentTarget.style.display = "none";
+														}}
 													/>
 													<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
 														<div className="absolute bottom-2 left-2 right-2">
@@ -704,18 +918,21 @@ export const Uploads = () => {
 									</div>
 								) : (
 									<div className="text-center py-8">
-										<p className="text-sm text-muted-foreground">Rasmlar topilmadi</p>
+										<p className="text-sm text-muted-foreground">
+											Rasmlar topilmadi
+										</p>
 									</div>
 								)}
-							</div>
-						</ScrollArea>
+								</div>
+							</ScrollArea>
+						</div>
 					</div>
 				</TabsContent>
 
 				{/* Stock Videos Tab */}
-				<TabsContent value="videos" className="flex-1 overflow-hidden mt-0">
-					<div className="flex flex-col h-full">
-						<div className="p-4 space-y-3 flex-none">
+				<TabsContent value="videos" className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden">
+					<div className="flex flex-col flex-1 h-full overflow-hidden">
+						<div className="p-2 sm:p-4 space-y-3 flex-none">
 							<div className="relative">
 								<Input
 									placeholder="Stock videolarni qidirish..."
@@ -738,21 +955,26 @@ export const Uploads = () => {
 											<X className="h-3.5 w-3.5" />
 										</Button>
 									)}
-									<Button size="sm" onClick={handleSearchVideos} className="h-7">
+									<Button
+										size="sm"
+										onClick={handleSearchVideos}
+										className="h-7"
+									>
 										<Search className="h-3.5 w-3.5" />
 									</Button>
 								</div>
 							</div>
 						</div>
 
-						<ScrollArea className="flex-1">
-							<div className="p-4 pt-0">
-								{pexelsVideosLoading ? (
-									<div className="flex items-center justify-center py-8">
-										<Loader2 className="w-6 h-6 animate-spin text-primary" />
-									</div>
-								) : stockVideos.length > 0 ? (
-									<div className="grid grid-cols-2 gap-3">
+						<div className="flex-1 overflow-hidden">
+							<ScrollArea className="h-full">
+								<div className="p-2 sm:p-4 pt-0">
+									{pexelsVideosLoading ? (
+										<div className="flex items-center justify-center py-8">
+											<Loader2 className="w-6 h-6 animate-spin text-primary" />
+										</div>
+									) : stockVideos.length > 0 ? (
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 										{stockVideos.map((video: any) => (
 											<Card
 												key={video.id}
@@ -760,10 +982,10 @@ export const Uploads = () => {
 												onClick={() => handleAddStockVideo(video)}
 											>
 												<div className="aspect-video relative overflow-hidden bg-black">
-													{video.image ? (
+													{video.preview || video.image ? (
 														<img
-															src={video.image}
-															alt={`Video by ${video.user?.name || "Pexels"}`}
+															src={video.preview || video.image}
+															alt={`Video by ${video.metadata?.user || video.user?.name || "Local Asset"}`}
 															className="object-cover w-full h-full group-hover:scale-105 transition-transform"
 														/>
 													) : (
@@ -803,11 +1025,14 @@ export const Uploads = () => {
 									</div>
 								) : (
 									<div className="text-center py-8">
-										<p className="text-sm text-muted-foreground">Videolar topilmadi</p>
+										<p className="text-sm text-muted-foreground">
+											Videolar topilmadi
+										</p>
 									</div>
 								)}
-							</div>
-						</ScrollArea>
+								</div>
+							</ScrollArea>
+						</div>
 					</div>
 				</TabsContent>
 			</Tabs>

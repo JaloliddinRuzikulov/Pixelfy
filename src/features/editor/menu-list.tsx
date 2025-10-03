@@ -11,6 +11,7 @@ import {
 	Library,
 	Type,
 	Upload,
+	Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -31,6 +32,12 @@ const MENU_ITEMS_CONFIG = [
 		icon: Upload,
 		labelKey: "media.media",
 		ariaLabelKey: "media.mediaAria",
+	},
+	{
+		id: "presentai",
+		icon: Sparkles,
+		labelKey: "media.presentai",
+		ariaLabelKey: "media.presentaiAria",
 	},
 	{
 		id: "wav2lip",

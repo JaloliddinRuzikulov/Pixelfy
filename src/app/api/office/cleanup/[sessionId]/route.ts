@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const OFFICE_SERVICE_URL =
-	process.env.OFFICE_SERVICE_URL || "http://localhost:8002";
+	process.env.OFFICE_SERVICE_URL || "http://localhost:9002";
 
 export async function DELETE(
 	request: NextRequest,

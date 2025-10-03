@@ -200,40 +200,65 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 		return result.upload;
 	}
 	const handleUpload = async () => {
-		// Prepare UploadFile objects for files
-		const fileUploads = files
-			.filter((f) => f.file?.type)
-			.map((f) => ({
-				id: f.id,
-				file: f.file,
-				type: f.file?.type,
-				status: "pending" as const,
-				progress: 0,
-			}));
+		try {
+			setIsUploading(true);
 
-		// Prepare UploadFile object for URL if present
-		const urlUploads = videoUrl.trim()
-			? [
-					{
-						id: crypto.randomUUID(),
-						url: videoUrl.trim(),
-						type: "url",
-						status: "pending" as const,
-						progress: 0,
-					},
-				]
-			: [];
+			// Prepare UploadFile objects for files
+			const fileUploads = files
+				.filter((f) => f.file?.type)
+				.map((f) => ({
+					id: f.id,
+					file: f.file,
+					type: f.file?.type,
+					status: "pending" as const,
+					progress: 0,
+				}));
 
-		// Add to pending uploads
-		addPendingUploads([...fileUploads, ...urlUploads]);
+			// Prepare UploadFile object for URL if present
+			const urlUploads = videoUrl.trim()
+				? [
+						{
+							id: crypto.randomUUID(),
+							url: videoUrl.trim(),
+							type: "url",
+							status: "pending" as const,
+							progress: 0,
+						},
+					]
+				: [];
 
-		setTimeout(() => {
-			processUploads();
+			const allUploads = [...fileUploads, ...urlUploads];
+
+			if (allUploads.length === 0) {
+				console.warn("No files or URLs to upload");
+				return;
+			}
+
+			// Add to pending uploads
+			addPendingUploads(allUploads);
+
+			// Process uploads with proper promise handling
+			await new Promise<void>((resolve) => {
+				setTimeout(() => {
+					try {
+						processUploads();
+						resolve();
+					} catch (error) {
+						console.error("Error processing uploads:", error);
+						resolve(); // Still resolve to prevent hanging
+					}
+				}, 100);
+			});
+
 			// Clear modal state and close
 			setFiles([]);
 			setShowUploadModal(false);
 			setVideoUrl("");
-		}, 0);
+		} catch (error) {
+			console.error("Upload handling error:", error);
+		} finally {
+			setIsUploading(false);
+		}
 	};
 	const getAcceptType = () => {
 		switch (type) {
@@ -254,50 +279,51 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 	return (
 		<div>
 			<Dialog open={showUploadModal} onOpenChange={setShowUploadModal}>
-				<DialogContent>
-					<DialogHeader>
+				<DialogContent className="max-h-[90vh] flex flex-col">
+					<DialogHeader className="flex-shrink-0">
 						<DialogTitle className="text-md">Upload media</DialogTitle>
 					</DialogHeader>
-					<div className="space-y-6">
-						<label className="flex flex-col gap-2">
-							<input
-								type="file"
-								accept={getAcceptType()}
-								onChange={handleFileChange}
-								multiple
-								ref={fileInputRef}
-								style={{ display: "none" }}
-							/>
+					<ScrollArea className="flex-1 pr-4">
+						<div className="space-y-4">
+							<label className="flex flex-col gap-2">
+								<input
+									type="file"
+									accept={getAcceptType()}
+									onChange={handleFileChange}
+									multiple
+									ref={fileInputRef}
+									style={{ display: "none" }}
+								/>
 
-							<div
-								className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-									isDragOver
-										? "border-primary bg-primary/10"
-										: "border border-border hover:border-muted-foreground/50"
-								}`}
-								onDragOver={handleDragOver}
-								onDragLeave={handleDragLeave}
-								onDrop={handleDrop}
-							>
-								<UploadIcon className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-								<p className="text-sm text-muted-foreground mb-2">
-									Drag and drop files here, or
-								</p>
-								<Button onClick={triggerFileInput} variant="outline" size="sm">
-									browse files
-								</Button>
-							</div>
-						</label>
+								<div
+									className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
+										isDragOver
+											? "border-primary bg-primary/10"
+											: "border border-border hover:border-muted-foreground/50"
+									}`}
+									onDragOver={handleDragOver}
+									onDragLeave={handleDragLeave}
+									onDrop={handleDrop}
+								>
+									<UploadIcon className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+									<p className="text-sm text-muted-foreground mb-2">
+										Drag and drop files here, or
+									</p>
+									<Button onClick={triggerFileInput} variant="outline" size="sm">
+										browse files
+									</Button>
+								</div>
+							</label>
 
-						{files.length > 0 && (
-							<div className="flex flex-col gap-2 mt-2">
-								<span className="text-xs text-muted-foreground">
-									Selected files:
-								</span>
-								<ScrollArea className="max-h-48">
-									<AnimatePresence initial={false}>
-										<div className="flex flex-col gap-2">
-											{files.map((file) => (
+							{files.length > 0 && (
+								<div className="flex flex-col gap-2 mt-2">
+									<span className="text-xs text-muted-foreground">
+										Selected files ({files.length}):
+									</span>
+									<div className="max-h-64 overflow-y-auto border rounded p-2">
+										<AnimatePresence initial={false}>
+											<div className="flex flex-col gap-2">
+												{files.map((file) => (
 												<motion.div
 													key={file.id}
 													className="relative flex flex-col items-center p-1.5 sm:p-2 border rounded shadow-sm w-full"
@@ -365,21 +391,22 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 														</Button>
 													</div>
 												</motion.div>
-											))}
-										</div>
-									</AnimatePresence>
-								</ScrollArea>
-							</div>
-						)}
+												))}
+											</div>
+										</AnimatePresence>
+									</div>
+								</div>
+							)}
 
-						<Input
-							type="text"
-							placeholder="Media havolasini joylashtiring https://..."
-							value={videoUrl}
-							onChange={(e) => setVideoUrl(e.target.value)}
-						/>
-					</div>
-					<DialogFooter>
+							<Input
+								type="text"
+								placeholder="Media havolasini joylashtiring https://..."
+								value={videoUrl}
+								onChange={(e) => setVideoUrl(e.target.value)}
+							/>
+						</div>
+					</ScrollArea>
+					<DialogFooter className="flex-shrink-0 mt-4">
 						<Button variant="outline" onClick={() => setShowUploadModal(false)}>
 							Cancel
 						</Button>

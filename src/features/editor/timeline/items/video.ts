@@ -102,6 +102,16 @@ class Video extends Trimmable {
 		this.hasBorders = false;
 
 		this.previewUrl = props.metadata.previewUrl;
+
+		// DEBUG: Console timeline video component hierarchy
+		console.log("=== TIMELINE VIDEO COMPONENT DEBUG ===");
+		console.log("Video ID:", props.id);
+		console.log("Video metadata:", props.metadata);
+		console.log("Preview URL:", this.previewUrl);
+		console.log("Video src:", props.src);
+		console.log("Full props:", props);
+		console.log("==========================================");
+
 		this.initOffscreenCanvas();
 		this.initialize();
 	}
@@ -205,22 +215,43 @@ class Video extends Trimmable {
 	// load fallback thumbnail, resize it and cache it
 	private async loadFallbackThumbnail() {
 		const fallbackThumbnail = this.previewUrl;
-		if (!fallbackThumbnail) return;
+
+		// DEBUG: Thumbnail loading
+		console.log("=== LOAD FALLBACK THUMBNAIL DEBUG ===");
+		console.log("Preview URL:", fallbackThumbnail);
+		console.log("Video ID:", this.id);
+
+		if (!fallbackThumbnail) {
+			console.log("❌ No fallback thumbnail URL found!");
+			return;
+		}
 
 		return new Promise<void>((resolve) => {
 			const img = new Image();
-			img.crossOrigin = "anonymous";
-			img.src = `${fallbackThumbnail}?t=${Date.now()}`;
+
+			// For data URLs, don't set crossOrigin
+			if (!fallbackThumbnail.startsWith('data:')) {
+				img.crossOrigin = "anonymous";
+			}
+
 			img.onload = () => {
+				console.log("✅ Image loaded successfully:", fallbackThumbnail.substring(0, 50) + "...");
+				console.log("Image dimensions:", img.width, "x", img.height);
+
 				// Create a temporary canvas to resize the image
 				const canvas = document.createElement("canvas");
 				const ctx = canvas.getContext("2d");
-				if (!ctx) return;
+				if (!ctx) {
+					console.log("❌ Canvas context not available");
+					resolve();
+					return;
+				}
 
 				// Calculate new width maintaining aspect ratio
 				const aspectRatio = img.width / img.height;
 				const targetHeight = 40;
 				const targetWidth = Math.round(targetHeight * aspectRatio);
+
 				// Set canvas size and draw resized image
 				canvas.height = targetHeight;
 				canvas.width = targetWidth;
@@ -228,13 +259,36 @@ class Video extends Trimmable {
 
 				// Create new image from resized canvas
 				const resizedImg = new Image();
-				resizedImg.src = canvas.toDataURL();
-				// Update aspect ratio and cache the resized image
-				this.aspectRatio = aspectRatio;
-				this.thumbnailWidth = targetWidth;
-				this.thumbnailCache.setThumbnail("fallback", resizedImg);
+				resizedImg.onload = () => {
+					console.log("✅ Resized thumbnail cached:", targetWidth, "x", targetHeight);
+					this.aspectRatio = aspectRatio;
+					this.thumbnailWidth = targetWidth;
+					this.thumbnailCache.setThumbnail("fallback", resizedImg);
+					resolve();
+				};
+				resizedImg.onerror = () => {
+					console.log("❌ Resized image load error");
+					// Still set dimensions even if thumbnail fails
+					this.aspectRatio = aspectRatio;
+					this.thumbnailWidth = targetWidth;
+					resolve();
+				};
+				resizedImg.src = canvas.toDataURL("image/jpeg", 0.8);
+			};
+
+			img.onerror = (error) => {
+				console.log("❌ Image load error:", error);
+				console.log("Failed URL:", fallbackThumbnail.substring(0, 50) + "...");
+
+				// Set default dimensions even if image fails to load
+				this.aspectRatio = 16/9; // Default aspect ratio
+				this.thumbnailWidth = Math.round(40 * (16/9)); // ~71px width
+				console.log("⚠️ Using default dimensions:", this.thumbnailWidth, "x", 40);
 				resolve();
 			};
+
+			// Set src after setting event handlers
+			img.src = fallbackThumbnail;
 		});
 	}
 
@@ -429,6 +483,10 @@ class Video extends Trimmable {
 		ctx.roundRect(0, 0, this.width, this.height, this.rx);
 		ctx.clip();
 		// Draw thumbnails
+		console.log("=== RENDER TO OFFSCREEN DEBUG ===");
+		console.log("Thumbnails count:", thumbnailsCount);
+		console.log("Thumbnail width/height:", thumbnailWidth, thumbnailHeight);
+
 		for (let i = 0; i < thumbnailsCount; i++) {
 			let img = this.thumbnailCache.getThumbnail(
 				Math.ceil(timeInFilmstripe / 1000),
@@ -436,15 +494,20 @@ class Video extends Trimmable {
 
 			if (!img) {
 				img = this.thumbnailCache.getThumbnail("fallback");
+				console.log("Using fallback thumbnail:", img ? "found" : "not found");
 			}
 
 			if (img?.complete) {
 				const xPosition = i * thumbnailWidth + offset - trimFromSize;
+				console.log(`Drawing thumbnail ${i} at position ${xPosition}`);
 
 				ctx.drawImage(img, xPosition, 0, thumbnailWidth, thumbnailHeight);
 				timeInFilmstripe += timePerThumbnail;
+			} else {
+				console.log(`Thumbnail ${i} not complete or not found`);
 			}
 		}
+		console.log("==================================");
 
 		this.isDirty = false;
 	}

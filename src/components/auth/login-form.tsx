@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ export function LoginForm() {
 
 	const { login } = useAuth();
 	const router = useRouter();
+	const searchParams = useSearchParams();
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();
@@ -29,7 +30,9 @@ export function LoginForm() {
 
 		try {
 			await login(email, password);
-			router.push("/projects"); // Redirect to projects page after successful login
+			// Get return URL from query params or default to /projects
+			const returnTo = searchParams.get("returnTo") || "/projects";
+			router.push(returnTo);
 		} catch (error) {
 			setError(
 				error instanceof Error ? error.message : t("invalidCredentials"),

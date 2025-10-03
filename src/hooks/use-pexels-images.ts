@@ -109,7 +109,7 @@ export function usePexelsImages(): UsePexelsImagesReturn {
 
 	const searchImages = useCallback(
 		async (query: string, page = 1) => {
-			const url = `/api/local-media?type=images&query=${encodeURIComponent(query)}&page=${page}&per_page=20`;
+			const url = `/api/pixabay?query=${encodeURIComponent(query)}&page=${page}&per_page=20`;
 			await fetchImages(url);
 		},
 		[fetchImages],
@@ -120,7 +120,7 @@ export function usePexelsImages(): UsePexelsImagesReturn {
 		setError(null);
 
 		try {
-			const url = `/api/local-media?type=images&query=${encodeURIComponent(query)}&page=${page}&per_page=20`;
+			const url = `/api/pixabay?query=${encodeURIComponent(query)}&page=${page}&per_page=20`;
 			const response = await fetch(url);
 
 			if (!response.ok) {
@@ -162,7 +162,7 @@ export function usePexelsImages(): UsePexelsImagesReturn {
 		}
 
 		// Fetch fresh data
-		const url = `/api/local-media?type=images&page=${page}&per_page=20`;
+		const url = `/api/pixabay?page=${page}&per_page=20`;
 		setLoading(true);
 		setError(null);
 
@@ -198,7 +198,7 @@ export function usePexelsImages(): UsePexelsImagesReturn {
 		setError(null);
 
 		try {
-			const url = `/api/local-media?type=images&page=${page}&per_page=20`;
+			const url = `/api/pixabay?page=${page}&per_page=20`;
 			const response = await fetch(url);
 
 			if (!response.ok) {

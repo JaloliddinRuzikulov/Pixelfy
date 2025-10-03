@@ -35,9 +35,9 @@ export function ThemeToggle() {
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button
-						variant="ghost"
-						size="icon"
-						className="h-8 w-8 hover:bg-accent"
+						variant="outline"
+						size="sm"
+						className="gap-2 h-9 px-3 rounded-full border-border/50 hover:border-primary/50 hover:bg-primary/5 transition-colors"
 					>
 						{theme === "dark" ? (
 							<Moon className="h-4 w-4" />
@@ -49,29 +49,35 @@ export function ThemeToggle() {
 						<span className="sr-only">Toggle theme</span>
 					</Button>
 				</DropdownMenuTrigger>
-				<DropdownMenuContent align="end" className="min-w-[120px]">
-					<DropdownMenuItem onClick={() => setTheme("light")} className="gap-2">
+				<DropdownMenuContent align="end" className="w-[180px] rounded-xl border-border/50">
+					<DropdownMenuItem
+						onClick={() => setTheme("light")}
+						className="cursor-pointer rounded-lg py-2.5 px-3 focus:bg-primary/10 gap-3"
+					>
 						<Sun className="h-4 w-4" />
-						<span>Light</span>
+						<span className="font-medium text-sm">Light</span>
 					</DropdownMenuItem>
-					<DropdownMenuItem onClick={() => setTheme("dark")} className="gap-2">
+					<DropdownMenuItem
+						onClick={() => setTheme("dark")}
+						className="cursor-pointer rounded-lg py-2.5 px-3 focus:bg-primary/10 gap-3"
+					>
 						<Moon className="h-4 w-4" />
-						<span>Dark</span>
+						<span className="font-medium text-sm">Dark</span>
 					</DropdownMenuItem>
 					<DropdownMenuItem
 						onClick={() => setTheme("system")}
-						className="gap-2"
+						className="cursor-pointer rounded-lg py-2.5 px-3 focus:bg-primary/10 gap-3"
 					>
 						<Monitor className="h-4 w-4" />
-						<span>System</span>
+						<span className="font-medium text-sm">System</span>
 					</DropdownMenuItem>
 					<DropdownMenuSeparator />
 					<DropdownMenuItem
 						onClick={() => setShowCustomizer(true)}
-						className="gap-2"
+						className="cursor-pointer rounded-lg py-2.5 px-3 focus:bg-primary/10 gap-3"
 					>
 						<Palette className="h-4 w-4" />
-						<span>Customize Colors</span>
+						<span className="font-medium text-sm">Customize</span>
 					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>

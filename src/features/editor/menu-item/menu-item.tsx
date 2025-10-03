@@ -12,6 +12,7 @@ import Wav2LipMenuItem from "./wav2lip";
 import { Office } from "./office";
 import { Recording } from "./recording";
 import { ContentLibrary } from "./content-library";
+import { PresentAIMenuItem } from "./presentai-menu-item";
 
 const ActiveMenuItem = () => {
 	const { activeMenuItem } = useLayoutStore();
@@ -22,6 +23,10 @@ const ActiveMenuItem = () => {
 
 	if (activeMenuItem === "media") {
 		return <Uploads />;
+	}
+
+	if (activeMenuItem === "presentai") {
+		return <PresentAIMenuItem />;
 	}
 
 	if (activeMenuItem === "texts") {
@@ -77,6 +82,12 @@ const ActiveMenuItem = () => {
 
 export const MenuItem = () => {
 	const isLargeScreen = useIsLargeScreen();
+	const { activeMenuItem, showMenuItem } = useLayoutStore();
+
+	// Don't render anything if no menu item is active or showMenuItem is false
+	if (!activeMenuItem || (isLargeScreen && !showMenuItem)) {
+		return null;
+	}
 
 	return (
 		<div

@@ -27,6 +27,8 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { isAdmin } from "@/lib/role-utils";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 export default function ProfilePage() {
 	const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -100,6 +102,12 @@ export default function ProfilePage() {
 	return (
 		<div className="w-full h-screen overflow-y-auto overflow-x-hidden">
 			<div className="min-h-screen bg-background">
+				{/* Theme and Language controls */}
+				<div className="fixed top-4 right-4 flex items-center gap-3 z-50">
+					<ThemeToggle />
+					<LanguageSwitcher />
+				</div>
+
 				<div className="container mx-auto py-8 px-4 pb-20">
 					<div className="max-w-4xl mx-auto">
 						{/* Header */}

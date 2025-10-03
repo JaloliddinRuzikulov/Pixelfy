@@ -284,7 +284,8 @@ export function RecordingImproved() {
 
 		setIsGeneratingTTS(true);
 		try {
-			const aiServiceUrl = process.env.NEXT_PUBLIC_AI_SERVICE_URL || "http://localhost:8001";
+			const aiServiceUrl =
+				process.env.NEXT_PUBLIC_AI_SERVICE_URL || "http://localhost:9001";
 			const response = await fetch(`${aiServiceUrl}/test-tts`, {
 				method: "POST",
 				body: JSON.stringify({
@@ -560,15 +561,6 @@ export function RecordingImproved() {
 								</Card>
 							)}
 
-							{/* Tips */}
-							<Alert>
-								<AlertCircle className="h-4 w-4" />
-								<AlertDescription className="text-xs">
-									<strong>Maslahat:</strong> Audio yozib bo'lgach, uni
-									timeline'ga qo'shib tahrirlashingiz mumkin. Bir nechta audio
-									qismlarni yozib, ularni timeline'da joylashtiring.
-								</AlertDescription>
-							</Alert>
 						</div>
 					</div>
 				</TabsContent>

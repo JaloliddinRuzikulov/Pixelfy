@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import path from "path";
-import fs from "fs/promises";
 
 // Local media database (in production, use a real database)
 const MEDIA_DB = {
@@ -8,7 +6,7 @@ const MEDIA_DB = {
 		{
 			id: "local_img_1",
 			src: "/media/images/sample1.jpg",
-			thumbnail: "/media/images/thumb_sample1.jpg",
+			thumbnail: "/media/images/sample1.jpg", // Use same file as thumbnail
 			width: 1920,
 			height: 1080,
 			photographer: "Local Asset",
@@ -17,7 +15,7 @@ const MEDIA_DB = {
 		{
 			id: "local_img_2",
 			src: "/media/images/sample2.jpg",
-			thumbnail: "/media/images/thumb_sample2.jpg",
+			thumbnail: "/media/images/sample2.jpg", // Use same file as thumbnail
 			width: 1920,
 			height: 1080,
 			photographer: "Local Asset",
@@ -26,63 +24,70 @@ const MEDIA_DB = {
 		{
 			id: "local_img_3",
 			src: "/media/images/sample3.jpg",
-			thumbnail: "/media/images/thumb_sample3.jpg",
+			thumbnail: "/media/images/sample3.jpg", // Use same file as thumbnail
 			width: 1920,
 			height: 1080,
 			photographer: "Local Asset",
 			alt: "Sample image 3",
 		},
+		{
+			id: "local_img_4",
+			src: "/media/images/sample4.jpg",
+			thumbnail: "/media/images/sample4.jpg", // Use same file as thumbnail
+			width: 1920,
+			height: 1080,
+			photographer: "Local Asset",
+			alt: "Sample image 4",
+		},
 	],
 	videos: [
+		// Use external sample videos since local videos directory is empty
 		{
-			id: "local_vid_1",
-			src: "/media/videos/sample1.mp4",
-			thumbnail: "/media/videos/thumb_sample1.jpg",
+			id: "sample_vid_1",
+			src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+			thumbnail:
+				"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/BigBuckBunny.jpg",
 			duration: 10,
 			width: 1920,
 			height: 1080,
-			user: "Local Asset",
+			user: "Sample Asset",
 		},
 		{
-			id: "local_vid_2",
-			src: "/media/videos/sample2.mp4",
-			thumbnail: "/media/videos/thumb_sample2.jpg",
+			id: "sample_vid_2",
+			src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+			thumbnail:
+				"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ElephantsDream.jpg",
+			duration: 12,
+			width: 1920,
+			height: 1080,
+			user: "Sample Asset",
+		},
+		{
+			id: "sample_vid_3",
+			src: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+			thumbnail:
+				"https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/images/ForBiggerBlazes.jpg",
 			duration: 15,
 			width: 1920,
 			height: 1080,
-			user: "Local Asset",
-		},
-		{
-			id: "local_vid_3",
-			src: "/media/videos/sample3.mp4",
-			thumbnail: "/media/videos/thumb_sample3.jpg",
-			duration: 20,
-			width: 1920,
-			height: 1080,
-			user: "Local Asset",
+			user: "Sample Asset",
 		},
 	],
 	audio: [
+		// Since audio directory is empty, use placeholder data with external sources
 		{
 			id: "local_audio_1",
-			src: "/media/audio/background1.mp3",
-			title: "Upbeat Background",
-			duration: 120,
-			artist: "Local Artist",
+			src: "https://www.soundjay.com/misc/sounds/bell-ringing-05.wav",
+			title: "Bell Sound",
+			duration: 3,
+			artist: "Sample Audio",
 		},
 		{
 			id: "local_audio_2",
-			src: "/media/audio/background2.mp3",
-			title: "Calm Ambient",
-			duration: 180,
-			artist: "Local Artist",
-		},
-		{
-			id: "local_audio_3",
-			src: "/media/audio/background3.mp3",
-			title: "Energetic Beat",
-			duration: 90,
-			artist: "Local Artist",
+			src: "https://www.soundjay.com/misc/sounds/typewriter-key-1.wav",
+			title: "Typewriter Sound",
+			duration: 1,
+			artist: "Sample Audio",
 		},
 	],
 };

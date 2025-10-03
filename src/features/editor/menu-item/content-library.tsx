@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
@@ -49,96 +49,55 @@ import {
 import { dispatch } from "@designcombo/events";
 import { generateId } from "@designcombo/timeline";
 import { ADD_ITEMS } from "@designcombo/state";
+import { toast } from "sonner";
 
-// Content categories and subcategories
+// Content categories and subcategories (simplified)
 const CONTENT_CATEGORIES = {
 	shape: {
 		label: "Shakllar",
 		icon: Shapes,
 		color: "blue",
-		subcategories: [
-			"asosiy",
-			"bezak",
-			"ko'rsatkichlar",
-			"abstrakt",
-			"geometrik",
-		],
-	},
-	music: {
-		label: "Musiqa",
-		icon: Music,
-		color: "purple",
-		subcategories: [
-			"quvnoq",
-			"tinch",
-			"energetik",
-			"dramatik",
-			"romantik",
-			"elektron",
-		],
+		subcategories: ["asosiy", "geometrik", "abstrakt"],
 	},
 	sticker: {
 		label: "Stikerlar",
 		icon: Sticker,
 		color: "yellow",
-		subcategories: [
-			"emoji",
-			"bayram",
-			"ta'lim",
-			"sport",
-			"hayvonlar",
-			"oziq-ovqat",
-		],
+		subcategories: ["emoji", "hayvonlar", "bayram"],
 	},
 	background: {
 		label: "Fon rasmlari",
 		icon: ImageIcon,
 		color: "green",
-		subcategories: [
-			"tabiat",
-			"shahar",
-			"abstrakt",
-			"gradient",
-			"tekstura",
-			"minimal",
-		],
+		subcategories: ["gradient", "tekstura", "minimal"],
 	},
-	border: {
-		label: "Hoshiyalar",
-		icon: Frame,
-		color: "pink",
-		subcategories: ["oddiy", "bezakli", "vintage", "zamonaviy", "animatsiya"],
-	},
-	effect: {
-		label: "Tovush effektlari",
-		icon: Volume2,
-		color: "orange",
-		subcategories: [
-			"o'tish",
-			"signal",
-			"tabiat",
-			"mexanik",
-			"elektron",
-			"kulgili",
-		],
-	},
-	overlay: {
-		label: "Overleylar",
-		icon: Sparkles,
-		color: "indigo",
-		subcategories: [
-			"yorug'lik",
-			"zarrachalar",
-			"bokeh",
-			"tutun",
-			"animatsiya",
-			"glitch",
-		],
+	music: {
+		label: "Musiqa",
+		icon: Music,
+		color: "purple",
+		subcategories: ["quvnoq", "tinch", "energetik"],
 	},
 };
 
-// Mock content items
+// Mock content items with placeholder images
 const generateMockItems = (category: string, count: number) => {
+	// Use a colored placeholder based on category
+	const getPlaceholderImage = (cat: string, index: number) => {
+		// Generate a simple colored SVG data URL
+		const colors = {
+			shape: '#3b82f6',
+			music: '#a855f7',
+			sticker: '#eab308',
+			background: '#22c55e',
+			border: '#ec4899',
+			effect: '#f97316',
+			overlay: '#6366f1',
+		};
+		const color = colors[cat as keyof typeof colors] || '#64748b';
+		const svg = `<svg width="150" height="150" xmlns="http://www.w3.org/2000/svg"><rect width="150" height="150" fill="${color}"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="white" font-size="48" font-family="Arial">${index + 1}</text></svg>`;
+		return `data:image/svg+xml;base64,${btoa(svg)}`;
+	};
+
 	return Array.from({ length: count }, (_, i) => ({
 		id: `${category}-${i}`,
 		name: `${CONTENT_CATEGORIES[category as keyof typeof CONTENT_CATEGORIES].label} ${i + 1}`,
@@ -150,7 +109,7 @@ const generateMockItems = (category: string, count: number) => {
 					CONTENT_CATEGORIES[category as keyof typeof CONTENT_CATEGORIES]
 						.subcategories.length
 			],
-		thumbnail: `/api/placeholder/150/150`,
+		thumbnail: getPlaceholderImage(category, i),
 		duration:
 			category === "music" || category === "effect"
 				? Math.floor(Math.random() * 180) + 30
@@ -170,11 +129,17 @@ export function ContentLibrary() {
 	);
 	const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
-	// Generate mock content
+	// Debug: Log when component mounts
+	useEffect(() => {
+		console.log("📚 Content Library component mounted");
+		return () => console.log("📚 Content Library component unmounted");
+	}, []);
+
+	// Generate mock content (6 items per category)
 	const allContent = useMemo(() => {
 		const content: any[] = [];
 		Object.keys(CONTENT_CATEGORIES).forEach((category) => {
-			content.push(...generateMockItems(category, 12));
+			content.push(...generateMockItems(category, 6));
 		});
 		return content;
 	}, []);
@@ -219,25 +184,64 @@ export function ContentLibrary() {
 	}, [allContent, selectedCategory, selectedSubcategory, searchQuery, sortBy]);
 
 	const handleAddToTimeline = useCallback((item: any) => {
-		// Add item to timeline based on its type
-		console.log("Adding to timeline:", item);
+		console.log("🎯 Content Library - Adding to timeline:", item);
 
-		// Here would be the actual implementation
+		const isAudio = item.category === "music" || item.category === "effect";
+		const duration = item.duration ? item.duration * 1000 : 5000; // Convert to milliseconds
+
+		// Ensure we have a valid src
+		const src = item.thumbnail && item.thumbnail.trim() !== ""
+			? item.thumbnail
+			: `data:image/svg+xml;base64,${btoa('<svg width="150" height="150" xmlns="http://www.w3.org/2000/svg"><rect width="150" height="150" fill="#64748b"/></svg>')}`;
+
+		const trackItem: any = {
+			id: generateId(),
+			type: isAudio ? "audio" : "image",
+			display: { from: 0, to: duration },
+			trim: { from: 0, to: duration },
+			duration: duration,
+			details: isAudio
+				? {
+						// Audio item details
+						src: src,
+						volume: 1,
+						name: item.name,
+				  }
+				: {
+						// Image/Shape item details
+						src: src,
+						x: 50,  // Center x
+						y: 50,  // Center y
+						width: 50,  // 50% width
+						height: 50,  // 50% height
+						opacity: 1,
+						fit: "contain",
+						rotation: 0,
+						scaleX: 1,
+						scaleY: 1,
+				  },
+			metadata: {
+				name: item.name,
+				category: item.category,
+				subcategory: item.subcategory,
+				source: "content-library",
+			},
+		};
+
+		console.log("📦 Dispatching track item with src:", trackItem.details.src.substring(0, 100));
+
 		dispatch(ADD_ITEMS, {
 			payload: {
-				trackItems: [
-					{
-						id: generateId(),
-						type:
-							item.category === "music" || item.category === "effect"
-								? "audio"
-								: "image",
-						display: { from: 0, to: 5000 },
-						trim: { from: 0, to: 5000 },
-						duration: 5000,
-					},
-				],
+				trackItems: [trackItem],
 			},
+		});
+
+		console.log("✅ ADD_ITEMS event dispatched");
+
+		// Show success feedback
+		toast.success(`"${item.name}" timeline'ga qo'shildi`, {
+			description: `${CONTENT_CATEGORIES[item.category as keyof typeof CONTENT_CATEGORIES].label} - ${item.subcategory}`,
+			duration: 2000,
 		});
 	}, []);
 
@@ -256,7 +260,7 @@ export function ContentLibrary() {
 			</div>
 
 			{/* Search and Filters Bar */}
-			<div className="flex-shrink-0 p-4 space-y-3 border-b bg-muted/30">
+			<div className="flex-shrink-0 p-3 space-y-3 border-b">
 				{/* Search Bar */}
 				<div className="relative">
 					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -278,27 +282,101 @@ export function ContentLibrary() {
 					)}
 				</div>
 
-				{/* Filter Controls */}
+				{/* Category Chips - Horizontal Scroll */}
+				<div className="relative">
+					<ScrollArea className="w-full whitespace-nowrap">
+						<div className="flex gap-2 pb-2">
+							{/* All Categories Chip */}
+							<Button
+								variant={selectedCategory === "all" ? "default" : "outline"}
+								size="sm"
+								className="h-8 px-3 rounded-full shrink-0"
+								onClick={() => {
+									setSelectedCategory("all");
+									setSelectedSubcategory("all");
+								}}
+							>
+								<Sparkles className="h-3.5 w-3.5 mr-1.5" />
+								Barchasi
+							</Button>
+
+							{/* Category Chips */}
+							{Object.entries(CONTENT_CATEGORIES).map(([key, category]) => {
+								const Icon = category.icon;
+								return (
+									<Button
+										key={key}
+										variant={selectedCategory === key ? "default" : "outline"}
+										size="sm"
+										className="h-8 px-3 rounded-full shrink-0"
+										onClick={() => {
+											setSelectedCategory(key);
+											setSelectedSubcategory("all");
+										}}
+									>
+										<Icon className="h-3.5 w-3.5 mr-1.5" />
+										{category.label}
+									</Button>
+								);
+							})}
+						</div>
+					</ScrollArea>
+				</div>
+
+				{/* Subcategory Chips - Only show when category selected */}
+				{selectedCategory !== "all" && (
+					<div className="relative">
+						<ScrollArea className="w-full whitespace-nowrap">
+							<div className="flex gap-2 pb-2">
+								<Button
+									variant={selectedSubcategory === "all" ? "secondary" : "ghost"}
+									size="sm"
+									className="h-7 px-2.5 rounded-full text-xs shrink-0"
+									onClick={() => setSelectedSubcategory("all")}
+								>
+									Hammasi
+								</Button>
+								{CONTENT_CATEGORIES[
+									selectedCategory as keyof typeof CONTENT_CATEGORIES
+								].subcategories.map((sub) => (
+									<Button
+										key={sub}
+										variant={
+											selectedSubcategory === sub ? "secondary" : "ghost"
+										}
+										size="sm"
+										className="h-7 px-2.5 rounded-full text-xs capitalize shrink-0"
+										onClick={() => setSelectedSubcategory(sub)}
+									>
+										{sub}
+									</Button>
+								))}
+							</div>
+						</ScrollArea>
+					</div>
+				)}
+
+				{/* Sort and View Mode Controls */}
 				<div className="flex items-center gap-2">
 					<Select value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-						<SelectTrigger className="h-8 w-[140px]">
+						<SelectTrigger className="h-8 w-[130px]">
 							<SelectValue />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="popular">
-								<div className="flex items-center gap-1">
+								<div className="flex items-center gap-1.5">
 									<Star className="h-3 w-3" />
 									Mashhur
 								</div>
 							</SelectItem>
 							<SelectItem value="trending">
-								<div className="flex items-center gap-1">
+								<div className="flex items-center gap-1.5">
 									<TrendingUp className="h-3 w-3" />
 									Trend
 								</div>
 							</SelectItem>
 							<SelectItem value="recent">
-								<div className="flex items-center gap-1">
+								<div className="flex items-center gap-1.5">
 									<Clock className="h-3 w-3" />
 									Yangi
 								</div>
@@ -308,7 +386,7 @@ export function ContentLibrary() {
 
 					<div className="flex-1" />
 
-					<div className="flex gap-1 p-0.5 bg-muted rounded">
+					<div className="flex gap-1 p-0.5 bg-muted rounded-md">
 						<Button
 							variant={viewMode === "grid" ? "secondary" : "ghost"}
 							size="sm"
@@ -330,81 +408,9 @@ export function ContentLibrary() {
 			</div>
 
 			{/* Main Content Area */}
-			<div className="flex-1 flex overflow-hidden">
-				{/* Category Sidebar */}
-				<div className="w-48 flex-shrink-0 border-r bg-muted/20">
-					<ScrollArea className="h-full">
-						<div className="p-3 space-y-1">
-							<Button
-								variant={selectedCategory === "all" ? "secondary" : "ghost"}
-								className="w-full justify-start h-9 px-3"
-								onClick={() => {
-									setSelectedCategory("all");
-									setSelectedSubcategory("all");
-								}}
-							>
-								<Sparkles className="h-4 w-4 mr-2" />
-								Barcha kontent
-							</Button>
-
-							{Object.entries(CONTENT_CATEGORIES).map(([key, category]) => {
-								const Icon = category.icon;
-								return (
-									<div key={key}>
-										<Button
-											variant={selectedCategory === key ? "secondary" : "ghost"}
-											className="w-full justify-start h-9 px-3"
-											onClick={() => {
-												setSelectedCategory(key);
-												setSelectedSubcategory("all");
-											}}
-										>
-											<Icon
-												className={`h-4 w-4 mr-2 text-${category.color}-500`}
-											/>
-											{category.label}
-										</Button>
-
-										{selectedCategory === key && (
-											<div className="ml-6 mt-1 space-y-0.5">
-												<Button
-													variant={
-														selectedSubcategory === "all"
-															? "secondary"
-															: "ghost"
-													}
-													className="w-full justify-start h-7 px-2 text-xs"
-													onClick={() => setSelectedSubcategory("all")}
-												>
-													Hammasi
-												</Button>
-												{category.subcategories.map((sub) => (
-													<Button
-														key={sub}
-														variant={
-															selectedSubcategory === sub
-																? "secondary"
-																: "ghost"
-														}
-														className="w-full justify-start h-7 px-2 text-xs capitalize"
-														onClick={() => setSelectedSubcategory(sub)}
-													>
-														{sub}
-													</Button>
-												))}
-											</div>
-										)}
-									</div>
-								);
-							})}
-						</div>
-					</ScrollArea>
-				</div>
-
-				{/* Content Grid/List */}
-				<div className="flex-1 overflow-hidden">
-					<ScrollArea className="h-full">
-						<div className="p-4">
+			<div className="flex-1 overflow-hidden">
+				<ScrollArea className="h-full">
+					<div className="p-4">
 							{filteredContent.length === 0 ? (
 								<div className="flex flex-col items-center justify-center py-20">
 									<Search className="h-12 w-12 text-muted-foreground mb-4" />
@@ -423,140 +429,52 @@ export function ContentLibrary() {
 									</Button>
 								</div>
 							) : viewMode === "grid" ? (
-								<div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+								<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
 									{filteredContent.map((item) => {
-										const Icon =
-											CONTENT_CATEGORIES[
-												item.category as keyof typeof CONTENT_CATEGORIES
-											].icon;
 										return (
-											<Card
+											<div
 												key={item.id}
-												className="group overflow-hidden hover:shadow-lg transition-all cursor-pointer border-border/50 bg-gradient-to-br from-background to-muted/20"
+												className="group relative aspect-square rounded-lg overflow-hidden cursor-pointer hover:shadow-md transition-all"
 												onClick={() => handleAddToTimeline(item)}
 											>
-												<div className="aspect-square relative bg-muted overflow-hidden">
-													{item.premium && (
-														<Badge className="absolute top-2 right-2 z-10 bg-yellow-500/90 text-yellow-900">
-															Premium
-														</Badge>
-													)}
-													<div className="absolute inset-0 flex items-center justify-center">
-														<Icon className="h-12 w-12 text-muted-foreground/30" />
-													</div>
-													<div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-													<div className="absolute bottom-0 left-0 right-0 p-2 flex items-center justify-between text-white opacity-0 group-hover:opacity-100 transition-all transform translate-y-2 group-hover:translate-y-0">
-														<Button
-															size="sm"
-															variant="secondary"
-															className="h-7 px-2"
-															onClick={(e) => {
-																e.stopPropagation();
-																handleAddToTimeline(item);
-															}}
-														>
-															<Plus className="h-3 w-3 mr-1" />
-															Qo'shish
-														</Button>
-													</div>
-												</div>
-												<CardContent className="p-3">
-													<p className="text-sm font-medium truncate">
+												<img
+													src={item.thumbnail}
+													alt={item.name}
+													className="w-full h-full object-cover"
+												/>
+												<div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+													<p className="text-xs font-medium text-white truncate">
 														{item.name}
 													</p>
-													<div className="flex items-center justify-between mt-1">
-														<p className="text-xs text-muted-foreground capitalize">
-															{item.subcategory}
-														</p>
-														{item.duration && (
-															<p className="text-xs text-muted-foreground">
-																{formatDuration(item.duration)}
-															</p>
-														)}
-													</div>
-													<div className="flex items-center gap-3 mt-2">
-														<div className="flex items-center gap-1 text-xs text-muted-foreground">
-															<Heart className="h-3 w-3" />
-															{item.likes}
-														</div>
-														<div className="flex items-center gap-1 text-xs text-muted-foreground">
-															<Download className="h-3 w-3" />
-															{item.downloads}
-														</div>
-													</div>
-												</CardContent>
-											</Card>
+												</div>
+											</div>
 										);
 									})}
 								</div>
 							) : (
-								<div className="space-y-2">
+								<div className="space-y-1.5">
 									{filteredContent.map((item) => {
-										const Icon =
-											CONTENT_CATEGORIES[
-												item.category as keyof typeof CONTENT_CATEGORIES
-											].icon;
 										return (
-											<Card
+											<div
 												key={item.id}
-												className="group overflow-hidden hover:shadow-md transition-all cursor-pointer border-border/50"
+												className="group flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
 												onClick={() => handleAddToTimeline(item)}
 											>
-												<CardContent className="p-3 flex items-center gap-3">
-													<div className="w-16 h-16 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-														<Icon className="h-8 w-8 text-muted-foreground/50" />
-													</div>
-													<div className="flex-1 min-w-0">
-														<div className="flex items-center gap-2">
-															<p className="font-medium truncate">
-																{item.name}
-															</p>
-															{item.premium && (
-																<Badge className="bg-yellow-500/90 text-yellow-900">
-																	Premium
-																</Badge>
-															)}
-														</div>
-														<div className="flex items-center gap-3 mt-1">
-															<p className="text-xs text-muted-foreground capitalize">
-																{item.subcategory}
-															</p>
-															{item.duration && (
-																<p className="text-xs text-muted-foreground">
-																	{formatDuration(item.duration)}
-																</p>
-															)}
-															<div className="flex items-center gap-1 text-xs text-muted-foreground">
-																<Heart className="h-3 w-3" />
-																{item.likes}
-															</div>
-															<div className="flex items-center gap-1 text-xs text-muted-foreground">
-																<Download className="h-3 w-3" />
-																{item.downloads}
-															</div>
-														</div>
-													</div>
-													<Button
-														size="sm"
-														variant="outline"
-														className="opacity-0 group-hover:opacity-100 transition-opacity"
-														onClick={(e) => {
-															e.stopPropagation();
-															handleAddToTimeline(item);
-														}}
-													>
-														<Plus className="h-4 w-4 mr-1" />
-														Qo'shish
-													</Button>
-												</CardContent>
-											</Card>
+												<img
+													src={item.thumbnail}
+													alt={item.name}
+													className="w-10 h-10 rounded object-cover flex-shrink-0"
+												/>
+												<p className="text-sm truncate flex-1">
+													{item.name}
+												</p>
+											</div>
 										);
 									})}
 								</div>
 							)}
-						</div>
-					</ScrollArea>
-				</div>
+					</div>
+				</ScrollArea>
 			</div>
 		</div>
 	);

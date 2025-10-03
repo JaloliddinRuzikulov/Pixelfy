@@ -1,6 +1,8 @@
 import { ITrackItem } from "@designcombo/types";
 
 export type IMenuItem =
+	| "media"
+	| "presentai"
 	| "uploads"
 	| "templates"
 	| "videos"
@@ -11,6 +13,9 @@ export type IMenuItem =
 	| "voiceOver"
 	| "elements"
 	| "presentations"
+	| "office"
+	| "recording"
+	| "content-library"
 	| "wav2lip";
 export interface ILayoutState {
 	cropTarget: ITrackItem | null;

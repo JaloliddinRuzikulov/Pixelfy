@@ -218,7 +218,10 @@ function ScreenCameraRecording() {
 	}, [stream]);
 
 	// Upload blob to server
-	const uploadVideoBlob = async (blob: Blob, filename: string): Promise<string> => {
+	const uploadVideoBlob = async (
+		blob: Blob,
+		filename: string,
+	): Promise<string> => {
 		try {
 			const formData = new FormData();
 			const file = new File([blob], filename, { type: blob.type });
@@ -261,7 +264,10 @@ function ScreenCameraRecording() {
 				uploadDiv.remove();
 			} catch (error) {
 				uploadDiv.textContent = "Yuklashda xato!";
-				uploadDiv.className = uploadDiv.className.replace("bg-blue-500", "bg-red-500");
+				uploadDiv.className = uploadDiv.className.replace(
+					"bg-blue-500",
+					"bg-red-500",
+				);
 				setTimeout(() => uploadDiv.remove(), 3000);
 				return;
 			}
@@ -398,7 +404,7 @@ function ScreenCameraRecording() {
 			{/* Recording Preview & Controls */}
 			{isRecording && (
 				<Card className="overflow-hidden border-red-500/50 bg-red-500/5">
-					<CardContent className="p-4">
+					<CardContent className="p-2 sm:p-4">
 						<div className="aspect-video bg-black rounded-lg overflow-hidden mb-4">
 							<video
 								ref={previewVideoRef}
@@ -425,7 +431,7 @@ function ScreenCameraRecording() {
 
 			{/* Recording Control Buttons */}
 			<Card className="overflow-hidden">
-				<CardContent className="p-4">
+				<CardContent className="p-2 sm:p-4">
 					{!isRecording ? (
 						<Button
 							onClick={handleStartRecording}
@@ -706,7 +712,10 @@ export function Recording() {
 	}, []);
 
 	// Upload audio blob to server
-	const uploadAudioBlob = async (blob: Blob, filename: string): Promise<string> => {
+	const uploadAudioBlob = async (
+		blob: Blob,
+		filename: string,
+	): Promise<string> => {
 		try {
 			const formData = new FormData();
 			const file = new File([blob], filename, { type: blob.type });
@@ -750,7 +759,10 @@ export function Recording() {
 				uploadDiv.remove();
 			} catch (error) {
 				uploadDiv.textContent = "Yuklashda xato!";
-				uploadDiv.className = uploadDiv.className.replace("bg-blue-500", "bg-red-500");
+				uploadDiv.className = uploadDiv.className.replace(
+					"bg-blue-500",
+					"bg-red-500",
+				);
 				setTimeout(() => uploadDiv.remove(), 3000);
 				return;
 			}
@@ -812,7 +824,8 @@ export function Recording() {
 
 		setIsGeneratingTTS(true);
 		try {
-			const aiServiceUrl = process.env.NEXT_PUBLIC_AI_SERVICE_URL || "http://localhost:8001";
+			const aiServiceUrl =
+				process.env.NEXT_PUBLIC_AI_SERVICE_URL || "http://localhost:9001";
 			const response = await fetch(`${aiServiceUrl}/test-tts`, {
 				method: "POST",
 				body: JSON.stringify({
@@ -906,7 +919,7 @@ export function Recording() {
 					className="flex-1 m-0 overflow-hidden flex flex-col"
 				>
 					<div className="flex-1 overflow-y-auto">
-						<div className="p-4 space-y-4">
+						<div className="p-2 sm:p-4 space-y-3">
 							{/* Recording Controls */}
 							<Card
 								className={cn(
@@ -925,7 +938,7 @@ export function Recording() {
 										Mikrofon orqali audio yozib oling va timeline'ga qo'shing
 									</CardDescription>
 								</CardHeader>
-								<CardContent className="space-y-4">
+								<CardContent className="space-y-3 p-2 sm:p-4">
 									{/* Audio Level Indicator */}
 									{isRecording && (
 										<div className="space-y-2">
@@ -1088,15 +1101,6 @@ export function Recording() {
 								</Card>
 							)}
 
-							{/* Tips */}
-							<Alert>
-								<AlertCircle className="h-4 w-4" />
-								<AlertDescription className="text-xs">
-									<strong>Maslahat:</strong> Audio yozib bo'lgach, uni
-									timeline'ga qo'shib tahrirlashingiz mumkin. Bir nechta audio
-									qismlarni yozib, ularni timeline'da joylashtiring.
-								</AlertDescription>
-							</Alert>
 						</div>
 					</div>
 				</TabsContent>
@@ -1107,7 +1111,7 @@ export function Recording() {
 					className="flex-1 m-0 overflow-hidden"
 				>
 					<ScrollArea className="h-full">
-						<div className="p-4 space-y-4 pb-20">
+						<div className="p-2 sm:p-4 space-y-3 pb-16">
 							{/* Screen/Camera Recording Implementation */}
 							<ScreenCameraRecording />
 						</div>
@@ -1117,7 +1121,7 @@ export function Recording() {
 				{/* TTS Tab - Keep existing but improved */}
 				<TabsContent value="tts" className="flex-1 m-0 overflow-hidden">
 					<ScrollArea className="h-full">
-						<div className="p-4 space-y-4 pb-20">
+						<div className="p-2 sm:p-4 space-y-3 pb-16">
 							{/* TTS Input */}
 							<Card className="overflow-hidden border-indigo-500/10 bg-gradient-to-br from-indigo-500/5 to-transparent">
 								<CardHeader className="pb-3 bg-gradient-to-r from-indigo-500/10 to-transparent">
@@ -1129,7 +1133,7 @@ export function Recording() {
 										Matn kiriting va uni audio faylga aylantiring
 									</CardDescription>
 								</CardHeader>
-								<CardContent className="space-y-4">
+								<CardContent className="space-y-3 p-2 sm:p-4">
 									<div>
 										<Label htmlFor="tts-text" className="text-xs font-medium">
 											Matn
@@ -1149,7 +1153,7 @@ export function Recording() {
 										</p>
 									</div>
 
-									<div className="grid grid-cols-2 gap-4">
+									<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
 										<div>
 											<Label className="text-xs font-medium">Til</Label>
 											<Select

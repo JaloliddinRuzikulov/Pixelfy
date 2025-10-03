@@ -46,6 +46,8 @@ import KeyboardShortcutsModal, {
 	defaultShortcuts,
 	type Shortcut,
 } from "./keyboard-shortcuts-modal";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 
 interface Settings {
 	// Appearance
@@ -285,6 +287,12 @@ export default function SettingsFunctional() {
 	return (
 		<div className="w-full h-screen overflow-y-auto overflow-x-hidden">
 			<div className="min-h-screen bg-background">
+				{/* Theme and Language controls */}
+				<div className="fixed top-4 right-4 flex items-center gap-3 z-50">
+					<ThemeToggle />
+					<LanguageSwitcher />
+				</div>
+
 				<div className="container mx-auto py-8 px-4 pb-20">
 					<div className="max-w-4xl mx-auto">
 						{/* Header */}

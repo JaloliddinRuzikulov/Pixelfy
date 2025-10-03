@@ -1,17 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const OFFICE_SERVICE_URL =
-	process.env.OFFICE_SERVICE_URL || "http://localhost:8002";
+	process.env.OFFICE_SERVICE_URL || "http://localhost:9002";
 
 export async function POST(request: NextRequest) {
 	try {
 		// Get the form data from the request
 		const formData = await request.formData();
 
-		// Forward the request to the office service
+		// Forward the request to the office service with API key
 		const response = await fetch(`${OFFICE_SERVICE_URL}/convert/pdf`, {
 			method: "POST",
 			body: formData,
+			headers: {
+				"X-API-Key": "office_default_dev_key_2024",
+			},
 		});
 
 		if (!response.ok) {

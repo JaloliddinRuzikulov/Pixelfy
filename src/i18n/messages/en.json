@@ -242,12 +242,14 @@
 		"slides": "Slides",
 		"voice": "Voice",
 		"media": "Media",
+		"presentai": "PresentAI",
 		"office": "Office",
-		"wav2lip": "Wav2Lip",
+		"wav2lip": "Sinxron",
 		"recording": "Record & Create",
 		"contentLibrary": "Content Library",
 		"uploadsAria": "Add and manage uploads",
 		"textsAria": "Add and edit text elements",
+		"presentaiAria": "Generate AI-powered presentations from text prompts",
 		"officeAria": "Convert Office documents to images",
 		"wav2lipAria": "Lip-sync videos with text",
 		"recordingAria": "Record screen and camera, text-to-speech",
@@ -321,6 +323,52 @@
 		"saved": "Saved",
 		"unsavedChanges": "Unsaved changes",
 		"discardChanges": "Discard changes"
+	},
+	"landing": {
+		"header": {
+			"appName": "Pixelfy",
+			"signIn": "Sign In",
+			"signUp": "Sign Up"
+		},
+		"hero": {
+			"badge": "AI-powered Video Editor",
+			"title": "Professional",
+			"titleHighlight": "Video Editing",
+			"titleSuffix": "Made Simple",
+			"description": "Create stunning videos with our browser-based editor. No downloads needed. Powered by AI to make your workflow faster and easier.",
+			"ctaStart": "Get Started Free",
+			"ctaDemo": "Watch Demo",
+			"loading": "Loading...",
+			"stats": {
+				"users": "Users",
+				"videos": "Videos Created",
+				"rating": "User Rating"
+			}
+		},
+		"features": {
+			"title": "Powerful Features",
+			"subtitle": "Everything you need for professional results",
+			"aiTools": {
+				"title": "AI-powered Tools",
+				"description": "Automatic editing, voice generation, and more with artificial intelligence."
+			},
+			"browserBased": {
+				"title": "Browser-based Editor",
+				"description": "Work directly in your browser without downloading anything."
+			},
+			"fastRender": {
+				"title": "Fast Rendering",
+				"description": "Export high-quality videos in seconds."
+			}
+		},
+		"cta": {
+			"title": "Get Started Today",
+			"description": "No credit card required. Create professional videos in minutes.",
+			"button": "Get Started Free"
+		},
+		"footer": {
+			"copyright": "© 2025 Pixelfy. All rights reserved."
+		}
 	},
 	"subscription": {
 		"free": "Free",

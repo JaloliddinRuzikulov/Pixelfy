@@ -3,6 +3,10 @@ import { useEffect, useRef, useState } from "react";
 import { Droppable } from "@/components/ui/droppable";
 import { PlusIcon } from "lucide-react";
 import { DroppableArea } from "./droppable";
+import { dispatch } from "@designcombo/events";
+import { ADD_IMAGE, ADD_VIDEO, ADD_AUDIO } from "@designcombo/state";
+import { generateId } from "@designcombo/timeline";
+import { toast } from "sonner";
 
 const SceneEmpty = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -29,18 +33,89 @@ const SceneEmpty = () => {
 		setIsLoading(false);
 	}, [size]);
 
-	const onSelectFiles = (files: File[]) => {
-		console.log({ files });
+	const onSelectFiles = async (files: File[]) => {
+		if (!files || files.length === 0) return;
+
+		const options = {
+			targetTrackId: "main",
+		};
+
+		for (const file of files) {
+			const fileType = file.type.split("/")[0];
+			const objectUrl = URL.createObjectURL(file);
+
+			const basePayload = {
+				id: generateId(),
+				name: file.name,
+				src: objectUrl,
+				file: file,
+			};
+
+			try {
+				switch (fileType) {
+					case "image":
+						dispatch(ADD_IMAGE, {
+							payload: {
+								...basePayload,
+								details: {
+									width: 0,
+									height: 0,
+								}
+							},
+							options
+						});
+						toast.success(`Image "${file.name}" qo'shildi`);
+						break;
+					case "video":
+						dispatch(ADD_VIDEO, {
+							payload: {
+								...basePayload,
+								details: {
+									width: 0,
+									height: 0,
+									duration: 0,
+								}
+							},
+							options
+						});
+						toast.success(`Video "${file.name}" qo'shildi`);
+						break;
+					case "audio":
+						dispatch(ADD_AUDIO, {
+							payload: {
+								...basePayload,
+								details: {
+									duration: 0,
+								}
+							},
+							options
+						});
+						toast.success(`Audio "${file.name}" qo'shildi`);
+						break;
+					default:
+						toast.error(`Fayl turi qo'llab-quvvatlanmaydi: ${file.type}`);
+				}
+			} catch (error) {
+				console.error("Error adding file:", error);
+				toast.error(`Xatolik: ${file.name} qo'shib bo'lmadi`);
+			}
+		}
 	};
 
 	return (
 		<div ref={containerRef} className="absolute z-50 flex h-full w-full flex-1">
 			{!isLoading ? (
 				<Droppable
-					maxFileCount={4}
-					maxSize={4 * 1024 * 1024}
+					maxFileCount={10}
+					maxSize={100 * 1024 * 1024}
 					disabled={false}
 					onValueChange={onSelectFiles}
+					multiple={true}
+					accept={{
+						"image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"],
+						"video/*": [".mp4", ".mov", ".avi", ".webm"],
+						"audio/*": [".mp3", ".wav", ".ogg", ".m4a"],
+					}}
 					className="h-full w-full flex-1 bg-background"
 				>
 					<DroppableArea

@@ -242,12 +242,14 @@
 		"slides": "Slaydlar",
 		"voice": "Ovoz",
 		"media": "Media",
+		"presentai": "PresentAI",
 		"office": "Office",
-		"wav2lip": "Wav2Lip",
+		"wav2lip": "Sinxron",
 		"recording": "Yozish va yaratish",
 		"contentLibrary": "Kontent kutubxonasi",
 		"uploadsAria": "Yuklashlarni qo'shish va boshqarish",
 		"textsAria": "Matn elementlarini qo'shish va tahrirlash",
+		"presentaiAria": "Matn so'rovlari asosida AI yordamida taqdimot yaratish",
 		"officeAria": "Office hujjatlarini rasmlarga aylantirish",
 		"wav2lipAria": "Videodagi og'iz harakatini matn bilan sinxronlashtirish",
 		"recordingAria": "Ekran va kamerani yozish, matnni nutqqa aylantirish",
@@ -335,6 +337,52 @@
 		"saved": "Saqlandi",
 		"unsavedChanges": "Saqlanmagan o'zgarishlar",
 		"discardChanges": "O'zgarishlarni bekor qilish"
+	},
+	"landing": {
+		"header": {
+			"appName": "Pixelfy",
+			"signIn": "Kirish",
+			"signUp": "Ro'yxatdan o'tish"
+		},
+		"hero": {
+			"badge": "AI-powered Video Editor",
+			"title": "Professional",
+			"titleHighlight": "Video Tahrirlash",
+			"titleSuffix": "Oson va Sodda",
+			"description": "Brauzer asosidagi muharririmiz bilan ajoyib videolar yarating. Hech narsa yuklab olishingiz shart emas. AI texnologiyasi ishingizni tezlashtiradi va osonlashtiradi.",
+			"ctaStart": "Bepul boshlash",
+			"ctaDemo": "Demo ko'rish",
+			"loading": "Yuklanmoqda...",
+			"stats": {
+				"users": "Foydalanuvchilar",
+				"videos": "Videolar yaratilgan",
+				"rating": "Foydalanuvchi reytingi"
+			}
+		},
+		"features": {
+			"title": "Kuchli imkoniyatlar",
+			"subtitle": "Professional natijalar uchun barcha vositalarga ega",
+			"aiTools": {
+				"title": "AI-powered Tools",
+				"description": "Sun'iy intellekt yordamida avtomatik tahrirlash, ovoz yaratish va ko'proq imkoniyatlar."
+			},
+			"browserBased": {
+				"title": "Browser-based Editor",
+				"description": "Hech narsa yuklab olmasdan to'g'ridan-to'g'ri brauzeringizda ishlang."
+			},
+			"fastRender": {
+				"title": "Tezkor Render",
+				"description": "Yuqori sifatli videolarni soniyalar ichida eksport qiling."
+			}
+		},
+		"cta": {
+			"title": "Bugun boshlab ko'ring",
+			"description": "Kredit karta talab qilinmaydi. Daqiqalar ichida professional videolar yarating.",
+			"button": "Bepul boshlash"
+		},
+		"footer": {
+			"copyright": "© 2025 Pixelfy. Barcha huquqlar himoyalangan."
+		}
 	},
 	"subscription": {
 		"free": "Bepul",

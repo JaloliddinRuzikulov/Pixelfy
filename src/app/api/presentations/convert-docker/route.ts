@@ -6,7 +6,8 @@ import sharp from "sharp";
 // Check if Docker service is running
 async function checkDockerService(): Promise<boolean> {
 	try {
-		const converterUrl = process.env.LIBREOFFICE_CONVERTER_URL || "http://localhost:8080";
+		const converterUrl =
+			process.env.LIBREOFFICE_CONVERTER_URL || "http://localhost:8080";
 		const response = await fetch(`${converterUrl}/health`);
 		if (response.ok) {
 			const data = await response.json();
@@ -63,7 +64,8 @@ export async function POST(request: NextRequest) {
 		console.log(`Calling Docker service API for conversion...`);
 
 		try {
-			const converterUrl = process.env.LIBREOFFICE_CONVERTER_URL || "http://localhost:8080";
+			const converterUrl =
+				process.env.LIBREOFFICE_CONVERTER_URL || "http://localhost:8080";
 			const response = await fetch(`${converterUrl}/convert`, {
 				method: "POST",
 				headers: {

@@ -64,8 +64,8 @@ const popularVideosCache: PopularVideosCache = {
 	page: 1,
 };
 
-// Cache duration: 5 minutes
-const CACHE_DURATION = 5 * 60 * 1000;
+// Cache duration: 0 seconds (disabled for development)
+const CACHE_DURATION = 0;
 
 // Function to clear the cache
 const clearPopularVideosCache = () => {
@@ -126,7 +126,7 @@ export function usePexelsVideos(): UsePexelsVideosReturn {
 
 	const searchVideos = useCallback(
 		async (query: string, page = 1) => {
-			const url = `/api/pexels-videos?query=${encodeURIComponent(query)}&page=${page}&per_page=15`;
+			const url = `/api/pixabay-videos?query=${encodeURIComponent(query)}&page=${page}&per_page=15`;
 			await fetchVideos(url);
 		},
 		[fetchVideos],
@@ -137,7 +137,7 @@ export function usePexelsVideos(): UsePexelsVideosReturn {
 		setError(null);
 
 		try {
-			const url = `/api/pexels-videos?query=${encodeURIComponent(query)}&page=${page}&per_page=15`;
+			const url = `/api/pixabay-videos?query=${encodeURIComponent(query)}&page=${page}&per_page=15`;
 			const response = await fetch(url);
 
 			if (!response.ok) {
@@ -159,27 +159,11 @@ export function usePexelsVideos(): UsePexelsVideosReturn {
 	}, []);
 
 	const loadPopularVideos = useCallback(async (page = 1) => {
-		// Check if we have cached data for this page and it's still valid
-		const now = Date.now();
-		const isCacheValid =
-			popularVideosCache.data &&
-			popularVideosCache.page === page &&
-			now - popularVideosCache.timestamp < CACHE_DURATION;
-
-		if (isCacheValid && popularVideosCache.data) {
-			// Use cached data
-			const data = popularVideosCache.data;
-			setVideos(data.videos);
-			setTotalResults(data.total_results);
-			setCurrentPage(data.page);
-			setHasNextPage(!!data.next_page);
-			setHasPrevPage(!!data.prev_page);
-			setError(null);
-			return;
-		}
+		// Force clear cache on every load (development mode)
+		clearPopularVideosCache();
 
 		// Fetch fresh data
-		const url = `/api/pexels-videos?page=${page}&per_page=15`;
+		const url = `/api/pixabay-videos?page=${page}&per_page=15`;
 		setLoading(true);
 		setError(null);
 
@@ -191,11 +175,6 @@ export function usePexelsVideos(): UsePexelsVideosReturn {
 			}
 
 			const data: PexelsVideoResponse = await response.json();
-
-			// Cache the data
-			popularVideosCache.data = data;
-			popularVideosCache.timestamp = now;
-			popularVideosCache.page = page;
 
 			setVideos(data.videos);
 			setTotalResults(data.total_results);
@@ -215,7 +194,7 @@ export function usePexelsVideos(): UsePexelsVideosReturn {
 		setError(null);
 
 		try {
-			const url = `/api/pexels-videos?page=${page}&per_page=15`;
+			const url = `/api/pixabay-videos?page=${page}&per_page=15`;
 			const response = await fetch(url);
 
 			if (!response.ok) {

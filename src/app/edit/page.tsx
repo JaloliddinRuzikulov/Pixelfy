@@ -1,8 +1,9 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense, useEffect } from "react";
 import { Loader2, Film } from "lucide-react";
+import { useAuth } from "@/contexts/auth-context";
 import "./editor-styles.css";
 import Editor from "@/features/editor/editor";
 
@@ -33,6 +34,26 @@ function EditContent() {
 }
 
 export default function Page() {
+	const { isAuthenticated, isLoading } = useAuth();
+	const router = useRouter();
+
+	useEffect(() => {
+		if (!isLoading && !isAuthenticated) {
+			console.log("[Edit Page] Not authenticated, redirecting to login page");
+			router.push("/auth/login?returnTo=/edit");
+		}
+	}, [isAuthenticated, isLoading, router]);
+
+	// Show loader while checking auth
+	if (isLoading) {
+		return <EditorLoader />;
+	}
+
+	// Redirect if not authenticated
+	if (!isAuthenticated) {
+		return null;
+	}
+
 	return (
 		<Suspense fallback={<EditorLoader />}>
 			<EditContent />

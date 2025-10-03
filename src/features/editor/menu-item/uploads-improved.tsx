@@ -48,7 +48,7 @@ const formatFileSize = (bytes: number) => {
 	const k = 1024;
 	const sizes = ["Bytes", "KB", "MB", "GB"];
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
-	return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+	return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
 };
 
 const formatDuration = (seconds: number) => {
@@ -252,9 +252,10 @@ export const UploadsImproved = () => {
 	// Add stock video to timeline with proper format
 	const handleAddStockVideo = useCallback((video: any) => {
 		// Get the best quality video file
-		const videoFile = video.video_files?.find((file: any) =>
-			file.quality === "hd" || file.quality === "sd"
-		) || video.video_files?.[0];
+		const videoFile =
+			video.video_files?.find(
+				(file: any) => file.quality === "hd" || file.quality === "sd",
+			) || video.video_files?.[0];
 
 		const srcVideo = videoFile?.link || video.url;
 		const duration = (video.duration || 10) * 1000; // Convert to milliseconds
@@ -297,7 +298,8 @@ export const UploadsImproved = () => {
 	// Show success message
 	const showSuccessMessage = (message: string) => {
 		const successDiv = document.createElement("div");
-		successDiv.className = "fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-bottom";
+		successDiv.className =
+			"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-bottom";
 		successDiv.textContent = message;
 		document.body.appendChild(successDiv);
 		setTimeout(() => successDiv.remove(), 3000);
@@ -380,7 +382,9 @@ export const UploadsImproved = () => {
 									<CardContent className="p-4 space-y-3">
 										<div className="flex items-center gap-2">
 											<Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-											<span className="text-sm font-medium">Yuklanmoqda...</span>
+											<span className="text-sm font-medium">
+												Yuklanmoqda...
+											</span>
 										</div>
 
 										{pendingUploads.map((upload) => (
@@ -407,7 +411,10 @@ export const UploadsImproved = () => {
 														{upload.progress ?? 0}%
 													</span>
 												</div>
-												<Progress value={upload.progress ?? 0} className="h-1" />
+												<Progress
+													value={upload.progress ?? 0}
+													className="h-1"
+												/>
 											</div>
 										))}
 									</CardContent>
@@ -453,7 +460,10 @@ export const UploadsImproved = () => {
 															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
 																<div className="absolute bottom-2 left-2 right-2">
 																	<p className="text-white text-xs font-medium truncate">
-																		{video.file?.name?.replace(/\.[^/.]+$/, "") || "Video"}
+																		{video.file?.name?.replace(
+																			/\.[^/.]+$/,
+																			"",
+																		) || "Video"}
 																	</p>
 																	<div className="flex items-center gap-2 mt-1">
 																		<Badge className="text-[10px] px-1 py-0 h-4 bg-white/20 text-white border-0">
@@ -516,7 +526,10 @@ export const UploadsImproved = () => {
 															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
 																<div className="absolute bottom-2 left-2 right-2">
 																	<p className="text-white text-xs font-medium truncate">
-																		{image.file?.name?.replace(/\.[^/.]+$/, "") || "Rasm"}
+																		{image.file?.name?.replace(
+																			/\.[^/.]+$/,
+																			"",
+																		) || "Rasm"}
 																	</p>
 																	<Badge className="text-[10px] px-1 py-0 h-4 bg-white/20 text-white border-0 mt-1">
 																		{getFileExtension(image.file?.name || "")}
@@ -543,7 +556,9 @@ export const UploadsImproved = () => {
 											<div className="flex items-center justify-between">
 												<div className="flex items-center gap-2">
 													<Music className="w-4 h-4 text-green-500" />
-													<span className="text-sm font-medium">Audio fayllar</span>
+													<span className="text-sm font-medium">
+														Audio fayllar
+													</span>
 													<Badge variant="secondary">{audios.length}</Badge>
 												</div>
 											</div>
@@ -563,9 +578,15 @@ export const UploadsImproved = () => {
 																<div className="flex-1 min-w-0">
 																	<div className="flex items-center gap-2">
 																		<p className="text-sm font-medium truncate">
-																			{audio.file?.name?.replace(/\.[^/.]+$/, "") || "Audio fayl"}
+																			{audio.file?.name?.replace(
+																				/\.[^/.]+$/,
+																				"",
+																			) || "Audio fayl"}
 																		</p>
-																		<Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
+																		<Badge
+																			variant="outline"
+																			className="text-[10px] px-1 py-0 h-4"
+																		>
 																			{getFileExtension(audio.file?.name || "")}
 																		</Badge>
 																	</div>
@@ -577,12 +598,18 @@ export const UploadsImproved = () => {
 																		)}
 																		{audio.metadata?.duration && (
 																			<span className="text-xs text-muted-foreground">
-																				{formatDuration(audio.metadata.duration)}
+																				{formatDuration(
+																					audio.metadata.duration,
+																				)}
 																			</span>
 																		)}
 																	</div>
 																</div>
-																<Button size="sm" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
+																<Button
+																	size="sm"
+																	variant="ghost"
+																	className="opacity-0 group-hover:opacity-100 transition-opacity"
+																>
 																	<Plus className="h-4 w-4" />
 																</Button>
 															</div>
@@ -598,7 +625,9 @@ export const UploadsImproved = () => {
 									<div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500/10 to-purple-500/10 flex items-center justify-center mb-4">
 										<UploadIcon className="w-8 h-8 text-blue-500" />
 									</div>
-									<p className="text-sm font-medium mb-2">Hali fayl yuklanmagan</p>
+									<p className="text-sm font-medium mb-2">
+										Hali fayl yuklanmagan
+									</p>
 									<p className="text-xs text-muted-foreground">
 										Yuqoridagi tugmani bosib fayl yuklang
 									</p>
@@ -634,7 +663,11 @@ export const UploadsImproved = () => {
 											<X className="h-3.5 w-3.5" />
 										</Button>
 									)}
-									<Button size="sm" onClick={handleSearchImages} className="h-7">
+									<Button
+										size="sm"
+										onClick={handleSearchImages}
+										className="h-7"
+									>
 										<Search className="h-3.5 w-3.5" />
 									</Button>
 								</div>
@@ -682,7 +715,9 @@ export const UploadsImproved = () => {
 									</div>
 								) : (
 									<div className="text-center py-8">
-										<p className="text-sm text-muted-foreground">Rasmlar topilmadi</p>
+										<p className="text-sm text-muted-foreground">
+											Rasmlar topilmadi
+										</p>
 									</div>
 								)}
 							</div>
@@ -716,7 +751,11 @@ export const UploadsImproved = () => {
 											<X className="h-3.5 w-3.5" />
 										</Button>
 									)}
-									<Button size="sm" onClick={handleSearchVideos} className="h-7">
+									<Button
+										size="sm"
+										onClick={handleSearchVideos}
+										className="h-7"
+									>
 										<Search className="h-3.5 w-3.5" />
 									</Button>
 								</div>
@@ -781,7 +820,9 @@ export const UploadsImproved = () => {
 									</div>
 								) : (
 									<div className="text-center py-8">
-										<p className="text-sm text-muted-foreground">Videolar topilmadi</p>
+										<p className="text-sm text-muted-foreground">
+											Videolar topilmadi
+										</p>
 									</div>
 								)}
 							</div>

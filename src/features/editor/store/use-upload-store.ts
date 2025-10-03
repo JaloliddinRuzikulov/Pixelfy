@@ -44,6 +44,15 @@ interface IUploadStore {
 	setUploads: (uploads: any[] | ((prev: any[]) => any[])) => void;
 }
 
+// Debug: Clear localStorage on development
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+	const clearStorage = () => {
+		console.log('[DEBUG] Clearing upload-store localStorage');
+		localStorage.removeItem('upload-store');
+	};
+	// Uncomment to clear on reload: clearStorage();
+}
+
 const useUploadStore = create<IUploadStore>()(
 	persist(
 		(set, get) => ({
@@ -94,8 +103,11 @@ const useUploadStore = create<IUploadStore>()(
 					setUploads,
 				} = get();
 
+				console.log(`[STORE] Processing uploads - Pending: ${pendingUploads.length}, Active: ${activeUploads.length}`);
+
 				// Move pending uploads to active with 'uploading' status
 				if (pendingUploads.length > 0) {
+					console.log(`[STORE] Moving ${pendingUploads.length} pending uploads to active`);
 					set((state) => ({
 						activeUploads: [
 							...state.activeUploads,
@@ -141,28 +153,28 @@ const useUploadStore = create<IUploadStore>()(
 						callbacks,
 					)
 						.then((uploadData) => {
-							console.log("Upload completed successfully:", uploadData);
+							console.log(`[STORE] Upload completed successfully for ${upload.id}:`, uploadData);
 							// Add the complete upload data to the uploads array
 							if (uploadData) {
 								if (Array.isArray(uploadData)) {
 									// URL uploads return an array
-									console.log("Adding URL upload data:", uploadData);
+									console.log(`[STORE] Adding URL upload data for ${upload.id}:`, uploadData);
 									setUploads((prev) => {
 										const newUploads = [...prev, ...uploadData];
-										console.log("Updated uploads array:", newUploads);
+										console.log(`[STORE] Updated uploads array (${newUploads.length} items):`, newUploads.map(u => ({ name: u.file?.name || 'URL', type: u.type })));
 										return newUploads;
 									});
 								} else {
 									// File uploads return a single object
-									console.log("Adding file upload data:", uploadData);
+									console.log(`[STORE] Adding file upload data for ${upload.id}:`, uploadData);
 									setUploads((prev) => {
 										const newUploads = [...prev, uploadData];
-										console.log("Updated uploads array:", newUploads);
+										console.log(`[STORE] Updated uploads array (${newUploads.length} items):`, newUploads.map(u => ({ name: u.file?.name || 'Unknown', type: u.type })));
 										return newUploads;
 									});
 								}
 							} else {
-								console.warn("Upload completed but no data returned");
+								console.warn(`[STORE] Upload completed for ${upload.id} but no data returned`);
 							}
 						})
 						.catch((error) => {
@@ -173,6 +185,10 @@ const useUploadStore = create<IUploadStore>()(
 								"failed",
 								error?.message || "Upload failed",
 							);
+						})
+						.finally(() => {
+							// Ensure any lingering promises are handled
+							console.log(`Upload process completed for ${upload.id}`);
 						});
 				}
 			},
@@ -207,7 +223,15 @@ const useUploadStore = create<IUploadStore>()(
 		}),
 		{
 			name: "upload-store",
-			partialize: (state) => ({ uploads: state.uploads }),
+			partialize: (state) => {
+				console.log(`[STORE] Persisting uploads state:`, { uploads: state.uploads.length });
+				return { uploads: state.uploads };
+			},
+			onRehydrateStorage: () => (state) => {
+				if (state) {
+					console.log(`[STORE] Rehydrated uploads state:`, { uploads: state.uploads.length });
+				}
+			},
 		},
 	),
 );

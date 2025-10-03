@@ -42,11 +42,14 @@ const mimeTypes: Record<string, string> = {
 // Serve static files from the uploads directory
 export async function GET(
 	request: NextRequest,
-	{ params }: { params: { path: string[] } }
+	{ params }: { params: Promise<{ path: string[] }> },
 ) {
 	try {
+		// Await params in Next.js 15+
+		const resolvedParams = await params;
+
 		// Reconstruct the file path from the URL segments
-		const filePath = params.path.join("/");
+		const filePath = resolvedParams.path.join("/");
 
 		// Decode URL-encoded characters
 		const decodedPath = decodeURIComponent(filePath);

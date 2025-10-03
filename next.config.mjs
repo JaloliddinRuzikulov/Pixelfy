@@ -118,6 +118,9 @@ const nextConfig = {
 		"@remotion/renderer",
 		"esbuild",
 	],
+
+	// Docker production build
+	output: "standalone",
 };
 
 export default nextConfig;

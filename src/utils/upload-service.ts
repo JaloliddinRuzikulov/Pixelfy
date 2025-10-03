@@ -22,13 +22,19 @@ export async function processFileUpload(
 	callbacks: UploadCallbacks,
 ): Promise<any> {
 	try {
+		console.log(`[UPLOAD] Starting file upload for ${uploadId}:`, {
+			fileName: file.name,
+			fileSize: file.size,
+			fileType: file.type
+		});
+
 		// Create FormData for file upload
 		const formData = new FormData();
 		formData.append("file", file);
 
-		// Upload to local server with progress tracking
+		// Upload to storage service through web API proxy
 		const response = await axios
-			.post("/api/local-upload", formData, {
+			.post("/api/storage/upload", formData, {
 				headers: {
 					"Content-Type": "multipart/form-data",
 				},
@@ -36,29 +42,44 @@ export async function processFileUpload(
 					const percent = Math.round(
 						(progressEvent.loaded * 100) / (progressEvent.total || 1),
 					);
+					console.log(`[UPLOAD] Progress for ${uploadId}: ${percent}%`);
 					callbacks.onProgress(uploadId, percent);
 				},
 				validateStatus: (status) => status < 500, // Don't throw on client errors
 			})
 			.catch((error) => {
 				// Handle network errors
-				console.error("Upload network error:", error);
+				console.error(`[UPLOAD] Network error for ${uploadId}:`, error);
 				throw new Error(error.message || "Network error during upload");
 			});
 
 		if (!response || response.status >= 400) {
-			throw new Error(
-				`Upload failed with status ${response?.status || "unknown"}`,
-			);
+			const errorMsg = `Upload failed with status ${response?.status || "unknown"}`;
+			console.error(`[UPLOAD] ${errorMsg} for ${uploadId}:`, response?.data);
+			throw new Error(errorMsg);
 		}
 
 		const uploadInfo = response.data;
+		console.log(`[UPLOAD] Storage service response for ${uploadId}:`, uploadInfo);
+
+		// Storage service response has different structure
+		const actualUploadInfo = {
+			fileName: uploadInfo.fileName,
+			filePath: uploadInfo.filePath,
+			url: uploadInfo.url,
+			contentType: uploadInfo.contentType,
+			fileSize: uploadInfo.fileSize,
+			folder: uploadInfo.folder,
+			uploadedAt: uploadInfo.uploadedAt,
+			storageId: uploadInfo.storageId,
+			thumbnail: uploadInfo.thumbnail
+		};
 
 		// Generate media metadata
 		let mediaMetadata = {};
 		if (file.type.startsWith("video/")) {
 			try {
-				const videoUrl = uploadInfo.url;
+				const videoUrl = actualUploadInfo.url;
 				const video = document.createElement("video");
 				video.src = videoUrl;
 				video.crossOrigin = "anonymous";
@@ -102,7 +123,7 @@ export async function processFileUpload(
 			}
 		} else if (file.type.startsWith("audio/")) {
 			try {
-				const audioUrl = uploadInfo.url;
+				const audioUrl = actualUploadInfo.url;
 				const audio = new Audio(audioUrl);
 
 				await new Promise((resolve, reject) => {
@@ -112,7 +133,7 @@ export async function processFileUpload(
 
 				const duration = audio.duration * 1000; // Convert to ms
 				mediaMetadata = {
-					duration
+					duration,
 				};
 			} catch (error) {
 				console.warn("Failed to generate audio metadata:", error);
@@ -121,23 +142,32 @@ export async function processFileUpload(
 
 		// Construct upload data
 		const uploadData = {
-			fileName: uploadInfo.fileName,
-			filePath: uploadInfo.filePath,
+			fileName: actualUploadInfo.fileName,
+			filePath: actualUploadInfo.filePath,
 			fileSize: file.size,
 			contentType: file.type,
 			metadata: {
-				uploadedUrl: uploadInfo.url,
-				...mediaMetadata
+				uploadedUrl: actualUploadInfo.url,
+				storageId: actualUploadInfo.storageId,
+				thumbnail: actualUploadInfo.thumbnail,
+				thumbnailUrl: actualUploadInfo.thumbnail ? `/storage/${actualUploadInfo.thumbnail}` : undefined,
+				...mediaMetadata,
 			},
-			folder: uploadInfo.folder || null,
+			folder: actualUploadInfo.folder || null,
 			type: file.type.split("/")[0],
-			method: "direct",
+			method: "storage_service",
 			origin: "user",
 			status: "uploaded",
 			isPreview: false,
-			url: uploadInfo.url,
+			url: actualUploadInfo.url,
+			file: { // Add original file reference for UI
+				name: file.name,
+				size: file.size,
+				type: file.type
+			}
 		};
 
+		console.log(`[UPLOAD] Final upload data for ${uploadId}:`, uploadData);
 		callbacks.onStatus(uploadId, "uploaded");
 		return uploadData;
 	} catch (error) {
@@ -159,7 +189,8 @@ export async function processUrlUpload(
 		// Start with 10% progress
 		callbacks.onProgress(uploadId, 10);
 
-		// Upload URL to local server
+		// Upload URL via storage service (if supported)
+		// For now, fall back to local processing as storage service might not support URL uploads
 		const response = await axios.post(
 			"/api/local-upload-url",
 			{

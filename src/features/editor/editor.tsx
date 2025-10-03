@@ -324,22 +324,31 @@ const Editor = ({
 				setProjectName={setProjectName}
 			/>
 			<div className="flex flex-1">
-				<ResizablePanelGroup style={{ flex: 1 }} direction="horizontal">
+				<ResizablePanelGroup
+					style={{ flex: 1 }}
+					direction="horizontal"
+					autoSaveId="editor-horizontal-layout"
+				>
 					{isLargeScreen && (
 						<>
 							<ResizablePanel
-								defaultSize={25}
-								minSize={15}
-								maxSize={40}
+								id="sidebar"
+								order={1}
+								defaultSize={showMenuItem ? 20 : 5}
+								minSize={showMenuItem ? 15 : 5}
+								maxSize={showMenuItem ? 35 : 5}
+								collapsible={false}
 								className="flex flex-none h-[calc(100vh-56px)]"
 							>
 								<MenuList />
 								{showMenuItem && <MenuItem />}
 							</ResizablePanel>
-							<ResizableHandle className="w-1 bg-border hover:bg-primary/60 transition-colors" />
+							{showMenuItem && (
+								<ResizableHandle withHandle className="w-1 bg-border hover:bg-primary/60 transition-colors" />
+							)}
 						</>
 					)}
-					<ResizablePanel defaultSize={isLargeScreen ? 75 : 100}>
+					<ResizablePanel id="main-content" order={2} defaultSize={isLargeScreen ? (showMenuItem ? 80 : 95) : 100}>
 						<ResizablePanelGroup style={{ flex: 1 }} direction="vertical">
 							<ResizablePanel
 								className="relative border-r-2 border-border"

@@ -52,6 +52,8 @@ import { useTranslations } from "next-intl";
 import { SubscriptionStatus } from "@/components/subscription/subscription-status";
 import { UpgradeModal } from "@/components/subscription/upgrade-modal";
 import { useSubscriptionStore } from "@/store/use-subscription-store";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -104,6 +106,14 @@ export default function ProjectsPage() {
 	const [activeTab, setActiveTab] = useState("all");
 	const [sortBy, setSortBy] = useState<"date" | "name" | "size">("date");
 	const { canCreateProject, incrementProjects } = useSubscriptionStore();
+
+	// Redirect to landing if not authenticated
+	useEffect(() => {
+		if (!isLoading && !isAuthenticated) {
+			console.log("[Projects Page] Not authenticated, redirecting to landing page");
+			router.push("/");
+		}
+	}, [isAuthenticated, isLoading, router]);
 
 	// Load projects from localStorage
 	useEffect(() => {
@@ -343,6 +353,8 @@ export default function ProjectsPage() {
 
 						{/* Actions */}
 						<div className="flex items-center gap-3">
+							<ThemeToggle />
+							<LanguageSwitcher />
 							<Button
 								onClick={handleCreateProject}
 								className="gap-2 bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg transition-all duration-300 hover:shadow-primary/25"

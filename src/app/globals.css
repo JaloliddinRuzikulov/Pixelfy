@@ -1500,3 +1500,130 @@ input[type="number"]::-webkit-outer-spin-button {
 [data-slot="scroll-area-viewport"] > * {
 	display: block !important;
 }
+
+/* Landing Page Animations */
+@keyframes blob {
+	0%, 100% {
+		transform: translate(0px, 0px) scale(1) rotate(0deg);
+	}
+	25% {
+		transform: translate(40px, -60px) scale(1.15) rotate(90deg);
+	}
+	50% {
+		transform: translate(-30px, 40px) scale(0.9) rotate(180deg);
+	}
+	75% {
+		transform: translate(20px, 30px) scale(1.05) rotate(270deg);
+	}
+}
+
+.animate-blob {
+	animation: blob 20s ease-in-out infinite;
+	will-change: transform;
+}
+
+/* Reverse blob animation */
+@keyframes blob-reverse {
+	0%, 100% {
+		transform: translate(0px, 0px) scale(1) rotate(0deg);
+	}
+	25% {
+		transform: translate(-40px, 60px) scale(0.9) rotate(-90deg);
+	}
+	50% {
+		transform: translate(30px, -40px) scale(1.15) rotate(-180deg);
+	}
+	75% {
+		transform: translate(-20px, -30px) scale(0.95) rotate(-270deg);
+	}
+}
+
+.animate-blob-reverse {
+	animation: blob-reverse 18s ease-in-out infinite;
+	will-change: transform;
+}
+
+/* Shimmer animation for light streaks */
+@keyframes shimmer {
+	0%, 100% {
+		opacity: 0.1;
+		transform: translateY(0) scaleY(1);
+	}
+	50% {
+		opacity: 0.3;
+		transform: translateY(-20px) scaleY(1.1);
+	}
+}
+
+.animate-shimmer {
+	animation: shimmer 8s ease-in-out infinite;
+}
+
+.animation-delay-2000 {
+	animation-delay: 2s;
+}
+
+.animation-delay-3000 {
+	animation-delay: 3s;
+}
+
+.animation-delay-4000 {
+	animation-delay: 4s;
+}
+
+.animation-delay-6000 {
+	animation-delay: 6s;
+}
+
+/* Fade in animations */
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes fadeInUp {
+	from {
+		opacity: 0;
+		transform: translateY(30px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+.animate-fade-in {
+	animation: fadeIn 0.6s ease-out forwards;
+}
+
+.animate-fade-in-up {
+	animation: fadeInUp 0.8s ease-out forwards;
+}
+
+/* Grid Pattern */
+.bg-grid-pattern {
+	background-image: linear-gradient(
+			hsl(var(--foreground) / 0.05) 1px,
+			transparent 1px
+		),
+		linear-gradient(
+			to right,
+			hsl(var(--foreground) / 0.05) 1px,
+			transparent 1px
+		);
+	background-size: 50px 50px;
+}
+
+/* Radial Gradient */
+.bg-gradient-radial {
+	background: radial-gradient(
+		circle at center,
+		var(--tw-gradient-stops)
+	);
+}

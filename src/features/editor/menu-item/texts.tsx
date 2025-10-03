@@ -128,7 +128,7 @@ export const Texts = () => {
 			</div>
 
 			<ScrollArea className="flex-1 overflow-auto">
-				<div className="p-4 space-y-6">
+				<div className="p-2 sm:p-4 space-y-4">
 					{/* Quick Add Button */}
 					<div className="space-y-3">
 						<Draggable
@@ -239,17 +239,6 @@ export const Texts = () => {
 						</div>
 					</div>
 
-					{/* Additional Text Options */}
-					<div className="space-y-3">
-						<div className="text-sm font-medium text-muted-foreground">
-							Custom Text
-						</div>
-						<div className="text-xs text-muted-foreground bg-muted/30 p-3 rounded-lg">
-							💡 <strong>Tip:</strong> After adding text to the timeline, select
-							it to customize font, size, color, and position using the
-							properties panel.
-						</div>
-					</div>
 				</div>
 			</ScrollArea>
 		</div>

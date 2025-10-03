@@ -21,6 +21,8 @@ const Player = () => {
 			className={`h-full w-full bg-[${background.value}]`}
 			fps={30}
 			overflowVisible
+			showVolumeControls={false}
+			allowFullscreen={false}
 		/>
 	);
 };

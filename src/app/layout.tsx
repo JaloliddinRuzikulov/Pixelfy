@@ -72,7 +72,7 @@ export default async function RootLayout({
 			<body className="antialiased bg-background text-foreground min-h-screen">
 				<ThemeProvider
 					attribute="class"
-					defaultTheme="dark"
+					defaultTheme="system"
 					enableSystem
 					disableTransitionOnChange
 				>

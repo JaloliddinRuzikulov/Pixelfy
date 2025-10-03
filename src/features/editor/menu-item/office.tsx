@@ -118,12 +118,10 @@ export function Office() {
 			formData.append("output_format", "PNG");
 			formData.append("dpi", "150");
 
-			// Use correct office service URL
-			const officeServiceUrl =
-				process.env.NEXT_PUBLIC_OFFICE_SERVICE_URL || "http://localhost:8002";
+			// Use web app API proxy instead of direct office service URL
 			const endpoint = selectedFile.name.toLowerCase().endsWith(".pdf")
-				? `${officeServiceUrl}/convert/pdf`
-				: `${officeServiceUrl}/convert/powerpoint`;
+				? "/api/office/convert/pdf"
+				: "/api/office/convert/powerpoint";
 
 			setConversionStatus({
 				isConverting: true,
@@ -158,27 +156,10 @@ export function Office() {
 					? "ppt"
 					: "pptx";
 
-			// Create full URLs for images using download_urls from response
-			const imageUrls =
-				data.download_urls?.map((path: string) => {
-					if (path.startsWith("http")) return path;
-					// Use session_id to construct the full download URL
-					const sessionId = data.session_id;
-					if (path.startsWith("/download/")) {
-						return `${officeServiceUrl}${path}`;
-					}
-					// Fallback for direct image names
-					return `${officeServiceUrl}/download/${sessionId}/${path}`;
-				}) ||
-				data.images?.map((path: string) => {
-					// Fallback to images array if download_urls not present
-					if (path.startsWith("http")) return path;
-					const sessionId = data.session_id;
-					return `${officeServiceUrl}/download/${sessionId}/${path}`;
-				}) ||
-				[];
+			// Use images array from API response (already has correct proxy URLs)
+			const imageUrls = data.images || data.download_urls || [];
 
-			console.log("Constructed image URLs:", imageUrls);
+			console.log("Image URLs from API:", imageUrls);
 
 			const convertedDoc: ConvertedDocument = {
 				id: data.session_id || generateId(),
@@ -294,7 +275,7 @@ export function Office() {
 
 			// Cleanup session on server
 			const officeServiceUrl =
-				process.env.NEXT_PUBLIC_OFFICE_SERVICE_URL || "http://localhost:8002";
+				process.env.NEXT_PUBLIC_OFFICE_SERVICE_URL || "http://localhost:9002";
 			fetch(`${officeServiceUrl}/cleanup/${docId}`, { method: "DELETE" }).catch(
 				console.error,
 			);
@@ -325,7 +306,7 @@ export function Office() {
 			{/* Content with proper scrolling */}
 			<div className="flex-1 overflow-hidden">
 				<ScrollArea className="h-full">
-					<div className="p-4 space-y-4 pb-20">
+					<div className="p-2 sm:p-4 space-y-3 pb-16">
 						{/* Upload Section */}
 						<Card className="overflow-hidden border-primary/10 bg-gradient-to-br from-background to-muted/20 shadow-sm hover:shadow-md transition-all">
 							<CardHeader className="pb-3 bg-gradient-to-r from-primary/5 to-transparent">
@@ -525,7 +506,7 @@ export function Office() {
 
 										<TabsContent value="grid" className="mt-0">
 											<ScrollArea className="h-[280px]">
-												<div className="grid grid-cols-3 gap-3 pr-3">
+												<div className="grid grid-cols-2 sm:grid-cols-3 gap-2 pr-3">
 													{selectedDocument.thumbnails.map((thumb, index) => (
 														<div
 															key={index}

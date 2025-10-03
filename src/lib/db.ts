@@ -5,22 +5,25 @@ import { createAnalyticsTables } from "./db-analytics";
 
 // Try PostgreSQL first, fallback to memory storage
 let useMemoryDb = false;
-let pool: Pool;
+let pool: Pool | null = null;
 let kyselyDb: Kysely<any> | null = null;
 
-try {
-	if (
-		!process.env.DATABASE_URL ||
-		process.env.DATABASE_URL.includes(
-			"postgresql://postgres:password@localhost",
-		)
-	) {
-		// Development fallback - use memory database
-		console.log(
-			"Using file-based database for development (PostgreSQL not configured)",
-		);
-		useMemoryDb = true;
-	} else {
+// Check if we should use PostgreSQL or memory database
+if (
+	!process.env.DATABASE_URL ||
+	process.env.DATABASE_URL.includes(
+		"postgresql://postgres:password@localhost",
+	) ||
+	process.env.DATABASE_URL.includes("host.docker.internal")
+) {
+	// Development fallback - use memory database
+	console.log(
+		"Using file-based database for development (PostgreSQL not configured)",
+	);
+	useMemoryDb = true;
+} else {
+	// Only initialize PostgreSQL connection if we have a real DATABASE_URL
+	try {
 		pool = new Pool({
 			connectionString: process.env.DATABASE_URL,
 			ssl:
@@ -38,13 +41,14 @@ try {
 
 		// Create analytics tables if they don't exist
 		createAnalyticsTables(kyselyDb).catch(console.error);
+	} catch (error) {
+		console.log(
+			"PostgreSQL connection failed, falling back to in-memory database:",
+			error,
+		);
+		useMemoryDb = true;
+		pool = null;
 	}
-} catch (error) {
-	console.log(
-		"PostgreSQL connection failed, falling back to in-memory database:",
-		error,
-	);
-	useMemoryDb = true;
 }
 
 export { pool as db, kyselyDb };
@@ -65,7 +69,7 @@ export class UserRepository {
 		lastName?: string;
 		role?: UserRole;
 	}): Promise<User> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileUserRepository.create(userData);
 		}
 
@@ -84,8 +88,8 @@ export class UserRepository {
 				: "user");
 
 		const result = await pool.query(
-			`INSERT INTO users (email, password_hash, first_name, last_name, role) 
-       VALUES ($1, $2, $3, $4, $5) 
+			`INSERT INTO users (email, password_hash, first_name, last_name, role)
+       VALUES ($1, $2, $3, $4, $5)
        RETURNING id, email, first_name, last_name, avatar_url, email_verified, role, created_at, updated_at`,
 			[email, passwordHash, firstName || null, lastName || null, userRole],
 		);
@@ -107,12 +111,12 @@ export class UserRepository {
 	static async findByEmail(
 		email: string,
 	): Promise<(User & { passwordHash: string }) | null> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileUserRepository.findByEmail(email);
 		}
 
 		const result = await pool.query(
-			`SELECT id, email, password_hash, first_name, last_name, avatar_url, email_verified, role, created_at, updated_at 
+			`SELECT id, email, password_hash, first_name, last_name, avatar_url, email_verified, role, created_at, updated_at
        FROM users WHERE email = $1`,
 			[email],
 		);
@@ -135,12 +139,12 @@ export class UserRepository {
 	}
 
 	static async findById(id: string): Promise<User | null> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileUserRepository.findById(id);
 		}
 
 		const result = await pool.query(
-			`SELECT id, email, first_name, last_name, avatar_url, email_verified, role, created_at, updated_at 
+			`SELECT id, email, first_name, last_name, avatar_url, email_verified, role, created_at, updated_at
        FROM users WHERE id = $1`,
 			[id],
 		);
@@ -169,7 +173,7 @@ export class UserRepository {
 			avatarUrl?: string;
 		},
 	): Promise<User | null> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileUserRepository.updateProfile(id, updates);
 		}
 
@@ -223,7 +227,7 @@ export class UserRepository {
 		id: string,
 		passwordHash: string,
 	): Promise<boolean> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileUserRepository.updatePassword(id, passwordHash);
 		}
 
@@ -236,7 +240,7 @@ export class UserRepository {
 	}
 
 	static async verifyEmail(id: string): Promise<boolean> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileUserRepository.verifyEmail(id);
 		}
 
@@ -257,7 +261,7 @@ export class UserRepository {
 			role?: UserRole;
 		},
 	): Promise<User> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileUserRepository.update(id, updates);
 		}
 
@@ -310,7 +314,7 @@ export class UserRepository {
 	}
 
 	static async findAll(): Promise<User[]> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileUserRepository.findAll();
 		}
 
@@ -337,7 +341,7 @@ export class UserRepository {
 // Session database operations
 export class SessionRepository {
 	static async create(userId: string, sessionToken: string): Promise<Session> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileSessionRepository.create(userId, sessionToken);
 		}
 
@@ -360,7 +364,7 @@ export class SessionRepository {
 	}
 
 	static async findByToken(sessionToken: string): Promise<Session | null> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileSessionRepository.findByToken(sessionToken);
 		}
 
@@ -381,7 +385,7 @@ export class SessionRepository {
 	}
 
 	static async deleteByToken(sessionToken: string): Promise<boolean> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileSessionRepository.deleteByToken(sessionToken);
 		}
 
@@ -394,7 +398,7 @@ export class SessionRepository {
 	}
 
 	static async deleteByUserId(userId: string): Promise<boolean> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileSessionRepository.deleteByUserId(userId);
 		}
 
@@ -406,7 +410,7 @@ export class SessionRepository {
 	}
 
 	static async cleanup(): Promise<number> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileSessionRepository.cleanup();
 		}
 
@@ -424,7 +428,7 @@ export class TokenRepository {
 		userId: string,
 		token: string,
 	): Promise<void> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileTokenRepository.createEmailVerificationToken(userId, token);
 		}
 
@@ -440,7 +444,7 @@ export class TokenRepository {
 		userId: string;
 		expiresAt: Date;
 	} | null> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileTokenRepository.findEmailVerificationToken(token);
 		}
 
@@ -459,7 +463,7 @@ export class TokenRepository {
 	}
 
 	static async deleteEmailVerificationToken(token: string): Promise<void> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileTokenRepository.deleteEmailVerificationToken(token);
 		}
 
@@ -472,7 +476,7 @@ export class TokenRepository {
 		userId: string,
 		token: string,
 	): Promise<void> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileTokenRepository.createPasswordResetToken(userId, token);
 		}
 
@@ -488,7 +492,7 @@ export class TokenRepository {
 		userId: string;
 		expiresAt: Date;
 	} | null> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileTokenRepository.findPasswordResetToken(token);
 		}
 
@@ -507,7 +511,7 @@ export class TokenRepository {
 	}
 
 	static async deletePasswordResetToken(token: string): Promise<void> {
-		if (useMemoryDb) {
+		if (useMemoryDb || !pool) {
 			return FileTokenRepository.deletePasswordResetToken(token);
 		}
 
