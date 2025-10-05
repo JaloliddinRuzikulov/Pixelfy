@@ -337,9 +337,11 @@ export default function Wav2LipMenuItem() {
 			}));
 		} catch (error) {
 			console.error("Error adding Wav2Lip video to timeline:", error);
+			const errorMessage = error instanceof Error ? error.message : String(error);
+			console.error("Error details:", errorMessage);
 			setState((prev) => ({
 				...prev,
-				error: "Timeline'ga qo'shishda xatolik yuz berdi",
+				error: `Timeline'ga qo'shishda xatolik: ${errorMessage}`,
 			}));
 		}
 	};
