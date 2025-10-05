@@ -167,7 +167,7 @@ export default function Wav2LipMenuItem() {
 			setState((prev) => ({ ...prev, progress: 10 }));
 			setProgressMessage("Video yuklanmoqda...");
 
-			const apiUrl = "https://api-ai.jprq.live/generate-from-text";
+			const apiUrl = "/api/lipsync/generate-from-text";
 			console.log("Sending request to:", apiUrl);
 
 			// Start progress simulation while waiting for response
