@@ -254,7 +254,7 @@ function ScreenCameraRecording() {
 			// Show uploading message
 			const uploadDiv = document.createElement("div");
 			uploadDiv.className =
-				"fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50";
+				"fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-none z-50";
 			uploadDiv.textContent = "Video yuklanmoqda...";
 			document.body.appendChild(uploadDiv);
 
@@ -306,7 +306,7 @@ function ScreenCameraRecording() {
 		// Show success message
 		const successDiv = document.createElement("div");
 		successDiv.className =
-			"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-bottom";
+			"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-none z-50  ";
 		successDiv.textContent = "Video timeline'ga qo'shildi!";
 		document.body.appendChild(successDiv);
 		setTimeout(() => successDiv.remove(), 3000);
@@ -347,7 +347,7 @@ function ScreenCameraRecording() {
 						className="space-y-2"
 						disabled={isRecording}
 					>
-						<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30 transition-all">
+						<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30 ">
 							<RadioGroupItem
 								value="screen"
 								id="rec-screen"
@@ -364,7 +364,7 @@ function ScreenCameraRecording() {
 							</Label>
 						</div>
 
-						<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30 transition-all">
+						<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30 ">
 							<RadioGroupItem
 								value="camera"
 								id="rec-camera"
@@ -381,7 +381,7 @@ function ScreenCameraRecording() {
 							</Label>
 						</div>
 
-						<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30 transition-all">
+						<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30 ">
 							<RadioGroupItem
 								value="both"
 								id="rec-both"
@@ -416,8 +416,8 @@ function ScreenCameraRecording() {
 						<div className="flex items-center justify-between mb-4">
 							<div className="flex items-center gap-3">
 								<div className="relative">
-									<div className="h-3 w-3 bg-red-500 rounded-full animate-pulse" />
-									<div className="absolute inset-0 h-3 w-3 bg-red-500 rounded-full animate-ping" />
+									<div className="h-3 w-3 bg-red-500 rounded-full " />
+									<div className="absolute inset-0 h-3 w-3 bg-red-500 rounded-full " />
 								</div>
 								<span className="text-sm font-medium">Yozilmoqda</span>
 							</div>
@@ -492,7 +492,7 @@ function ScreenCameraRecording() {
 								<div
 									key={recording.id}
 									className={cn(
-										"p-3 rounded-lg border cursor-pointer transition-all",
+										"p-3 rounded-lg border cursor-pointer ",
 										selectedRecording?.id === recording.id
 											? "border-primary bg-primary/5"
 											: "border-border hover:bg-muted/50",
@@ -749,7 +749,7 @@ export function Recording() {
 			// Show uploading message
 			const uploadDiv = document.createElement("div");
 			uploadDiv.className =
-				"fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-lg z-50";
+				"fixed bottom-4 right-4 bg-blue-500 text-white px-4 py-2 rounded-lg shadow-none z-50";
 			uploadDiv.textContent = "Audio yuklanmoqda...";
 			document.body.appendChild(uploadDiv);
 
@@ -801,7 +801,7 @@ export function Recording() {
 		// Show success message
 		const successDiv = document.createElement("div");
 		successDiv.className =
-			"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-bottom";
+			"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-none z-50  ";
 		successDiv.textContent = "Audio timeline'ga qo'shildi!";
 		document.body.appendChild(successDiv);
 		setTimeout(() => successDiv.remove(), 3000);
@@ -923,9 +923,9 @@ export function Recording() {
 							{/* Recording Controls */}
 							<Card
 								className={cn(
-									"overflow-hidden transition-all duration-300",
+									"overflow-hidden  ",
 									isRecording
-										? "border-red-500/50 bg-red-500/5 shadow-lg shadow-red-500/10"
+										? "border-red-500/50 bg-red-500/5 shadow-none shadow-red-500/10"
 										: "border-red-500/10 bg-gradient-to-br from-red-500/5 to-transparent",
 								)}
 							>
@@ -945,8 +945,8 @@ export function Recording() {
 											<div className="flex items-center justify-between">
 												<div className="flex items-center gap-3">
 													<div className="relative">
-														<div className="h-3 w-3 bg-red-500 rounded-full animate-pulse" />
-														<div className="absolute inset-0 h-3 w-3 bg-red-500 rounded-full animate-ping" />
+														<div className="h-3 w-3 bg-red-500 rounded-full " />
+														<div className="absolute inset-0 h-3 w-3 bg-red-500 rounded-full " />
 													</div>
 													<span className="text-sm font-medium">
 														Yozilmoqda
@@ -960,7 +960,7 @@ export function Recording() {
 											{/* Audio Level Bar */}
 											<div className="relative h-2 bg-muted rounded-full overflow-hidden">
 												<div
-													className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-500 to-yellow-500 transition-all duration-100"
+													className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-500 to-yellow-500  duration-100"
 													style={{ width: `${audioLevel}%` }}
 												/>
 											</div>
@@ -1032,7 +1032,7 @@ export function Recording() {
 												<div
 													key={recording.id}
 													className={cn(
-														"p-3 rounded-lg border cursor-pointer transition-all",
+														"p-3 rounded-lg border cursor-pointer ",
 														selectedRecording?.id === recording.id
 															? "border-primary bg-primary/5"
 															: "border-border hover:bg-muted/50",
@@ -1100,7 +1100,6 @@ export function Recording() {
 									</CardContent>
 								</Card>
 							)}
-
 						</div>
 					</div>
 				</TabsContent>
@@ -1225,11 +1224,11 @@ export function Recording() {
 							<Button
 								onClick={handleGenerateTTS}
 								disabled={!ttsSettings.text.trim() || isGeneratingTTS}
-								className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-lg"
+								className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-none"
 							>
 								{isGeneratingTTS ? (
 									<>
-										<Loader2 className="h-4 w-4 mr-2 animate-spin" />
+										<Loader2 className="h-4 w-4 mr-2 " />
 										Yaratilmoqda...
 									</>
 								) : (

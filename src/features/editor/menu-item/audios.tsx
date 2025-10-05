@@ -58,7 +58,7 @@ export const Audios = () => {
 
 	return (
 		<div className="flex flex-1 flex-col">
-			<div className="flex h-12 flex-none items-center px-4 text-sm font-medium border-b border-border/20">
+			<div className="flex h-12 flex-none items-center px-4 text-xs sm:text-sm font-medium border-b border-border/20">
 				Music Library
 			</div>
 
@@ -78,10 +78,10 @@ export const Audios = () => {
 							<div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
 								<Music className="w-8 h-8 text-muted-foreground" />
 							</div>
-							<p className="text-sm text-muted-foreground mb-2">
+							<p className="text-xs sm:text-sm text-muted-foreground mb-2">
 								No audio files available
 							</p>
-							<p className="text-xs text-muted-foreground/70">
+							<p className="text-xs sm:text-sm text-muted-foreground/70">
 								Check back later for music tracks
 							</p>
 						</div>
@@ -142,8 +142,8 @@ const AudioItem = ({
 
 						{/* Content */}
 						<div className="flex-1 min-w-0">
-							<div className="font-medium text-sm truncate">{audio.name}</div>
-							<div className="text-xs text-muted-foreground truncate">
+							<div className="font-medium text-xs sm:text-sm truncate">{audio.name}</div>
+							<div className="text-xs sm:text-sm text-muted-foreground truncate">
 								{audio.metadata?.author || "Unknown Artist"}
 							</div>
 							{audio.metadata?.mood && (
@@ -163,7 +163,7 @@ const AudioItem = ({
 									{formatDuration(audio.duration)}
 								</div>
 							)}
-							<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center opacity-0 group-hover:opacity-100">
+							<div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center opacity-0 ">
 								<Play className="w-3 h-3 text-primary fill-current" />
 							</div>
 						</div>

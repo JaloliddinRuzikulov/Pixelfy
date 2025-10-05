@@ -27,7 +27,9 @@ export default function Home() {
 			<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5">
 				<div className="flex flex-col items-center gap-4">
 					<Loader2 className="h-8 w-8 animate-spin text-primary" />
-					<p className="text-muted-foreground">{t("hero.loading", { default: "Yuklanmoqda..." })}</p>
+					<p className="text-muted-foreground">
+						{t("hero.loading", { default: "Yuklanmoqda..." })}
+					</p>
 				</div>
 			</div>
 		);
@@ -63,7 +65,7 @@ export default function Home() {
 							linear-gradient(to right, rgb(var(--foreground)) 1px, transparent 1px),
 							linear-gradient(to bottom, rgb(var(--foreground)) 1px, transparent 1px)
 						`,
-						backgroundSize: '60px 60px'
+						backgroundSize: "60px 60px",
 					}}
 				/>
 
@@ -72,8 +74,8 @@ export default function Home() {
 					className="absolute inset-0 opacity-[0.03] dark:opacity-[0.04]"
 					style={{
 						backgroundImage: `radial-gradient(circle, rgb(var(--foreground)) 2px, transparent 2px)`,
-						backgroundSize: '50px 50px',
-						backgroundPosition: '0 0, 25px 25px'
+						backgroundSize: "50px 50px",
+						backgroundPosition: "0 0, 25px 25px",
 					}}
 				/>
 
@@ -153,7 +155,7 @@ export default function Home() {
 					</div>
 
 					<h2 className="text-4xl md:text-6xl font-bold tracking-tight animate-fade-in-up">
-						<span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent drop-shadow-2xl">
+						<span className="bg-gradient-to-r from-primary via-primary/80 to-primary/60 bg-clip-text text-transparent">
 							{t("hero.title")}
 						</span>
 						<br />
@@ -166,13 +168,17 @@ export default function Home() {
 
 					<div className="flex items-center justify-center gap-4 flex-wrap">
 						<Link href="/auth/register">
-							<Button size="lg" className="text-lg px-8 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all">
+							<Button size="lg" className="text-lg px-8 transition-all">
 								{t("hero.ctaStart")}
 								<ArrowRight className="w-5 h-5 ml-2" />
 							</Button>
 						</Link>
 						<Link href="/auth/login">
-							<Button size="lg" variant="outline" className="text-lg px-8 backdrop-blur-sm bg-background/50 border-border/50 hover:bg-background/80">
+							<Button
+								size="lg"
+								variant="outline"
+								className="text-lg px-8 backdrop-blur-sm bg-background/50 border-border/50 hover:bg-background/80"
+							>
 								{t("hero.ctaDemo")}
 							</Button>
 						</Link>
@@ -181,16 +187,28 @@ export default function Home() {
 					{/* Stats */}
 					<div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto pt-12">
 						<div className="p-6 rounded-2xl bg-background/30 backdrop-blur-sm border border-border/50 hover:bg-background/50 transition-all">
-							<div className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">10K+</div>
-							<div className="text-sm text-muted-foreground mt-1">{t("hero.stats.users")}</div>
+							<div className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+								10K+
+							</div>
+							<div className="text-sm text-muted-foreground mt-1">
+								{t("hero.stats.users")}
+							</div>
 						</div>
 						<div className="p-6 rounded-2xl bg-background/30 backdrop-blur-sm border border-border/50 hover:bg-background/50 transition-all">
-							<div className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">50K+</div>
-							<div className="text-sm text-muted-foreground mt-1">{t("hero.stats.videos")}</div>
+							<div className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+								50K+
+							</div>
+							<div className="text-sm text-muted-foreground mt-1">
+								{t("hero.stats.videos")}
+							</div>
 						</div>
 						<div className="p-6 rounded-2xl bg-background/30 backdrop-blur-sm border border-border/50 hover:bg-background/50 transition-all">
-							<div className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">4.9/5</div>
-							<div className="text-sm text-muted-foreground mt-1">{t("hero.stats.rating")}</div>
+							<div className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+								4.9/5
+							</div>
+							<div className="text-sm text-muted-foreground mt-1">
+								{t("hero.stats.rating")}
+							</div>
 						</div>
 					</div>
 				</div>
@@ -210,33 +228,39 @@ export default function Home() {
 
 					<div className="grid md:grid-cols-3 gap-8">
 						{/* Feature 1 */}
-						<div className="group p-8 rounded-2xl border border-border/50 bg-background/30 backdrop-blur-sm hover:bg-background/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+						<div className="group p-8 rounded-2xl border border-border/50 bg-background/30 backdrop-blur-sm hover:bg-background/50 hover:border-primary/30 transition-all duration-300">
 							<div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
 								<Wand2 className="w-7 h-7 text-primary" />
 							</div>
-							<h4 className="text-xl font-semibold mb-3">{t("features.aiTools.title")}</h4>
+							<h4 className="text-xl font-semibold mb-3">
+								{t("features.aiTools.title")}
+							</h4>
 							<p className="text-muted-foreground leading-relaxed">
 								{t("features.aiTools.description")}
 							</p>
 						</div>
 
 						{/* Feature 2 */}
-						<div className="group p-8 rounded-2xl border border-border/50 bg-background/30 backdrop-blur-sm hover:bg-background/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+						<div className="group p-8 rounded-2xl border border-border/50 bg-background/30 backdrop-blur-sm hover:bg-background/50 hover:border-primary/30 transition-all duration-300">
 							<div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
 								<Video className="w-7 h-7 text-primary" />
 							</div>
-							<h4 className="text-xl font-semibold mb-3">{t("features.browserBased.title")}</h4>
+							<h4 className="text-xl font-semibold mb-3">
+								{t("features.browserBased.title")}
+							</h4>
 							<p className="text-muted-foreground leading-relaxed">
 								{t("features.browserBased.description")}
 							</p>
 						</div>
 
 						{/* Feature 3 */}
-						<div className="group p-8 rounded-2xl border border-border/50 bg-background/30 backdrop-blur-sm hover:bg-background/50 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+						<div className="group p-8 rounded-2xl border border-border/50 bg-background/30 backdrop-blur-sm hover:bg-background/50 hover:border-primary/30 transition-all duration-300">
 							<div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
 								<Zap className="w-7 h-7 text-primary" />
 							</div>
-							<h4 className="text-xl font-semibold mb-3">{t("features.fastRender.title")}</h4>
+							<h4 className="text-xl font-semibold mb-3">
+								{t("features.fastRender.title")}
+							</h4>
 							<p className="text-muted-foreground leading-relaxed">
 								{t("features.fastRender.description")}
 							</p>
@@ -260,7 +284,10 @@ export default function Home() {
 							{t("cta.description")}
 						</p>
 						<Link href="/auth/register">
-							<Button size="lg" className="text-lg px-12 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 transition-all relative z-10">
+							<Button
+								size="lg"
+								className="text-lg px-12 transition-all relative z-10"
+							>
 								{t("cta.button")}
 								<ArrowRight className="w-5 h-5 ml-2" />
 							</Button>

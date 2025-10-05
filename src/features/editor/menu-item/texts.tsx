@@ -122,7 +122,7 @@ export const Texts = () => {
 
 	return (
 		<div className="flex h-full flex-col bg-background overflow-hidden">
-			<div className="flex h-12 flex-none items-center px-4 text-sm font-medium border-b border-border bg-muted/20">
+			<div className="flex h-12 flex-none items-center px-4 text-xs sm:text-sm font-medium border-b border-border bg-muted/20">
 				<Type className="w-4 h-4 mr-2 text-primary" />
 				Text Elements
 			</div>
@@ -134,14 +134,14 @@ export const Texts = () => {
 						<Draggable
 							data={TEXT_ADD_PAYLOAD}
 							renderCustomPreview={
-								<Button variant="secondary" className="w-full">
+								<Button variant="secondary" className="w-full text-xs sm:text-sm">
 									<Plus className="w-4 h-4 mr-2" />
 									Add Text
 								</Button>
 							}
 							shouldDisplayPreview={!isDraggingOverTimeline}
 						>
-							<Button onClick={handleQuickAdd} className="w-full" size="lg">
+							<Button onClick={handleQuickAdd} className="w-full text-xs sm:text-sm" size="lg">
 								<Plus className="w-4 h-4 mr-2" />
 								Add Text to Timeline
 							</Button>
@@ -150,7 +150,7 @@ export const Texts = () => {
 
 					{/* Text Presets */}
 					<div className="space-y-3">
-						<div className="text-sm font-medium text-muted-foreground">
+						<div className="text-xs sm:text-sm font-medium text-muted-foreground">
 							Text Styles
 						</div>
 						<div className="grid grid-cols-1 gap-2">
@@ -179,11 +179,11 @@ export const Texts = () => {
 															<IconComponent className="w-4 h-4 text-primary" />
 														</div>
 														<div className="flex-1">
-															<div className="font-medium text-sm">
+															<div className="font-medium text-xs sm:text-sm">
 																{preset.name}
 															</div>
 															<div
-																className="text-xs text-muted-foreground truncate"
+																className="text-xs sm:text-sm text-muted-foreground truncate"
 																style={{
 																	fontSize: Math.min(
 																		preset.style.fontSize / 4,
@@ -238,7 +238,6 @@ export const Texts = () => {
 							})}
 						</div>
 					</div>
-
 				</div>
 			</ScrollArea>
 		</div>

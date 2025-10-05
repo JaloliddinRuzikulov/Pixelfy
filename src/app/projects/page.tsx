@@ -110,7 +110,9 @@ export default function ProjectsPage() {
 	// Redirect to landing if not authenticated
 	useEffect(() => {
 		if (!isLoading && !isAuthenticated) {
-			console.log("[Projects Page] Not authenticated, redirecting to landing page");
+			console.log(
+				"[Projects Page] Not authenticated, redirecting to landing page",
+			);
 			router.push("/");
 		}
 	}, [isAuthenticated, isLoading, router]);
@@ -622,7 +624,7 @@ export default function ProjectsPage() {
 						{filteredProjects.map((project) => (
 							<Card
 								key={project.id}
-								className="group overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer border-muted/50"
+								className="group overflow-hidden transition-all duration-300 hover:-translate-y-1 cursor-pointer border-muted/50"
 								onClick={() => handleOpenProject(project.id)}
 							>
 								{/* Thumbnail */}

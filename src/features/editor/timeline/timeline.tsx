@@ -110,6 +110,16 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 
 		if (!canvasEl || !timelineContainerEl) return;
 
+		const updateCanvasSize = () => {
+			const containerWidth = timelineContainerEl.clientWidth - 40;
+			const containerHeight = timelineContainerEl.clientHeight - 90;
+
+			if (canvasRef.current) {
+				canvasRef.current.resize(containerWidth, containerHeight);
+				setCanvasSize({ width: containerWidth, height: containerHeight });
+			}
+		};
+
 		const containerWidth = timelineContainerEl.clientWidth - 40;
 		const containerHeight = timelineContainerEl.clientHeight - 90;
 		const canvas = new CanvasTimeline(canvasEl, {
@@ -182,7 +192,21 @@ const Timeline = ({ stateManager }: { stateManager: StateManager }) => {
 		});
 		setTimeline(canvas);
 
+		// Add ResizeObserver to handle container size changes
+		const resizeObserver = new ResizeObserver(() => {
+			updateCanvasSize();
+		});
+
+		resizeObserver.observe(timelineContainerEl);
+
+		// Initial update after a short delay to ensure proper sizing
+		const timeoutId = setTimeout(() => {
+			updateCanvasSize();
+		}, 100);
+
 		return () => {
+			clearTimeout(timeoutId);
+			resizeObserver.disconnect();
 			canvas.purge();
 		};
 	}, []);

@@ -131,7 +131,7 @@ export const Images = () => {
 
 	return (
 		<div className="flex flex-1 flex-col">
-			<div className="flex h-12 flex-none items-center px-4 text-sm font-medium border-b border-border/20">
+			<div className="flex h-12 flex-none items-center px-4 text-xs sm:text-sm font-medium border-b border-border/20">
 				{t("stockImages")}
 			</div>
 
@@ -154,7 +154,7 @@ export const Images = () => {
 							disabled={pexelsLoading}
 						>
 							{pexelsLoading ? (
-								<Loader2 className="h-3 w-3 animate-spin" />
+								<Loader2 className="h-3 w-3 " />
 							) : (
 								<Search className="h-3 w-3" />
 							)}
@@ -200,10 +200,10 @@ export const Images = () => {
 							<div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
 								<ImageIcon className="w-8 h-8 text-muted-foreground" />
 							</div>
-							<p className="text-sm text-muted-foreground mb-2">
+							<p className="text-xs sm:text-sm text-muted-foreground mb-2">
 								{searchQuery ? "No images found" : "Search for stock images"}
 							</p>
-							<p className="text-xs text-muted-foreground/70">
+							<p className="text-xs sm:text-sm text-muted-foreground/70">
 								{searchQuery
 									? "Try a different search term"
 									: "Enter keywords to find images from Pexels"}
@@ -224,7 +224,7 @@ export const Images = () => {
 							>
 								{pexelsLoading ? (
 									<>
-										<Loader2 className="h-4 w-4 mr-2 animate-spin" />
+										<Loader2 className="h-4 w-4 mr-2 " />
 										Loading...
 									</>
 								) : (
@@ -294,7 +294,7 @@ const ImageItem = ({
 				/>
 
 				{/* Overlay */}
-				<div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+				<div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent    flex items-center justify-center">
 					<div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border border-white/30">
 						<Plus className="h-4 w-4 text-white" />
 					</div>

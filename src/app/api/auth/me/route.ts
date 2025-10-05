@@ -6,10 +6,19 @@ export async function GET(request: NextRequest) {
 		const user = await getAuthenticatedUser(request);
 
 		if (!user) {
-			return NextResponse.json(
+			// Clear invalid session cookie automatically
+			const response = NextResponse.json(
 				{ error: "No valid session found" },
 				{ status: 401 },
 			);
+			response.cookies.set("session-token", "", {
+				httpOnly: true,
+				secure: process.env.NODE_ENV === "production",
+				sameSite: "lax",
+				maxAge: 0,
+				path: "/",
+			});
+			return response;
 		}
 
 		return NextResponse.json({ user });

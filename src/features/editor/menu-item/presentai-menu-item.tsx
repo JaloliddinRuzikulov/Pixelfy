@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
 	Loader2,
 	Sparkles,
@@ -81,6 +82,25 @@ export function PresentAIMenuItem() {
 	const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 	const [timelineVariants, setTimelineVariants] = useState<any[]>([]);
 	const [selectedVariant, setSelectedVariant] = useState<string>("minimal");
+	const [serviceStatus, setServiceStatus] = useState<
+		"checking" | "online" | "offline"
+	>("checking");
+
+	useEffect(() => {
+		const checkServiceHealth = async () => {
+			try {
+				const response = await fetch("/api/health/presentai");
+				if (!response.ok) {
+					setServiceStatus("offline");
+				} else {
+					setServiceStatus("online");
+				}
+			} catch (error) {
+				setServiceStatus("offline");
+			}
+		};
+		checkServiceHealth();
+	}, []);
 
 	const handleGenerate = useCallback(async () => {
 		if (!prompt.trim()) {
@@ -110,7 +130,9 @@ export function PresentAIMenuItem() {
 
 			if (!response.ok) {
 				const errorData = await response.json();
-				throw new Error(errorData.error || `Request failed: ${response.status}`);
+				throw new Error(
+					errorData.error || `Request failed: ${response.status}`,
+				);
 			}
 
 			const result = await response.json();
@@ -119,22 +141,26 @@ export function PresentAIMenuItem() {
 			if (result.success) {
 				// Convert slide images to timeline variants format for compatibility
 				const mockContent = {
-					title: result.metadata?.ai_content?.title || "AI Generated Presentation",
-					description: result.metadata?.ai_content?.description || "Generated with AI",
-					slides: result.metadata?.ai_content?.slides || []
+					title:
+						result.metadata?.ai_content?.title || "AI Generated Presentation",
+					description:
+						result.metadata?.ai_content?.description || "Generated with AI",
+					slides: result.metadata?.ai_content?.slides || [],
 				};
 				setGeneratedContent(mockContent);
 
 				// Create a timeline variant from the slide images
 				const timelineVariant = {
 					id: "powerpoint-slides",
-					name: language === "uz" ? "PowerPoint Slaydlari" : "PowerPoint Slides",
-					description: language === "uz"
-						? `${result.total_slides} ta slayd, PNG formatida`
-						: `${result.total_slides} slides in PNG format`,
+					name:
+						language === "uz" ? "PowerPoint Slaydlari" : "PowerPoint Slides",
+					description:
+						language === "uz"
+							? `${result.total_slides} ta slayd, PNG formatida`
+							: `${result.total_slides} slides in PNG format`,
 					totalDuration: result.total_slides * 4000, // 4 seconds per slide
 					style: "powerpoint",
-					slide_images: result.slide_images || []
+					slide_images: result.slide_images || [],
 				};
 				setTimelineVariants([timelineVariant]);
 
@@ -146,7 +172,10 @@ export function PresentAIMenuItem() {
 			}
 		} catch (error) {
 			console.error("Timeline generation error:", error);
-			toast.error("Taqdimot yaratilmadi. Iltimos qaytadan urinib ko'ring: " + (error instanceof Error ? error.message : "Unknown error"));
+			toast.error(
+				"Taqdimot yaratilmadi. Iltimos qaytadan urinib ko'ring: " +
+					(error instanceof Error ? error.message : "Unknown error"),
+			);
 		} finally {
 			setIsGenerating(false);
 		}
@@ -156,7 +185,8 @@ export function PresentAIMenuItem() {
 		(variantId?: string) => {
 			const variant = variantId
 				? timelineVariants.find((v) => v.id === variantId)
-				: timelineVariants.find((v) => v.id === selectedVariant) || timelineVariants[0];
+				: timelineVariants.find((v) => v.id === selectedVariant) ||
+					timelineVariants[0];
 
 			if (!variant || !variant.slide_images) {
 				toast.error("PNG slaydlari topilmadi");
@@ -196,14 +226,14 @@ export function PresentAIMenuItem() {
 							width: 100,
 							height: 100,
 							opacity: 1,
-							fit: "contain" // Ensure proper aspect ratio
+							fit: "contain", // Ensure proper aspect ratio
 						},
 						metadata: {
 							name: `Slayd ${slideImage.slide_number}`,
 							source: "presentai-powerpoint",
 							filename: slideImage.filename,
-							size_bytes: slideImage.size_bytes
-						}
+							size_bytes: slideImage.size_bytes,
+						},
 					};
 
 					trackItems.push(imageItem);
@@ -211,7 +241,10 @@ export function PresentAIMenuItem() {
 				});
 
 				if (trackItems.length > 0) {
-					console.log("Dispatching ADD_ITEMS with PowerPoint slides:", trackItems);
+					console.log(
+						"Dispatching ADD_ITEMS with PowerPoint slides:",
+						trackItems,
+					);
 					dispatch(ADD_ITEMS, {
 						payload: {
 							trackItems: trackItems,
@@ -227,7 +260,10 @@ export function PresentAIMenuItem() {
 				}
 			} catch (error) {
 				console.error("Timeline import error:", error);
-				toast.error("Timeline'ga qo'shishda xatolik yuz berdi: " + (error instanceof Error ? error.message : "Unknown error"));
+				toast.error(
+					"Timeline'ga qo'shishda xatolik yuz berdi: " +
+						(error instanceof Error ? error.message : "Unknown error"),
+				);
 			}
 		},
 		[timelineVariants, selectedVariant],
@@ -237,16 +273,31 @@ export function PresentAIMenuItem() {
 		<div className="flex flex-col h-full">
 			<div className="flex items-center gap-2 p-4 pb-2 border-b bg-background/50">
 				<Sparkles className="w-5 h-5 text-primary" />
-				<h2 className="text-lg font-semibold">AI Taqdimot Generatori</h2>
+				<h2 className="text-sm sm:text-base font-semibold">AI Taqdimot Generatori</h2>
 			</div>
+
+			{/* Service Status Alert */}
+			{serviceStatus === "offline" && (
+				<div className="px-2 sm:px-4">
+					<Alert className="mt-2 sm:mt-4 border-destructive bg-destructive/10">
+						<Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
+						<AlertDescription className="text-xs sm:text-sm text-destructive">
+							<strong>AI xizmati ishlamayapti!</strong>
+							<br />
+							PresentAI xizmati hozirda mavjud emas.
+						</AlertDescription>
+					</Alert>
+				</div>
+			)}
+
 			<div className="flex-1 overflow-hidden">
 				<ScrollArea className="h-full">
 					<div className="flex flex-col gap-3 p-2 sm:p-4">
 						{/* Generation Form */}
 						<Card>
 							<CardHeader>
-								<CardTitle className="text-sm">Taqdimot Yaratish</CardTitle>
-								<CardDescription className="text-xs">
+								<CardTitle className="text-sm sm:text-base">Taqdimot Yaratish</CardTitle>
+								<CardDescription className="text-xs sm:text-sm">
 									Taqdimot mavzusini tasvirlab bering va AI sizga slaydlar
 									yaratib bersin
 								</CardDescription>
@@ -312,7 +363,7 @@ export function PresentAIMenuItem() {
 
 								{/* Prompt Input - moved to bottom for better UX */}
 								<div className="space-y-2">
-									<Label htmlFor="prompt" className="text-sm font-medium">
+									<Label htmlFor="prompt" className="text-xs sm:text-sm font-medium">
 										Taqdimot Mavzusi
 									</Label>
 									<Textarea
@@ -320,7 +371,7 @@ export function PresentAIMenuItem() {
 										placeholder="Masalan: 'Qayta tiklanadigan energiya texnologiyalari, ularning afzalliklari va kelajak istiqbollari haqida taqdimot yarating'"
 										value={prompt}
 										onChange={(e) => setPrompt(e.target.value)}
-										className="min-h-24 text-sm resize-none"
+										className="min-h-24 text-xs sm:text-sm resize-none"
 										disabled={isGenerating}
 										rows={4}
 									/>
@@ -334,7 +385,7 @@ export function PresentAIMenuItem() {
 								>
 									{isGenerating ? (
 										<>
-											<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+											<Loader2 className="w-4 h-4 mr-2 " />
 											Yaratilmoqda...
 										</>
 									) : (
@@ -351,11 +402,11 @@ export function PresentAIMenuItem() {
 						{generatedContent && (
 							<Card>
 								<CardHeader>
-									<CardTitle className="text-sm flex items-center gap-2">
+									<CardTitle className="text-sm sm:text-base flex items-center gap-2">
 										<FileText className="w-4 h-4" />
 										{generatedContent.title}
 									</CardTitle>
-									<CardDescription className="text-xs">
+									<CardDescription className="text-xs sm:text-sm">
 										{generatedContent.description}
 									</CardDescription>
 									<div className="flex items-center gap-2 mt-2">
@@ -381,7 +432,7 @@ export function PresentAIMenuItem() {
 													{generatedContent.slides.map((slide) => (
 														<div
 															key={slide.slide_number}
-															className="border rounded-md p-2 text-xs hover:bg-accent/50 transition-colors"
+															className="border rounded-md p-2 text-xs hover:bg-accent/50 "
 														>
 															<div className="flex items-start gap-2">
 																<Badge
@@ -418,7 +469,7 @@ export function PresentAIMenuItem() {
 														{timelineVariants.map((variant) => (
 															<div
 																key={variant.id}
-																className={`border rounded-md p-2 cursor-pointer transition-colors hover:bg-accent/50 ${
+																className={`border rounded-md p-2 cursor-pointer  hover:bg-accent/50 ${
 																	selectedVariant === variant.id
 																		? "bg-primary/10 border-primary"
 																		: ""

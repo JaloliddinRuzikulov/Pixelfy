@@ -15,6 +15,10 @@ export interface AuthenticatedUser {
 }
 
 const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret-key";
+const OLD_JWT_SECRETS = [
+	"fallback-secret-key", // Old fallback
+	// Add any old secrets here during migration
+];
 
 export class AuthError extends Error {
 	constructor(
@@ -30,39 +34,75 @@ export class AuthError extends Error {
 export async function verifyAuthToken(
 	token: string,
 ): Promise<AuthenticatedUser | null> {
+	let payload: any = null;
+
 	try {
-		// Verify JWT signature
-		const payload = jwt.verify(token, JWT_SECRET) as any;
-
-		if (payload.type !== "session") {
-			return null;
-		}
-
-		// Find session in database
-		const session = await SessionRepository.findByToken(token);
-		if (!session) {
-			return null;
-		}
-
-		// Get user data
-		const user = await UserRepository.findById(session.userId);
-		if (!user) {
-			return null;
-		}
-
-		return {
-			id: user.id,
-			email: user.email,
-			firstName: user.firstName,
-			lastName: user.lastName,
-			avatarUrl: user.avatarUrl,
-			emailVerified: user.emailVerified,
-			role: user.role,
-		};
+		// Try to verify with current secret
+		console.log(
+			`[Auth] Trying to verify token with current secret: ${JWT_SECRET.substring(0, 10)}...`,
+		);
+		payload = jwt.verify(token, JWT_SECRET) as any;
+		console.log("[Auth] Token verified successfully with current secret");
 	} catch (error) {
-		console.error("Token verification failed:", error);
+		console.log(
+			`[Auth] Current secret failed, trying ${OLD_JWT_SECRETS.length} old secrets...`,
+		);
+		// If verification fails, try old secrets (for migration)
+		for (let i = 0; i < OLD_JWT_SECRETS.length; i++) {
+			const oldSecret = OLD_JWT_SECRETS[i];
+			try {
+				console.log(
+					`[Auth] Trying old secret ${i + 1}: ${oldSecret.substring(0, 10)}...`,
+				);
+				payload = jwt.verify(token, oldSecret) as any;
+				console.log(
+					`[Auth] ✅ Token verified with old secret ${i + 1} - user should re-login for new token`,
+				);
+				break;
+			} catch (err) {
+				console.log(
+					`[Auth] Old secret ${i + 1} failed:`,
+					(err as Error).message,
+				);
+				// Continue to next secret
+			}
+		}
+
+		// If still no payload, token is invalid
+		if (!payload) {
+			console.error(
+				"[Auth] ❌ Token verification failed with all secrets:",
+				(error as Error).message,
+			);
+			return null;
+		}
+	}
+
+	if (payload.type !== "session") {
 		return null;
 	}
+
+	// Find session in database
+	const session = await SessionRepository.findByToken(token);
+	if (!session) {
+		return null;
+	}
+
+	// Get user data
+	const user = await UserRepository.findById(session.userId);
+	if (!user) {
+		return null;
+	}
+
+	return {
+		id: user.id,
+		email: user.email,
+		firstName: user.firstName,
+		lastName: user.lastName,
+		avatarUrl: user.avatarUrl,
+		emailVerified: user.emailVerified,
+		role: user.role,
+	};
 }
 
 // Get authenticated user from request cookies

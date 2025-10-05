@@ -44,7 +44,10 @@ export function LanguageSwitcher() {
 					<Languages className="h-3.5 w-3.5 opacity-60" />
 				</Button>
 			</DropdownMenuTrigger>
-			<DropdownMenuContent align="end" className="w-[180px] rounded-xl border-border/50">
+			<DropdownMenuContent
+				align="end"
+				className="w-[180px] rounded-xl border-border/50"
+			>
 				{locales.map((loc) => (
 					<DropdownMenuItem
 						key={loc}

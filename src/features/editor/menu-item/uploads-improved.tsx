@@ -299,7 +299,7 @@ export const UploadsImproved = () => {
 	const showSuccessMessage = (message: string) => {
 		const successDiv = document.createElement("div");
 		successDiv.className =
-			"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-bottom";
+			"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-none z-50  ";
 		successDiv.textContent = message;
 		document.body.appendChild(successDiv);
 		setTimeout(() => successDiv.remove(), 3000);
@@ -369,7 +369,7 @@ export const UploadsImproved = () => {
 							{/* Upload Button */}
 							<Button
 								onClick={() => setShowUploadModal(true)}
-								className="w-full h-12 border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all"
+								className="w-full h-12 border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 "
 								variant="outline"
 							>
 								<UploadIcon className="w-4 h-4 mr-2" />
@@ -381,7 +381,7 @@ export const UploadsImproved = () => {
 								<Card className="bg-blue-500/5 border-blue-500/20">
 									<CardContent className="p-4 space-y-3">
 										<div className="flex items-center gap-2">
-											<Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+											<Loader2 className="w-4 h-4  text-blue-500" />
 											<span className="text-sm font-medium">
 												Yuklanmoqda...
 											</span>
@@ -439,7 +439,7 @@ export const UploadsImproved = () => {
 												{videos.map((video, idx) => (
 													<Card
 														key={video.id || idx}
-														className="group overflow-hidden cursor-pointer hover:shadow-lg transition-all border-purple-500/10 hover:border-purple-500/30"
+														className="group overflow-hidden cursor-pointer hover:shadow-none  border-purple-500/10 hover:border-purple-500/30"
 														onClick={() => handleAddVideo(video)}
 													>
 														<div className="aspect-video relative overflow-hidden bg-gradient-to-br from-purple-500/10 to-pink-500/10">
@@ -457,7 +457,7 @@ export const UploadsImproved = () => {
 															)}
 
 															{/* Overlay */}
-															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent  ">
 																<div className="absolute bottom-2 left-2 right-2">
 																	<p className="text-white text-xs font-medium truncate">
 																		{video.file?.name?.replace(
@@ -479,7 +479,7 @@ export const UploadsImproved = () => {
 
 																{/* Play button */}
 																<div className="absolute inset-0 flex items-center justify-center">
-																	<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+																	<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center  ">
 																		<Play className="w-5 h-5 text-purple-600 ml-1" />
 																	</div>
 																</div>
@@ -506,7 +506,7 @@ export const UploadsImproved = () => {
 												{images.map((image, idx) => (
 													<Card
 														key={image.id || idx}
-														className="group overflow-hidden cursor-pointer hover:shadow-lg transition-all border-blue-500/10 hover:border-blue-500/30"
+														className="group overflow-hidden cursor-pointer hover:shadow-none  border-blue-500/10 hover:border-blue-500/30"
 														onClick={() => handleAddImage(image)}
 													>
 														<div className="aspect-square relative overflow-hidden bg-gradient-to-br from-blue-500/10 to-cyan-500/10">
@@ -514,7 +514,7 @@ export const UploadsImproved = () => {
 																<img
 																	src={image.metadata?.uploadedUrl || image.url}
 																	alt={image.file?.name || "Image"}
-																	className="object-cover w-full h-full group-hover:scale-105 transition-transform"
+																	className="object-cover w-full h-full  "
 																/>
 															) : (
 																<div className="w-full h-full flex items-center justify-center">
@@ -523,7 +523,7 @@ export const UploadsImproved = () => {
 															)}
 
 															{/* Overlay */}
-															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent  ">
 																<div className="absolute bottom-2 left-2 right-2">
 																	<p className="text-white text-xs font-medium truncate">
 																		{image.file?.name?.replace(
@@ -538,7 +538,7 @@ export const UploadsImproved = () => {
 
 																{/* Add button */}
 																<div className="absolute top-2 right-2">
-																	<div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+																	<div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center  ">
 																		<Plus className="w-4 h-4 text-blue-600" />
 																	</div>
 																</div>
@@ -567,7 +567,7 @@ export const UploadsImproved = () => {
 												{audios.map((audio, idx) => (
 													<Card
 														key={audio.id || idx}
-														className="cursor-pointer hover:shadow-md transition-all border-green-500/10 hover:border-green-500/30"
+														className="cursor-pointer hover:shadow-none  border-green-500/10 hover:border-green-500/30"
 														onClick={() => handleAddAudio(audio)}
 													>
 														<CardContent className="p-3">
@@ -605,11 +605,7 @@ export const UploadsImproved = () => {
 																		)}
 																	</div>
 																</div>
-																<Button
-																	size="sm"
-																	variant="ghost"
-																	className="opacity-0 group-hover:opacity-100 transition-opacity"
-																>
+																<Button size="sm" variant="ghost" className=" ">
 																	<Plus className="h-4 w-4" />
 																</Button>
 															</div>
@@ -678,23 +674,23 @@ export const UploadsImproved = () => {
 							<div className="p-4 pt-0">
 								{pexelsLoading ? (
 									<div className="flex items-center justify-center py-8">
-										<Loader2 className="w-6 h-6 animate-spin text-primary" />
+										<Loader2 className="w-6 h-6  text-primary" />
 									</div>
 								) : stockImages.length > 0 ? (
 									<div className="grid grid-cols-2 gap-3">
 										{stockImages.map((image: any) => (
 											<Card
 												key={image.id}
-												className="group overflow-hidden cursor-pointer hover:shadow-lg transition-all"
+												className="group overflow-hidden cursor-pointer hover:shadow-none "
 												onClick={() => handleAddStockImage(image)}
 											>
 												<div className="aspect-square relative overflow-hidden">
 													<ImageLoading
 														src={image.src.medium}
 														alt={image.alt || "Stock image"}
-														className="object-cover w-full h-full group-hover:scale-105 transition-transform"
+														className="object-cover w-full h-full  "
 													/>
-													<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+													<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent  ">
 														<div className="absolute bottom-2 left-2 right-2">
 															<p className="text-white text-xs truncate">
 																{image.alt || "Stock Image"}
@@ -766,14 +762,14 @@ export const UploadsImproved = () => {
 							<div className="p-4 pt-0">
 								{pexelsVideosLoading ? (
 									<div className="flex items-center justify-center py-8">
-										<Loader2 className="w-6 h-6 animate-spin text-primary" />
+										<Loader2 className="w-6 h-6  text-primary" />
 									</div>
 								) : stockVideos.length > 0 ? (
 									<div className="grid grid-cols-2 gap-3">
 										{stockVideos.map((video: any) => (
 											<Card
 												key={video.id}
-												className="group overflow-hidden cursor-pointer hover:shadow-lg transition-all"
+												className="group overflow-hidden cursor-pointer hover:shadow-none "
 												onClick={() => handleAddStockVideo(video)}
 											>
 												<div className="aspect-video relative overflow-hidden bg-black">
@@ -781,7 +777,7 @@ export const UploadsImproved = () => {
 														<img
 															src={video.image}
 															alt={`Video by ${video.user?.name || "Pexels"}`}
-															className="object-cover w-full h-full group-hover:scale-105 transition-transform"
+															className="object-cover w-full h-full  "
 														/>
 													) : (
 														<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20">
@@ -809,7 +805,7 @@ export const UploadsImproved = () => {
 
 														{/* Play button */}
 														<div className="absolute inset-0 flex items-center justify-center">
-															<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+															<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center  ">
 																<Play className="w-5 h-5 text-purple-600 ml-1" />
 															</div>
 														</div>

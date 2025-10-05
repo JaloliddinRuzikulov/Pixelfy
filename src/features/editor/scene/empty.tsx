@@ -33,7 +33,15 @@ const SceneEmpty = () => {
 		setIsLoading(false);
 	}, [size]);
 
-	const onSelectFiles = async (files: File[]) => {
+	const fileInputRef = useRef<HTMLInputElement>(null);
+
+	const handleButtonClick = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		fileInputRef.current?.click();
+	};
+
+	const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+		const files = Array.from(e.target.files || []);
 		if (!files || files.length === 0) return;
 
 		const options = {
@@ -60,9 +68,9 @@ const SceneEmpty = () => {
 								details: {
 									width: 0,
 									height: 0,
-								}
+								},
 							},
-							options
+							options,
 						});
 						toast.success(`Image "${file.name}" qo'shildi`);
 						break;
@@ -74,9 +82,9 @@ const SceneEmpty = () => {
 									width: 0,
 									height: 0,
 									duration: 0,
-								}
+								},
 							},
-							options
+							options,
 						});
 						toast.success(`Video "${file.name}" qo'shildi`);
 						break;
@@ -86,9 +94,9 @@ const SceneEmpty = () => {
 								...basePayload,
 								details: {
 									duration: 0,
-								}
+								},
 							},
-							options
+							options,
 						});
 						toast.success(`Audio "${file.name}" qo'shildi`);
 						break;
@@ -100,49 +108,52 @@ const SceneEmpty = () => {
 				toast.error(`Xatolik: ${file.name} qo'shib bo'lmadi`);
 			}
 		}
+
+		// Reset input
+		if (e.target) {
+			e.target.value = "";
+		}
 	};
 
 	return (
 		<div ref={containerRef} className="absolute z-50 flex h-full w-full flex-1">
 			{!isLoading ? (
-				<Droppable
-					maxFileCount={10}
-					maxSize={100 * 1024 * 1024}
-					disabled={false}
-					onValueChange={onSelectFiles}
-					multiple={true}
-					accept={{
-						"image/*": [".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"],
-						"video/*": [".mp4", ".mov", ".avi", ".webm"],
-						"audio/*": [".mp3", ".wav", ".ogg", ".m4a"],
+				<DroppableArea
+					onDragStateChange={setIsDraggingOver}
+					className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center border border-dashed text-center ${
+						isDraggingOver ? "border-white bg-white/10" : "border-white/15"
+					}`}
+					style={{
+						width: desiredSize.width,
+						height: desiredSize.height,
 					}}
-					className="h-full w-full flex-1 bg-background"
 				>
-					<DroppableArea
-						onDragStateChange={setIsDraggingOver}
-						className={`absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 transform items-center justify-center border border-dashed text-center transition-colors duration-200 ease-in-out ${
-							isDraggingOver ? "border-white bg-white/10" : "border-white/15"
-						}`}
-						style={{
-							width: desiredSize.width,
-							height: desiredSize.height,
-						}}
-					>
-						<div className="flex flex-col items-center justify-center gap-4 pb-12">
-							<div className="hover:bg-primary-dark cursor-pointer rounded-md border bg-primary p-2 text-secondary transition-colors duration-200">
-								<PlusIcon className="h-5 w-5" aria-hidden="true" />
-							</div>
-							<div className="flex flex-col gap-px">
-								<p className="text-sm text-muted-foreground">
-									Yuklash uchun bosing
-								</p>
-								<p className="text-xs text-muted-foreground/70">
-									Yoki fayllarni shu yerga tashlang
-								</p>
-							</div>
+					<input
+						ref={fileInputRef}
+						type="file"
+						multiple
+						accept="image/*,video/*,audio/*"
+						onChange={handleFileChange}
+						className="hidden"
+					/>
+					<div className="flex flex-col items-center justify-center gap-4 pb-12">
+						<button
+							onClick={handleButtonClick}
+							className="cursor-pointer rounded-md border bg-primary p-2 text-secondary hover:bg-primary/90"
+							type="button"
+						>
+							<PlusIcon className="h-5 w-5" aria-hidden="true" />
+						</button>
+						<div className="flex flex-col gap-px pointer-events-none">
+							<p className="text-sm text-muted-foreground">
+								Yuklash uchun + tugmasini bosing
+							</p>
+							<p className="text-xs text-muted-foreground/70">
+								Yoki fayllarni shu yerga tashlang
+							</p>
 						</div>
-					</DroppableArea>
-				</Droppable>
+					</div>
+				</DroppableArea>
 			) : (
 				<div className="flex flex-1 items-center justify-center bg-background-subtle text-sm text-muted-foreground">
 					Loading...

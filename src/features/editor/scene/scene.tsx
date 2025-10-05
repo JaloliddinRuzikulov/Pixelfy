@@ -61,7 +61,7 @@ const Scene = forwardRef<
 						height: size.height,
 						background: "transparent",
 					}}
-					className="shadow-[0_0_0_5000px_var(--background)] border-2 border-primary/20 rounded-sm"
+					className="border-2 border-primary/20 rounded-sm"
 				/>
 				<Board size={size}>
 					<Player />

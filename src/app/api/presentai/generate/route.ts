@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const PRESENTAI_SERVICE_URL =
-	process.env.PRESENTAI_SERVICE_URL || "http://127.0.0.1:9004";
+	process.env.PRESENTAI_SERVICE_URL || "http://localhost:9004";
 
 export async function POST(request: NextRequest) {
 	try {

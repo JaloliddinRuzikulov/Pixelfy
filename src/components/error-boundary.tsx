@@ -11,11 +11,14 @@ export function GlobalErrorHandler() {
 			console.error("Unhandled promise rejection:", event.reason);
 
 			// Check if it's an empty object or Event object
-			if (event.reason === null ||
+			if (
+				event.reason === null ||
 				event.reason === undefined ||
-				(typeof event.reason === 'object' &&
-				 (event.reason.constructor === Object && Object.keys(event.reason).length === 0) ||
-				 event.reason instanceof Event)) {
+				(typeof event.reason === "object" &&
+					event.reason.constructor === Object &&
+					Object.keys(event.reason).length === 0) ||
+				event.reason instanceof Event
+			) {
 				console.warn("Suppressing empty promise rejection or Event object");
 				event.preventDefault();
 				return;
@@ -23,10 +26,12 @@ export function GlobalErrorHandler() {
 
 			// Check if it's related to timeline/upload operations
 			const errorMessage = event.reason?.message || String(event.reason);
-			if (errorMessage.includes('timeline') ||
-				errorMessage.includes('upload') ||
-				errorMessage.includes('dispatch') ||
-				errorMessage.includes('ADD_ITEMS')) {
+			if (
+				errorMessage.includes("timeline") ||
+				errorMessage.includes("upload") ||
+				errorMessage.includes("dispatch") ||
+				errorMessage.includes("ADD_ITEMS")
+			) {
 				console.warn("Handled timeline/upload related promise rejection");
 				event.preventDefault();
 				return;

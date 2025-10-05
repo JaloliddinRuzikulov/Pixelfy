@@ -2,6 +2,40 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Quick Reference
+
+### Most Common Commands
+```bash
+# Docker (Recommended)
+make setup           # First time setup
+make dev             # Start all services with hot reload
+make status          # Check service status
+make logs            # View logs
+make test            # Test all endpoints
+
+# Web Development (Native)
+cd web
+npm run dev          # Start dev server
+npm test             # Run tests
+npm run format       # Format code (Biome)
+
+# Code Quality (Always run before committing)
+cd web
+npm run format       # Format with Biome
+npm run lint         # Check linting
+npm test            # Run tests
+```
+
+## Repository Structure
+
+This is a monorepo containing five main components of the Pixelfy video editing platform:
+
+- **`/web`** - Main Next.js web application for video editing
+- **`/lipsync`** - Python-based AI services for lip-sync and TTS (Wav2Lip)
+- **`/office`** - Office document processing services for PPT/PDF conversion
+- **`/presentai`** - AI-powered presentation generation service
+- **`/storage`** - Centralized storage service for all media files
+
 ## Development Commands
 
 ### Essential Commands
@@ -19,22 +53,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm test -- --testNamePattern="test name"` - Run tests matching pattern
 
 ### Database & Authentication Commands (Optional)
-- `npm run migrate:up` - Run database migrations up (uses tsx scripts/migrate.ts)
+- `npm run migrate:up` - Run database migrations up
 - `npm run migrate:down` - Roll back database migrations
-- `npm run cleanup-db` - Clean up database (tsx scripts/cleanup-db.ts)
+- `npm run cleanup-db` - Clean up database
 - `npm run setup-auth` - Initialize authentication system
 - `npm run create-admin` - Create admin user for the system
 
-### Presentation Conversion Service (Optional)
-For PowerPoint/PDF to video conversion:
-- `./libreoffice-service.sh start` - Start LibreOffice Docker service
-- `./libreoffice-service.sh stop` - Stop the service
-- `./libreoffice-service.sh status` - Check service health
-- `docker-compose up -d libreoffice-converter` - Alternative startup method
-
 ## Architecture Overview
 
-Pixelfy is a browser-based video editor built with Next.js 15, TypeScript, and Remotion for video rendering. The application follows a component-driven architecture with state management via Zustand and event-driven updates through @designcombo packages.
+Pixelfy is a browser-based video editor built with Next.js 15, TypeScript, and Remotion for video rendering.
 
 ### Core Technology Stack
 - **Framework**: Next.js 15.3.2 with App Router
@@ -46,249 +73,285 @@ Pixelfy is a browser-based video editor built with Next.js 15, TypeScript, and R
 - **UI Components**: Radix UI primitives with Tailwind CSS v4
 - **Code Style**: Biome 1.9.4 formatter (tabs for indentation, double quotes)
 - **Testing**: Jest 30 with React Testing Library 16 and jsdom environment
-- **AI Integration**: Google AI SDK for voice-over generation
-- **Media APIs**: Pexels API (optional), sample videos, and stock media
-- **Animations**: Framer Motion 11 for UI animations
 - **Database**: PostgreSQL with Kysely 0.28.2 query builder (optional)
 - **Authentication**: JWT-based with bcryptjs for password hashing
 - **Internationalization**: next-intl with support for en, ru, uz locales
 
-### @designcombo Package Dependencies
-External npm packages used for core functionality:
-- **@designcombo/state**: Central state management with event dispatching
-- **@designcombo/timeline**: Canvas-based timeline rendering engine
-- **@designcombo/events**: Pub/sub event bus for component communication
-- **@designcombo/types**: TypeScript type definitions for track items
-- **@designcombo/frames**: Frame/timing conversion utilities
+### Service URLs (Environment Variables)
 
-### Path Aliases Configuration
-From `tsconfig.json`:
-- `@/*` → `./src/*`
+Development (.env.development):
+```bash
+LIPSYNC_SERVICE_URL=http://localhost:9001
+PRESENTAI_SERVICE_URL=http://localhost:9004
+OFFICE_SERVICE_URL=http://localhost:9002
+STORAGE_SERVICE_URL=http://localhost:9005
+```
 
-### Key Architectural Components
+Production (.env.production):
+```bash
+LIPSYNC_SERVICE_URL=https://lipsync.pixelfy.uz
+PRESENTAI_SERVICE_URL=https://presentai.pixelfy.uz
+OFFICE_SERVICE_URL=https://office.pixelfy.uz
+STORAGE_SERVICE_URL=https://storage.pixelfy.uz
+```
 
-#### 1. Editor System (`src/features/editor/`)
-The main editor orchestrates all editing functionality:
-- **editor.tsx**: Root component managing StateManager instance and coordinating Timeline, Scene, and Controls
-- **editor-lazy.tsx**: Lazy-loaded editor wrapper
-- **redesigned-editor.tsx**: Alternative layout with improved spacing and modern UI
-- **timeline/**: Canvas-based timeline implementation using CanvasTimeline class
-- **scene/**: Preview area with Remotion Player and interactive element manipulation
-- **player/**: Remotion-based video composition system with sequence-based rendering
+## Authentication Setup
 
-#### 2. State Management Architecture
-Multiple Zustand stores handle different aspects of application state:
-- **use-store.ts**: Core timeline and player state (tracks, items, playback)
-- **use-layout-store.ts**: UI layout and panel configuration
-- **use-data-state.ts**: Media assets, fonts, and resources
-- **use-crop-store.ts**: Crop tool state
-- **use-chroma-key-store.ts**: Chroma key/green screen settings
-- **use-download-state.ts**: Export and download management
-- **use-upload-store.ts**: File upload management and progress tracking
-- **use-folder.ts**: Folder organization for media assets
-- **use-scene-store.ts**: Scene-specific state management
-- **use-subscription-store.ts**: Subscription and billing state
+### Prerequisites
+1. PostgreSQL Database running
+2. Node.js 18+
 
-StateManager from @designcombo/state coordinates complex state operations with event-driven updates via @designcombo/events pub/sub system.
+### Setup Steps
+```bash
+# 1. Copy environment template
+cp .env.example .env
 
-#### 3. Media Processing Pipeline
-- **Upload Service** (`src/utils/upload-service.ts`): Handles file uploads with presigned URLs
-- **Local APIs** (`src/app/api/local-*/`): Backend endpoints for media processing
-  - `/api/local-fonts`: Font management
-  - `/api/local-render`: Local video rendering
-- **Stock Media APIs**:
-  - `/api/pexels`: Pexels images API
-  - `/api/pexels-videos`: Pexels videos API
-- **Presentation APIs** (`src/app/api/presentations/`): PPT/PDF conversion endpoints
-- **Remotion Rendering** (`src/app/api/remotion-render/`): Server-side video rendering
-- **Admin APIs** (`src/app/api/admin/`): Admin-only endpoints for user and content management
+# 2. Edit .env and configure:
+JWT_SECRET=your-super-secret-jwt-key
+DATABASE_URL=postgresql://username:password@localhost:5432/video_editor
 
-#### 4. Video Composition System (Remotion)
-Configuration in `remotion.config.ts`:
-- Video image format: JPEG
-- Concurrency: 1 (for stability)
-- Chromium OpenGL renderer: angle
-- Delay render timeout: 120 seconds
+# 3. Install dependencies
+npm install
 
-Composition components:
-- **Sequences**: Time-based composition of media elements
-- **Track Items**: Video, audio, text, and image elements
-- **Effects**: Transitions, filters, chroma key support
-- **Export**: Frame-by-frame rendering to video files
+# 4. Run authentication setup
+npm run setup-auth
 
-### Biome Configuration
-From `biome.json`:
-- Indentation: tabs
-- Quotes: double
+# 5. Start development server
+npm run dev
+```
+
+### Authentication Features
+- Password hashing with bcryptjs
+- JWT sessions (7-day expiration)
+- Email verification (token-based)
+- Protected routes via middleware
+- User registration and login
+- Admin panel with role-based access
+
+### API Endpoints
+- `POST /api/auth/register` - User registration
+- `POST /api/auth/login` - User login
+- `POST /api/auth/logout` - User logout
+- `GET /api/auth/me` - Get current user info
+- `POST /api/auth/verify-email` - Email verification
+
+## System Requirements
+
+### Core Dependencies
+```bash
+# Ubuntu/Debian
+sudo apt-get update
+sudo apt-get install -y ffmpeg imagemagick poppler-utils libreoffice
+
+# macOS
+brew install ffmpeg imagemagick poppler libreoffice
+```
+
+### Required Packages
+- **FFmpeg**: Video processing, encoding, rendering
+- **ImageMagick**: PDF to image conversion
+- **Poppler Utils**: Alternative PDF processing (pdftoppm)
+- **LibreOffice**: PPT/PPTX to PDF conversion
+
+### Docker Configuration
+```dockerfile
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    imagemagick \
+    poppler-utils \
+    libreoffice \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+```
+
+## Presentation Conversion
+
+### Supported Formats
+- **PDF** - Processed using poppler-utils
+- **PPTX** - Converted via LibreOffice → PDF → Images
+- **PPT** - Converted via LibreOffice → PDF → Images
+
+### Output Specifications
+- **Format**: PNG images
+- **Resolution**: 1920x1080 (Full HD)
+- **Quality**: High quality (95% compression)
+- **Timeline Duration**: 3 seconds per slide
+
+### Environment Variables
+```env
+MAX_PRESENTATION_SIZE=52428800  # 50MB limit
+TEMP_DIR=/tmp/presentations
+PRESENTATIONS_OUTPUT_DIR=/public/uploads/presentation-pages
+```
+
+## Keyboard Shortcuts
+
+### Basic Editing
+- **Ctrl+Z** - Undo
+- **Ctrl+Y** - Redo
+- **Ctrl+C/V/X** - Copy/Paste/Cut
+- **Ctrl+D** - Duplicate
+- **Delete** - Delete selected items
+
+### Playback Controls
+- **Space** - Play/Pause
+- **Left/Right Arrow** - Seek 1 second
+- **Shift+Left/Right** - Seek 5 seconds
+- **Home/End** - Go to start/end
+
+### Timeline
+- **S** - Split at playhead
+- **M** - Add marker
+- **Ctrl+=/-** - Zoom in/out
+- **Ctrl+0** - Zoom to fit
+
+### Project
+- **Ctrl+S** - Save project
+- **Ctrl+Shift+E** - Export video
+
+## Code Style (Biome Configuration)
+
+- Indentation: **tabs**
+- Quotes: **double quotes**
 - Linter rules:
   - `noUnusedVariables`: off
   - `useExhaustiveDependencies`: off
   - `noExplicitAny`: off
-  - `useImportType`: off
 
-### Jest Testing Configuration
-From `jest.config.js`:
-- Test environment: jsdom
-- Setup file: `jest.setup.js`
-- Path aliases: @/ and @designcombo/ supported
-- Coverage threshold: 50% for all metrics
-- Test patterns: `__tests__/**/*.{js,jsx,ts,tsx}` and `*.{spec,test}.{js,jsx,ts,tsx}`
+## Important Technical Notes
 
-### Important Implementation Patterns
+### React 19 Rules
+- **NEVER** call components as functions - always use JSX: `<Component />` not `Component()`
+- TypeScript strict mode is disabled for development flexibility
+- Use path alias `@/*` for imports from `src/*`
 
-#### React 19 and Hook Rules
-- **NEVER** call React components as functions - always use JSX: `<Component />` not `Component()`
-- Hooks must maintain consistent order - no conditional hook calls
-- Components using hooks require proper React element rendering
+### State Management Pattern
+- Use event-driven updates with @designcombo/events pub/sub
+- Subscribe in useEffect, always clean up subscriptions
+- Prevent duplicate subscriptions with WeakMap registry pattern
 
-#### Event-Driven Communication
-Event namespaces from @designcombo/events:
-- **Timeline Events**: Prefixed with `TIMELINE_` (e.g., TIMELINE_SEEK, TIMELINE_PLAY)
-- **State Events**: DESIGN_LOAD, EDIT_OBJECT, DELETE_OBJECT
-- **Player Events**: PLAYER_PLAY, PLAYER_PAUSE, PLAYER_SEEK
-- **Layer Events**: LAYER_* for layer selection
-- Subscribe in useEffect, clean up subscriptions on unmount
+### Video Processing
+- Frame calculations at 30 FPS default
+- Remotion for video composition and rendering
+- Canvas-based timeline for efficiency
 
-#### Frame and Timing Calculations
-- **Internal**: All timing in milliseconds
-- **Display**: Convert to frames using 30 FPS default
-- **Remotion**: Frame-based calculations for video composition
-- **Utils**: Use `@designcombo/frames` utilities for conversions
+### Input/Textarea Components
+- Light mode: white background (`bg-input` = `oklch(1 0 0)`)
+- Dark mode: semi-transparent (`bg-input/30`)
+- All inputs and textareas use `bg-input` class for consistent styling
 
-#### Canvas Timeline Implementation
-- **CanvasTimeline class**: Core rendering logic
-- **Draw loop**: Optimized requestAnimationFrame rendering
-- **Interaction**: Mouse/touch events handled via canvas coordinates
-- **Virtualization**: Only render visible timeline segments
+## Common Development Workflows
 
-#### Middleware and Route Protection
-- Internationalization middleware for locale handling
-- Authentication middleware for protected routes
-- Admin role verification for /admin routes
-- Public routes: /auth/*, /api/auth/*
+### Starting Full Stack Development
 
-## Environment Configuration
-
-Optional environment variables (create `.env` from `.env.example` or `.env.development`):
-```
-# Stock Media (Optional - app works without these)
-PEXELS_API_KEY=""  # For Pexels API stock media
-
-# Authentication (Required for user system)
-JWT_SECRET=""  # Required for JWT authentication
-
-# Optional AI Features
-GOOGLE_AI_API_KEY=""  # Google AI for voice-over generation
-COMBO_SH_JWT=""  # Combo.sh JWT token
-
-# Optional Database (PostgreSQL - required for user system)
-DATABASE_URL=""  # Format: postgresql://user:password@localhost:5432/video_editor
-REDIS_URL=""  # Redis for caching
-
-# Optional Storage (S3-compatible)
-S3_BUCKET=""
-S3_REGION=""
-S3_ACCESS_KEY_ID=""
-S3_SECRET_ACCESS_KEY=""
-
-# Feature Flags
-NEXT_PUBLIC_ENABLE_AI_FEATURES=""
-NEXT_PUBLIC_ENABLE_RECORDING=""
-NEXT_PUBLIC_ENABLE_TEMPLATES=""
-
-# Presentation Processing (Optional)
-MAX_PRESENTATION_SIZE="52428800"  # Default: 50MB
-TEMP_DIR="/tmp/presentations"
-PRESENTATIONS_OUTPUT_DIR="/public/uploads/presentation-pages"
+#### Option 1: Using Docker (Recommended)
+```bash
+make setup        # First time
+make dev          # Start all services
+make status       # Check services
+make logs         # View logs
+make test         # Test endpoints
 ```
 
-## Common Development Tasks
+#### Option 2: Native (Without Docker)
+```bash
+# Terminal 1: AI services
+cd ai && python start.py
 
-### Adding New Track Item Types
-1. Create component in `src/features/editor/player/items/`
-2. Register in `src/features/editor/player/sequence-item.tsx`
-3. Add timeline rendering in `src/features/editor/timeline/items/`
-4. Update type definitions if needed in @designcombo/types package
+# Terminal 2: PresentAI service
+cd presentai && python start.py
 
-### Modifying State Management
-1. Update relevant Zustand store in `src/features/editor/store/`
-2. Dispatch events via @designcombo/events if needed
-3. Handle events in components using useEffect subscriptions
-4. Prevent duplicate subscriptions using WeakMap registry pattern (see use-state-manager-events.ts)
+# Terminal 3: Office service
+cd office && python start.py
 
-### Working with Remotion
-- Compositions use Sequence and AbsoluteFill components
-- Calculate frames using fps and duration utilities
-- Maintain consistent frame timing across components
-- Export composition in `src/features/editor/player/export-composition.tsx`
-- Server-side rendering configuration in `remotion.config.ts`
+# Terminal 4: Storage service
+cd storage && python start.py
 
-### Testing Strategy
-- Unit tests in `src/__tests__/` directory
-- Component tests with React Testing Library
-- Coverage reports with `npm run test:coverage` (50% threshold)
-- Mock external dependencies and APIs
-- Global test configuration in `jest.setup.js`
+# Terminal 5: Web app
+cd web && npm run dev
+```
 
-### Performance Optimization Patterns
-- Timeline uses canvas for efficient rendering of large datasets
-- Media caching system for thumbnail optimization
-- Lazy loading for heavy editor components (editor-lazy.tsx)
-- Virtual scrolling for timeline segments
-- Memoization and selective re-rendering
-- Frame-based calculations at 30 FPS
-- RequestAnimationFrame for smooth canvas updates
+### Code Quality Workflow
+```bash
+cd web
+npm run format       # Format with Biome before committing
+npm run lint         # Check for linting issues
+npm test            # Run tests to ensure nothing breaks
+```
 
-### Authentication and Admin System
-- JWT-based authentication with bcryptjs
-- Role-based access control for admin panel
-- User management via `/api/admin/users`
-- Database: PostgreSQL with Kysely query builder
-- Setup: Run `npm run create-admin` to create initial admin user
+## File Structure References
 
-### Presentation Processing
-Supports converting presentations (PPT/PPTX/PDF) to video:
-- Upload via `/api/presentations/upload` endpoint
-- Conversion uses LibreOffice Docker service
-- Docker service runs on port 8080
-- Output: PNG images at 1920x1080, 3 seconds per slide in timeline
-- See `PRESENTATION_SYSTEM_REQUIREMENTS.md` for setup details
+### Core Files
+- **Main editor**: `src/features/editor/editor.tsx`
+- **Timeline**: `src/features/editor/timeline/timeline.tsx`
+- **Scene**: `src/features/editor/scene/scene-interactions.tsx`
+- **Player**: `src/features/editor/player/composition.tsx`
 
-## Key File Locations
-
-### Core Editor Files
-- Main editor: `src/features/editor/editor.tsx`
-- Timeline canvas: `src/features/editor/timeline/canvas-timeline.ts`
-- Scene interactions: `src/features/editor/scene/scene-interactions.tsx`
-- Player composition: `src/features/editor/player/composition.tsx`
-
-### State Management
-- Core stores: `src/features/editor/store/`
-- StateManager integration: `src/features/editor/hooks/use-state-manager-events.ts`
+### Configuration
+- **Next.js**: `next.config.mjs`
+- **Biome**: `biome.json`
+- **Jest**: `jest.config.js`
+- **Remotion**: `remotion.config.ts`
+- **TypeScript**: `tsconfig.json`
 
 ### API Routes
-- Local rendering: `src/app/api/local-render/`
-- Presentations: `src/app/api/presentations/`
-- Remotion render: `src/app/api/remotion-render/`
-- Admin endpoints: `src/app/api/admin/`
+- **Health checks**: `src/app/api/health/*`
+- **Office service**: `src/app/api/office/*`
+- **PresentAI service**: `src/app/api/presentai/*`
+- **Storage service**: `src/app/api/storage/*`
+- **Auth endpoints**: `src/app/api/auth/*`
+- **Admin panel**: `src/app/api/admin/*`
 
-### Configuration Files
-- TypeScript: `tsconfig.json`
-- Biome formatter: `biome.json`
-- Jest testing: `jest.config.js`
-- Remotion: `remotion.config.ts`
-- Next.js: `next.config.mjs`
+## Performance Considerations
 
-### Database and Auth
-- Models: `src/lib/db-models.ts`
-- Database utilities: `src/lib/db-*.ts`
-- Auth utilities: `src/lib/auth.ts`, `src/lib/auth-server.ts`
-- Role utilities: `src/lib/role-utils.ts`
+### System Requirements
+- **RAM**: Minimum 4GB, recommended 8GB+
+- **CPU**: Multi-core processor for video processing
+- **Storage**: SSD recommended, 10GB+ free space
+- **Disk Space**: For temporary files and renders
 
-### External Package Dependencies
-- All @designcombo packages: Available as npm dependencies
+### Optimization Tips
+1. Use lower quality settings during development
+2. Clear `/public/uploads` and `/public/renders` periodically
+3. Increase Node.js memory for large files:
+   ```bash
+   NODE_OPTIONS="--max-old-space-size=4096" npm run dev
+   ```
 
-### Internationalization
-- Locale configuration: `src/i18n/config.ts`
-- Message files: `src/i18n/messages/*.json`
-- Middleware handling: `src/middleware.ts`
+## Troubleshooting
+
+### Database Connection
+- Verify `DATABASE_URL` is correct
+- Ensure PostgreSQL is running
+- Check firewall settings
+
+### FFmpeg Issues
+- Check version: `ffmpeg -version`
+- Ensure libx264 codec is available
+- Check library path settings
+
+### ImageMagick PDF Policy
+```bash
+sudo nano /etc/ImageMagick-6/policy.xml
+# Change: <policy domain="coder" rights="none" pattern="PDF" />
+# To: <policy domain="coder" rights="read|write" pattern="PDF" />
+```
+
+### LibreOffice Headless
+```bash
+sudo apt-get install libreoffice-java-common
+```
+
+### Timeline Width Issue
+- Timeline auto-resizes on container resize
+- ResizeObserver monitors container changes
+- 100ms initial delay ensures proper sizing
+
+## Security Notes
+
+1. File upload size limits enforced (50MB)
+2. Only specific file types allowed
+3. Temporary files auto-cleaned
+4. User uploads isolated
+5. JWT secrets required for auth
+6. CSRF protection with secure cookies

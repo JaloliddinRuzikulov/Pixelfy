@@ -35,7 +35,8 @@ export async function GET(
 		}
 
 		// Get content type from storage service response
-		const contentType = response.headers.get("Content-Type") || "application/octet-stream";
+		const contentType =
+			response.headers.get("Content-Type") || "application/octet-stream";
 		const contentLength = response.headers.get("Content-Length");
 
 		// Create response with proper headers

@@ -43,10 +43,10 @@ const jetbrainsMono = JetBrains_Mono({
 export const metadata = createMetadata({
 	title: {
 		template: "%s | Pixelfy",
-		default: "Pixelfy - Video Editor",
+		default: "Pixelfy - Video Muharrir",
 	},
 	description:
-		"Professional online video editor - Create amazing videos with Pixelfy",
+		"Professional onlayn video muharrir - Pixelfy bilan ajoyib videolar yarating",
 	metadataBase: baseUrl,
 });
 
@@ -57,7 +57,7 @@ export default async function RootLayout({
 }>) {
 	return (
 		<html
-			lang="en"
+			lang="uz"
 			suppressHydrationWarning
 			className={`${inter.variable} ${poppins.variable} ${jetbrainsMono.variable}`}
 		>

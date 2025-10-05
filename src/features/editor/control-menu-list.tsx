@@ -128,9 +128,9 @@ const ControlMenuButton = memo(
 			<button
 				onClick={() => onClick(item.id)}
 				className={cn(
-					"relative flex flex-col items-center justify-center gap-0.5 w-16 h-16 py-1.5 rounded-lg transition-all duration-200 group",
+					"relative flex flex-col items-center justify-center gap-0.5 w-16 h-16 py-1.5 rounded-lg group",
 					isActive
-						? "bg-muted/60 text-primary shadow-sm"
+						? "bg-muted/60 text-primary shadow-none"
 						: "hover:bg-muted/30 text-muted-foreground hover:text-foreground",
 				)}
 				aria-label={item.ariaLabel || item.label}
@@ -138,7 +138,7 @@ const ControlMenuButton = memo(
 				role="button"
 			>
 				{isActive && (
-					<div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-l-full shadow-glow" />
+					<div className="absolute right-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-primary rounded-l-full" />
 				)}
 
 				<div

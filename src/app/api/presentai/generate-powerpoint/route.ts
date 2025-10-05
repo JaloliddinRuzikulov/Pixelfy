@@ -7,7 +7,8 @@ export async function POST(request: NextRequest) {
 		const prompt = formData.get("prompt") as string;
 		const slideCount = parseInt(formData.get("slide_count") as string) || 10;
 		const language = (formData.get("language") as string) || "en";
-		const templateStyle = (formData.get("template_style") as string) || "modern";
+		const templateStyle =
+			(formData.get("template_style") as string) || "modern";
 
 		if (!prompt?.trim()) {
 			return NextResponse.json(
@@ -21,7 +22,7 @@ export async function POST(request: NextRequest) {
 
 		// Step 1: Create PowerPoint file via PresentAI service
 		const PRESENTAI_SERVICE_URL =
-			process.env.PRESENTAI_SERVICE_URL || "http://presentai:9004";
+			process.env.PRESENTAI_SERVICE_URL || "http://localhost:9004";
 
 		const pptxFormData = new FormData();
 		pptxFormData.append("prompt", prompt);
@@ -36,7 +37,10 @@ export async function POST(request: NextRequest) {
 		});
 
 		if (!pptxResponse.ok) {
-			console.error("PresentAI PPTX generation failed:", await pptxResponse.text());
+			console.error(
+				"PresentAI PPTX generation failed:",
+				await pptxResponse.text(),
+			);
 			return NextResponse.json(
 				{ success: false, error: "Failed to generate PowerPoint file" },
 				{ status: 500 },
@@ -55,7 +59,9 @@ export async function POST(request: NextRequest) {
 		console.log("PowerPoint file created:", pptxResult.download_url);
 
 		// Step 2: Download the PPTX file
-		const fileResponse = await fetch(`${PRESENTAI_SERVICE_URL}${pptxResult.download_url}`);
+		const fileResponse = await fetch(
+			`${PRESENTAI_SERVICE_URL}${pptxResult.download_url}`,
+		);
 		if (!fileResponse.ok) {
 			console.error("Failed to download PPTX file");
 			return NextResponse.json(
@@ -68,18 +74,27 @@ export async function POST(request: NextRequest) {
 		console.log("Downloaded PPTX file:", pptxBuffer.byteLength, "bytes");
 
 		// Step 3: Convert PPTX to PNG images using Office service
+		const OFFICE_SERVICE_URL =
+			process.env.OFFICE_SERVICE_URL || "http://localhost:9002";
+
 		const officeFormData = new FormData();
 		officeFormData.append("file", new Blob([pptxBuffer]), "presentation.pptx");
 		officeFormData.append("output_format", "png");
 		officeFormData.append("dpi", "150"); // Good quality for video
 
-		const conversionResponse = await fetch("http://127.0.0.1:8002/convert/powerpoint", {
-			method: "POST",
-			body: officeFormData,
-		});
+		const conversionResponse = await fetch(
+			`${OFFICE_SERVICE_URL}/convert/powerpoint`,
+			{
+				method: "POST",
+				body: officeFormData,
+			},
+		);
 
 		if (!conversionResponse.ok) {
-			console.error("Office service conversion failed:", await conversionResponse.text());
+			console.error(
+				"Office service conversion failed:",
+				await conversionResponse.text(),
+			);
 			return NextResponse.json(
 				{ success: false, error: "Failed to convert PowerPoint to images" },
 				{ status: 500 },
@@ -88,7 +103,11 @@ export async function POST(request: NextRequest) {
 
 		// Step 4: Extract PNG files from ZIP response
 		const zipBuffer = await conversionResponse.arrayBuffer();
-		console.log("Received converted images ZIP:", zipBuffer.byteLength, "bytes");
+		console.log(
+			"Received converted images ZIP:",
+			zipBuffer.byteLength,
+			"bytes",
+		);
 
 		// Extract PNG files using JSZip
 		const zip = new JSZip();
@@ -102,10 +121,10 @@ export async function POST(request: NextRequest) {
 
 		// Extract all PNG files
 		for (const [filename, file] of Object.entries(zipContents.files)) {
-			if (filename.toLowerCase().endsWith('.png') && !file.dir) {
+			if (filename.toLowerCase().endsWith(".png") && !file.dir) {
 				console.log("Found slide image:", filename);
-				const imageBuffer = await file.async('nodebuffer');
-				const base64Data = imageBuffer.toString('base64');
+				const imageBuffer = await file.async("nodebuffer");
+				const base64Data = imageBuffer.toString("base64");
 
 				// Extract slide number from filename (e.g., "slide_1.png" -> 1)
 				const slideNumber = parseInt(filename.match(/(\d+)/)?.[1] || "0");
@@ -138,7 +157,6 @@ export async function POST(request: NextRequest) {
 				processing_time: Date.now() - startTime,
 			},
 		});
-
 	} catch (error) {
 		console.error("PowerPoint generation error:", error);
 		return NextResponse.json(

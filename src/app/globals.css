@@ -85,12 +85,11 @@
 	backdrop-filter: blur(0.5rem);
 	border: 1px solid hsl(var(--border) / 0.5);
 	border-radius: 0.75rem;
-	box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.25);
-	transition: all 0.2s;
+	box-shadow: none;
 }
 
 .auth-form-card:hover {
-	box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.35);
+	box-shadow: none;
 }
 
 /* Responsive adjustments */
@@ -295,7 +294,7 @@
 
 	/* Subtle borders */
 	--border: oklch(0.89 0.01 95);
-	--input: oklch(0.97 0.003 85);
+	--input: oklch(1 0 0); /* Pure white background for better text visibility */
 	--ring: oklch(0.51 0.28 285);
 
 	/* Chart colors - triadic harmony */
@@ -315,26 +314,21 @@
 	--sidebar-border: oklch(0.9 0.008 95);
 	--sidebar-ring: oklch(0.51 0.28 285);
 	--shadow-color: #000000;
-	--shadow-opacity: 0.17;
-	--shadow-blur: 3px;
+	--shadow-opacity: 0.02;
+	--shadow-blur: 1px;
 	--shadow-spread: 0px;
 	--shadow-offset-x: 0px;
 	--shadow-offset-y: 1px;
 	--letter-spacing: 0.025em;
 	--spacing: 0.25rem;
-	--shadow-2xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.09);
-	--shadow-xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.09);
-	--shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 1px 2px -1px
-		hsl(0 0% 0% / 0.17);
-	--shadow: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 1px 2px -1px
-		hsl(0 0% 0% / 0.17);
-	--shadow-md: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 2px 4px -1px
-		hsl(0 0% 0% / 0.17);
-	--shadow-lg: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 4px 6px -1px
-		hsl(0 0% 0% / 0.17);
-	--shadow-xl: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 8px 10px -1px
-		hsl(0 0% 0% / 0.17);
-	--shadow-2xl: 0px 1px 3px 0px hsl(0 0% 0% / 0.43);
+	--shadow-2xs: none;
+	--shadow-xs: none;
+	--shadow-sm: none;
+	--shadow: none;
+	--shadow-md: none;
+	--shadow-lg: none;
+	--shadow-xl: none;
+	--shadow-2xl: none;
 	--tracking-normal: 0.025em;
 }
 
@@ -436,16 +430,15 @@
 	--letter-spacing: 0.025em;
 	--spacing: 0.25rem;
 
-	/* Dark mode shadow system with depth */
-	--shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-	--shadow-xs: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.3);
-	--shadow-sm: 0 2px 4px -1px rgb(0 0 0 / 0.4), 0 4px 6px -1px rgb(0 0 0 / 0.5);
-	--shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.4);
-	--shadow-md: 0 20px 25px -5px rgb(0 0 0 / 0.5), 0 8px 10px -6px
-		rgb(0 0 0 / 0.4);
-	--shadow-lg: 0 25px 50px -12px rgb(0 0 0 / 0.6);
-	--shadow-xl: 0 35px 60px -15px rgb(0 0 0 / 0.7);
-	--shadow-2xl: 0 50px 100px -20px rgb(0 0 0 / 0.8);
+	/* Dark mode shadow system - ultra minimal */
+	--shadow-2xs: none;
+	--shadow-xs: none;
+	--shadow-sm: none;
+	--shadow: none;
+	--shadow-md: none;
+	--shadow-lg: none;
+	--shadow-xl: none;
+	--shadow-2xl: none;
 
 	/* Neon gradients for dark mode */
 	--gradient-primary: linear-gradient(
@@ -492,7 +485,6 @@
 		border-radius: 100px;
 		border: 2px solid transparent;
 		background-clip: content-box;
-		transition: background 0.2s;
 	}
 
 	::-webkit-scrollbar-thumb:hover {
@@ -666,12 +658,7 @@
 		font-size: 0.9375rem; /* 15px - optimal for buttons */
 		font-weight: 500;
 		letter-spacing: -0.003em;
-		transition: all 0.2s ease;
 		min-height: 36px; /* Better touch target */
-	}
-
-	button:active {
-		transform: translateY(1px);
 	}
 
 	/* Small buttons */
@@ -719,14 +706,13 @@
 		line-height: 1.6;
 	}
 
-	/* Card depth */
+	/* Card depth - no shadows */
 	.card {
-		box-shadow: var(--shadow-sm);
-		transition: box-shadow 0.2s ease;
+		box-shadow: none;
 	}
 
 	.card:hover {
-		box-shadow: var(--shadow-md);
+		box-shadow: none;
 	}
 
 	/* Labels and small text - Enhanced readability */
@@ -751,12 +737,11 @@
 	a {
 		color: var(--primary);
 		text-decoration: none;
-		transition: all 0.2s;
 		font-weight: 500;
 	}
 
 	a:hover {
-		opacity: 0.85;
+		color: oklch(from var(--primary) calc(l * 0.85) c h);
 		text-decoration: underline;
 	}
 
@@ -996,11 +981,7 @@
 	justify-content: center;
 }
 
-/* Enhanced theme transitions */
-* {
-	transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow
-		0.15s ease;
-}
+/* No transitions - instant feedback */
 
 /* Better text selection */
 ::selection {
@@ -1044,7 +1025,7 @@
 		oklch(from var(--primary) l c h / 0.05)
 	) !important;
 	border: 1px solid var(--primary) !important;
-	box-shadow: inset 0 0 20px oklch(from var(--primary) l c h / 0.1) !important;
+	box-shadow: none !important;
 	border-radius: var(--radius-sm) !important;
 }
 
@@ -1169,12 +1150,12 @@
 		border: 1px solid oklch(from var(--border) l c h / 0.2);
 	}
 
-	/* Glow effects */
+	/* Glow effects - disabled */
 	.glow-primary {
-		box-shadow: var(--glow-primary);
+		box-shadow: none;
 	}
 	.glow-accent {
-		box-shadow: var(--glow-accent);
+		box-shadow: none;
 	}
 
 	/* Text gradients */
@@ -1185,18 +1166,18 @@
 		background-clip: text;
 	}
 
-	/* Depth layers */
+	/* Depth layers - no shadows */
 	.layer-0 {
-		box-shadow: var(--shadow-xs);
+		box-shadow: none;
 	}
 	.layer-1 {
-		box-shadow: var(--shadow-sm);
+		box-shadow: none;
 	}
 	.layer-2 {
-		box-shadow: var(--shadow);
+		box-shadow: none;
 	}
 	.layer-3 {
-		box-shadow: var(--shadow-md);
+		box-shadow: none;
 	}
 }
 
@@ -1207,17 +1188,16 @@
 	z-index: 10000 !important;
 	border-radius: 6px !important;
 	border: 1px solid oklch(from var(--primary) calc(l + 0.2) c h / 0.5) !important;
-	box-shadow: var(--shadow-sm), var(--glow-primary) !important;
+	box-shadow: none !important;
 	width: 12px !important;
 	height: 12px !important;
 	margin-top: -6px !important;
 	margin-left: -6px !important;
-	transition: transform 0.2s ease !important;
 }
 
 .designcombo-scene-moveable .moveable-control:hover {
-	transform: scale(1.2) !important;
-	box-shadow: var(--shadow-md), var(--glow-primary) !important;
+	background: oklch(from var(--primary) calc(l * 1.2) c h) !important;
+	box-shadow: none !important;
 }
 
 /* Corner resize handles with proper cursors */
@@ -1503,7 +1483,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Landing Page Animations */
 @keyframes blob {
-	0%, 100% {
+	0%,
+	100% {
 		transform: translate(0px, 0px) scale(1) rotate(0deg);
 	}
 	25% {
@@ -1524,7 +1505,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Reverse blob animation */
 @keyframes blob-reverse {
-	0%, 100% {
+	0%,
+	100% {
 		transform: translate(0px, 0px) scale(1) rotate(0deg);
 	}
 	25% {
@@ -1545,7 +1527,8 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Shimmer animation for light streaks */
 @keyframes shimmer {
-	0%, 100% {
+	0%,
+	100% {
 		opacity: 0.1;
 		transform: translateY(0) scaleY(1);
 	}
@@ -1622,8 +1605,5 @@ input[type="number"]::-webkit-outer-spin-button {
 
 /* Radial Gradient */
 .bg-gradient-radial {
-	background: radial-gradient(
-		circle at center,
-		var(--tw-gradient-stops)
-	);
+	background: radial-gradient(circle at center, var(--tw-gradient-stops));
 }

@@ -18,7 +18,7 @@ const ModernScene = forwardRef<SceneRef, ModernSceneProps>(
 
 		return (
 			<div className="h-full w-full flex items-center justify-center p-8">
-				<div className="relative w-full h-full max-w-2xl max-h-[80vh] bg-black rounded-lg overflow-hidden shadow-2xl">
+				<div className="relative w-full h-full max-w-2xl max-h-[80vh] bg-black rounded-lg overflow-hidden">
 					<Scene ref={sceneRef} stateManager={stateManager} />
 
 					{/* Aspect Ratio Overlay */}

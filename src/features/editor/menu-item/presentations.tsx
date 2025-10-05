@@ -282,7 +282,7 @@ export const Presentations = () => {
 											{/* Status */}
 											{presentation.status === "uploading" && (
 												<div className="flex items-center gap-2">
-													<div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+													<div className="w-2 h-2 bg-blue-500 rounded-full " />
 													<span className="text-xs text-muted-foreground">
 														Uploading {Math.round(presentation.progress || 0)}%
 													</span>
@@ -291,7 +291,7 @@ export const Presentations = () => {
 
 											{presentation.status === "converting" && (
 												<div className="flex items-center gap-2">
-													<Loader2 className="w-3 h-3 animate-spin text-blue-500" />
+													<Loader2 className="w-3 h-3  text-blue-500" />
 													<span className="text-xs text-muted-foreground">
 														Converting {Math.round(presentation.progress || 0)}%
 													</span>

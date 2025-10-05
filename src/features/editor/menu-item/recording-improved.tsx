@@ -259,7 +259,7 @@ export function RecordingImproved() {
 			// Show success message
 			const successDiv = document.createElement("div");
 			successDiv.className =
-				"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-bottom";
+				"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-none z-50  ";
 			successDiv.textContent = "Audio timeline'ga qo'shildi!";
 			document.body.appendChild(successDiv);
 			setTimeout(() => successDiv.remove(), 3000);
@@ -383,9 +383,9 @@ export function RecordingImproved() {
 							{/* Recording Controls */}
 							<Card
 								className={cn(
-									"overflow-hidden transition-all duration-300",
+									"overflow-hidden  ",
 									isRecording
-										? "border-red-500/50 bg-red-500/5 shadow-lg shadow-red-500/10"
+										? "border-red-500/50 bg-red-500/5 shadow-none shadow-red-500/10"
 										: "border-red-500/10 bg-gradient-to-br from-red-500/5 to-transparent",
 								)}
 							>
@@ -405,8 +405,8 @@ export function RecordingImproved() {
 											<div className="flex items-center justify-between">
 												<div className="flex items-center gap-3">
 													<div className="relative">
-														<div className="h-3 w-3 bg-red-500 rounded-full animate-pulse" />
-														<div className="absolute inset-0 h-3 w-3 bg-red-500 rounded-full animate-ping" />
+														<div className="h-3 w-3 bg-red-500 rounded-full " />
+														<div className="absolute inset-0 h-3 w-3 bg-red-500 rounded-full " />
 													</div>
 													<span className="text-sm font-medium">
 														Yozilmoqda
@@ -420,7 +420,7 @@ export function RecordingImproved() {
 											{/* Audio Level Bar */}
 											<div className="relative h-2 bg-muted rounded-full overflow-hidden">
 												<div
-													className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-500 to-yellow-500 transition-all duration-100"
+													className="absolute inset-y-0 left-0 bg-gradient-to-r from-green-500 to-yellow-500  duration-100"
 													style={{ width: `${audioLevel}%` }}
 												/>
 											</div>
@@ -492,7 +492,7 @@ export function RecordingImproved() {
 												<div
 													key={recording.id}
 													className={cn(
-														"p-3 rounded-lg border cursor-pointer transition-all",
+														"p-3 rounded-lg border cursor-pointer ",
 														selectedRecording?.id === recording.id
 															? "border-primary bg-primary/5"
 															: "border-border hover:bg-muted/50",
@@ -560,7 +560,6 @@ export function RecordingImproved() {
 									</CardContent>
 								</Card>
 							)}
-
 						</div>
 					</div>
 				</TabsContent>
@@ -690,11 +689,11 @@ export function RecordingImproved() {
 							<Button
 								onClick={handleGenerateTTS}
 								disabled={!ttsSettings.text.trim() || isGeneratingTTS}
-								className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-lg"
+								className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-none"
 							>
 								{isGeneratingTTS ? (
 									<>
-										<Loader2 className="h-4 w-4 mr-2 animate-spin" />
+										<Loader2 className="h-4 w-4 mr-2 " />
 										Yaratilmoqda...
 									</>
 								) : (

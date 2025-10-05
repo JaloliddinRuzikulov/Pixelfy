@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -66,6 +67,25 @@ export function Office() {
 	const [selectedDocument, setSelectedDocument] =
 		useState<ConvertedDocument | null>(null);
 	const [previewImage, setPreviewImage] = useState<string | null>(null);
+	const [serviceStatus, setServiceStatus] = useState<
+		"checking" | "online" | "offline"
+	>("checking");
+
+	useEffect(() => {
+		const checkServiceHealth = async () => {
+			try {
+				const response = await fetch("/api/health/office");
+				if (!response.ok) {
+					setServiceStatus("offline");
+				} else {
+					setServiceStatus("online");
+				}
+			} catch (error) {
+				setServiceStatus("offline");
+			}
+		};
+		checkServiceHealth();
+	}, []);
 
 	const handleFileSelect = useCallback(
 		(event: React.ChangeEvent<HTMLInputElement>) => {
@@ -298,29 +318,43 @@ export function Office() {
 	return (
 		<div className="flex flex-col h-full overflow-hidden bg-background">
 			{/* Header */}
-			<div className="flex-shrink-0 h-12 flex items-center px-4 text-sm font-medium border-b bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
+			<div className="flex-shrink-0 h-12 flex items-center px-4 text-xs sm:text-sm font-medium border-b bg-gradient-to-r from-primary/10 via-primary/5 to-transparent">
 				<FileSpreadsheet className="h-4 w-4 mr-2 text-primary" />
 				Office hujjatlar
 			</div>
+
+			{/* Service Status Alert */}
+			{serviceStatus === "offline" && (
+				<div className="px-2 sm:px-4">
+					<Alert className="mt-2 sm:mt-4 border-destructive bg-destructive/10">
+						<XCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
+						<AlertDescription className="text-xs sm:text-sm text-destructive">
+							<strong>Xizmat ishlamayapti!</strong>
+							<br />
+							Office konvertor xizmati hozirda mavjud emas.
+						</AlertDescription>
+					</Alert>
+				</div>
+			)}
 
 			{/* Content with proper scrolling */}
 			<div className="flex-1 overflow-hidden">
 				<ScrollArea className="h-full">
 					<div className="p-2 sm:p-4 space-y-3 pb-16">
 						{/* Upload Section */}
-						<Card className="overflow-hidden border-primary/10 bg-gradient-to-br from-background to-muted/20 shadow-sm hover:shadow-md transition-all">
+						<Card className="overflow-hidden border-primary/10 bg-gradient-to-br from-background to-muted/20 shadow-none hover:shadow-none ">
 							<CardHeader className="pb-3 bg-gradient-to-r from-primary/5 to-transparent">
-								<CardTitle className="text-base flex items-center gap-2">
-									<Upload className="h-4 w-4 text-primary animate-pulse" />
+								<CardTitle className="text-sm sm:text-base flex items-center gap-2">
+									<Upload className="h-4 w-4 text-primary " />
 									Hujjat yuklash
 								</CardTitle>
-								<CardDescription className="text-xs">
+								<CardDescription className="text-xs sm:text-sm">
 									PDF, PowerPoint fayllarni rasmlarga aylantiring
 								</CardDescription>
 							</CardHeader>
 							<CardContent className="space-y-3">
-								<div className="relative border-2 border-dashed border-primary/20 rounded-lg p-8 text-center hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group overflow-hidden">
-									<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+								<div className="relative border-2 border-dashed border-primary/20 rounded-lg p-8 text-center hover:border-primary/40 hover:bg-primary/5  cursor-pointer group overflow-hidden">
+									<div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent  " />
 									<input
 										type="file"
 										accept=".pdf,.ppt,.pptx"
@@ -340,24 +374,24 @@ export function Office() {
 														selectedFile.name.split(".").pop()?.toLowerCase() ||
 															"",
 													)}
-													<span className="font-medium text-sm">
+													<span className="font-medium text-xs sm:text-sm">
 														{selectedFile.name}
 													</span>
 												</div>
-												<p className="text-xs text-muted-foreground">
+												<p className="text-xs sm:text-sm text-muted-foreground">
 													{(selectedFile.size / 1024 / 1024).toFixed(2)} MB
 												</p>
 											</div>
 										) : (
 											<div className="space-y-3">
 												<div className="relative mx-auto w-16 h-16">
-													<FileUp className="h-16 w-16 mx-auto text-muted-foreground group-hover:text-primary transition-all group-hover:scale-110" />
+													<FileUp className="h-16 w-16 mx-auto text-muted-foreground group-hover:text-primary  " />
 												</div>
 												<div>
-													<p className="text-sm font-medium">
+													<p className="text-xs sm:text-sm font-medium">
 														Fayl tanlash uchun bosing
 													</p>
-													<p className="text-xs text-muted-foreground mt-1">
+													<p className="text-xs sm:text-sm text-muted-foreground mt-1">
 														PDF, PPT, PPTX (maksimal 50MB)
 													</p>
 												</div>
@@ -376,7 +410,7 @@ export function Office() {
 										) : conversionStatus.progress === 100 ? (
 											<CheckCircle2 className="h-4 w-4" />
 										) : (
-											<Loader2 className="h-4 w-4 animate-spin" />
+											<Loader2 className="h-4 w-4 " />
 										)}
 										<AlertDescription className="text-xs">
 											{conversionStatus.error || conversionStatus.message}
@@ -400,7 +434,7 @@ export function Office() {
 											<ChevronRight className="h-4 w-4 mr-2" />
 											Konvertatsiya qilish
 										</span>
-										<div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10 transform translate-x-full group-hover:translate-x-0 transition-transform" />
+										<div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary/10   " />
 									</Button>
 								)}
 							</CardContent>
@@ -410,7 +444,7 @@ export function Office() {
 						{convertedDocuments.length > 0 && (
 							<Card className="overflow-hidden border-blue-500/10 bg-gradient-to-br from-blue-500/5 to-transparent">
 								<CardHeader className="pb-3 bg-gradient-to-r from-blue-500/10 to-transparent">
-									<CardTitle className="text-base flex items-center gap-2">
+									<CardTitle className="text-sm sm:text-base flex items-center gap-2">
 										<Layers className="h-4 w-4 text-blue-500" />
 										Konvertatsiya qilingan hujjatlar
 									</CardTitle>
@@ -421,9 +455,9 @@ export function Office() {
 											{convertedDocuments.map((doc) => (
 												<div
 													key={doc.id}
-													className={`p-3 rounded-lg border-2 cursor-pointer transition-all ${
+													className={`p-3 rounded-lg border-2 cursor-pointer  ${
 														selectedDocument?.id === doc.id
-															? "bg-primary/10 border-primary shadow-sm"
+															? "bg-primary/10 border-primary shadow-none"
 															: "border-border/50 hover:bg-muted/50 hover:border-primary/30"
 													}`}
 													onClick={() => setSelectedDocument(doc)}
@@ -432,10 +466,10 @@ export function Office() {
 														<div className="flex items-center gap-3 flex-1 min-w-0">
 															{getFileIcon(doc.type)}
 															<div className="flex-1 min-w-0">
-																<p className="text-sm font-medium truncate">
+																<p className="text-xs sm:text-sm font-medium truncate">
 																	{doc.name}
 																</p>
-																<p className="text-xs text-muted-foreground">
+																<p className="text-xs sm:text-sm text-muted-foreground">
 																	{doc.pageCount} sahifa
 																</p>
 															</div>
@@ -477,7 +511,7 @@ export function Office() {
 						{selectedDocument && (
 							<Card className="overflow-hidden border-green-500/10 bg-gradient-to-br from-green-500/5 to-transparent">
 								<CardHeader className="pb-3 bg-gradient-to-r from-green-500/10 to-transparent">
-									<CardTitle className="text-base flex items-center justify-between">
+									<CardTitle className="text-sm sm:text-base flex items-center justify-between">
 										<div className="flex items-center gap-2">
 											<ImageIcon className="h-4 w-4 text-green-500" />
 											Sahifalar
@@ -486,7 +520,7 @@ export function Office() {
 											size="sm"
 											variant="outline"
 											onClick={() => handleAddToTimeline(selectedDocument)}
-											className="h-7"
+											className="h-7 text-xs sm:text-sm"
 										>
 											<Download className="h-3 w-3 mr-1" />
 											Hammasini qo'shish
@@ -510,16 +544,16 @@ export function Office() {
 													{selectedDocument.thumbnails.map((thumb, index) => (
 														<div
 															key={index}
-															className="group relative aspect-[16/9] rounded-lg overflow-hidden border border-border/50 hover:border-primary/50 transition-all hover:shadow-lg cursor-pointer"
+															className="group relative aspect-[16/9] rounded-lg overflow-hidden border border-border/50 hover:border-primary/50  hover:shadow-none cursor-pointer"
 															onClick={() => setPreviewImage(thumb)}
 														>
 															<img
 																src={thumb}
 																alt={`Sahifa ${index + 1}`}
-																className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+																className="w-full h-full object-cover  "
 															/>
-															<div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-															<div className="absolute bottom-0 left-0 right-0 p-2 flex items-center justify-between text-white opacity-0 group-hover:opacity-100 transition-opacity">
+															<div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent  " />
+															<div className="absolute bottom-0 left-0 right-0 p-2 flex items-center justify-between text-white  ">
 																<span className="text-xs font-medium">
 																	Sahifa {index + 1}
 																</span>
@@ -550,7 +584,7 @@ export function Office() {
 													{selectedDocument.thumbnails.map((thumb, index) => (
 														<div
 															key={index}
-															className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors group"
+															className="flex items-center gap-3 p-2 rounded-md hover:bg-muted/50  group"
 														>
 															<div className="w-16 h-10 rounded overflow-hidden border border-border/50 flex-shrink-0">
 																<img
@@ -564,7 +598,7 @@ export function Office() {
 																	Sahifa {index + 1}
 																</p>
 															</div>
-															<div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+															<div className="flex gap-1  ">
 																<Button
 																	size="sm"
 																	variant="ghost"
@@ -604,7 +638,7 @@ export function Office() {
 									<img
 										src={previewImage}
 										alt="Preview"
-										className="w-full h-full object-contain rounded-lg shadow-2xl"
+										className="w-full h-full object-contain rounded-lg"
 									/>
 									<Button
 										variant="secondary"

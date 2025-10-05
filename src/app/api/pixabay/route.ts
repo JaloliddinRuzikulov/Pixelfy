@@ -10,13 +10,20 @@ const ADDITIONAL_IMAGES = [
 		photographer_url: "https://unsplash.com",
 		alt: "Mountain landscape",
 		src: {
-			original: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920",
-			large2x: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600",
-			large: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200",
-			medium: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
-			small: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400",
-			portrait: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920",
+			large2x:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1600",
+			large:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1200",
+			medium:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800",
+			small:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400",
+			portrait:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200",
 		},
 		avg_color: "#4a5568",
@@ -29,13 +36,20 @@ const ADDITIONAL_IMAGES = [
 		photographer_url: "https://unsplash.com",
 		alt: "City skyline",
 		src: {
-			original: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920",
-			large2x: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600",
-			large: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200",
-			medium: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800",
-			small: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400",
-			portrait: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1920",
+			large2x:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1600",
+			large:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=1200",
+			medium:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800",
+			small:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=400",
+			portrait:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=200",
 		},
 		avg_color: "#2d3748",
@@ -48,13 +62,20 @@ const ADDITIONAL_IMAGES = [
 		photographer_url: "https://unsplash.com",
 		alt: "Ocean waves",
 		src: {
-			original: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920",
-			large2x: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1600",
-			large: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1200",
-			medium: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
-			small: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=400",
-			portrait: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1920",
+			large2x:
+				"https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1600",
+			large:
+				"https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=1200",
+			medium:
+				"https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800",
+			small:
+				"https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=400",
+			portrait:
+				"https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1505142468610-359e7d316be0?w=200",
 		},
 		avg_color: "#1e40af",
@@ -67,13 +88,20 @@ const ADDITIONAL_IMAGES = [
 		photographer_url: "https://unsplash.com",
 		alt: "Forest path",
 		src: {
-			original: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920",
-			large2x: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1600",
-			large: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200",
-			medium: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800",
-			small: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400",
-			portrait: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1920",
+			large2x:
+				"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1600",
+			large:
+				"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=1200",
+			medium:
+				"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800",
+			small:
+				"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400",
+			portrait:
+				"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=200",
 		},
 		avg_color: "#065f46",
@@ -86,13 +114,20 @@ const ADDITIONAL_IMAGES = [
 		photographer_url: "https://unsplash.com",
 		alt: "Desert sunset",
 		src: {
-			original: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1920",
-			large2x: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1600",
-			large: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1200",
-			medium: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800",
-			small: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=400",
-			portrait: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1920",
+			large2x:
+				"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1600",
+			large:
+				"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=1200",
+			medium:
+				"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800",
+			small:
+				"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=400",
+			portrait:
+				"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1509316785289-025f5b846b35?w=200",
 		},
 		avg_color: "#ea580c",
@@ -105,13 +140,20 @@ const ADDITIONAL_IMAGES = [
 		photographer_url: "https://unsplash.com",
 		alt: "Modern architecture",
 		src: {
-			original: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1920",
-			large2x: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1600",
-			large: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1200",
-			medium: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800",
-			small: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400",
-			portrait: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1920",
+			large2x:
+				"https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1600",
+			large:
+				"https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=1200",
+			medium:
+				"https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800",
+			small:
+				"https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400",
+			portrait:
+				"https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=200",
 		},
 		avg_color: "#334155",
@@ -124,13 +166,20 @@ const ADDITIONAL_IMAGES = [
 		photographer_url: "https://unsplash.com",
 		alt: "Coffee and workspace",
 		src: {
-			original: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1920",
-			large2x: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600",
-			large: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200",
-			medium: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800",
-			small: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400",
-			portrait: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1920",
+			large2x:
+				"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1600",
+			large:
+				"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=1200",
+			medium:
+				"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800",
+			small:
+				"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400",
+			portrait:
+				"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200",
 		},
 		avg_color: "#78350f",
@@ -143,13 +192,20 @@ const ADDITIONAL_IMAGES = [
 		photographer_url: "https://unsplash.com",
 		alt: "Technology and coding",
 		src: {
-			original: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1920",
-			large2x: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1600",
-			large: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200",
-			medium: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800",
-			small: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400",
-			portrait: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1920",
+			large2x:
+				"https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1600",
+			large:
+				"https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200",
+			medium:
+				"https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800",
+			small:
+				"https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=400",
+			portrait:
+				"https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=200",
 		},
 		avg_color: "#1f2937",
@@ -162,13 +218,20 @@ const ADDITIONAL_IMAGES = [
 		photographer_url: "https://unsplash.com",
 		alt: "Colorful abstract",
 		src: {
-			original: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920",
-			large2x: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1600",
-			large: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200",
-			medium: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800",
-			small: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400",
-			portrait: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1920",
+			large2x:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1600",
+			large:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=1200",
+			medium:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800",
+			small:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=400",
+			portrait:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?w=200",
 		},
 		avg_color: "#667eea",
@@ -181,13 +244,20 @@ const ADDITIONAL_IMAGES = [
 		photographer_url: "https://unsplash.com",
 		alt: "Food photography",
 		src: {
-			original: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920",
-			large2x: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600",
-			large: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200",
-			medium: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800",
-			small: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400",
-			portrait: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=800",
-			landscape: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=600",
+			original:
+				"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920",
+			large2x:
+				"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1600",
+			large:
+				"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1200",
+			medium:
+				"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800",
+			small:
+				"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400",
+			portrait:
+				"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&h=800",
+			landscape:
+				"https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&h=600",
 			tiny: "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200",
 		},
 		avg_color: "#dc2626",
@@ -284,10 +354,7 @@ export async function GET(request: NextRequest) {
 
 	try {
 		// Combine all images
-		const allImages = [
-			...STATIC_SAMPLES,
-			...ADDITIONAL_IMAGES,
-		];
+		const allImages = [...STATIC_SAMPLES, ...ADDITIONAL_IMAGES];
 
 		// Filter images based on search query if provided
 		let filteredImages = allImages;

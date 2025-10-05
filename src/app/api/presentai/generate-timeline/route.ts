@@ -31,12 +31,15 @@ export async function POST(request: NextRequest) {
 		presentaiFormData.append("template_style", templateStyle || "modern");
 
 		const PRESENTAI_SERVICE_URL =
-			process.env.PRESENTAI_SERVICE_URL || "http://presentai:9004";
+			process.env.PRESENTAI_SERVICE_URL || "http://localhost:9004";
 
-		const response = await fetch(`${PRESENTAI_SERVICE_URL}/generate-timeline-images`, {
-			method: "POST",
-			body: presentaiFormData,
-		});
+		const response = await fetch(
+			`${PRESENTAI_SERVICE_URL}/generate-timeline-images`,
+			{
+				method: "POST",
+				body: presentaiFormData,
+			},
+		);
 
 		if (!response.ok) {
 			const errorText = await response.text();
@@ -45,7 +48,7 @@ export async function POST(request: NextRequest) {
 				{
 					success: false,
 					error: "Failed to generate timeline images",
-					details: errorText
+					details: errorText,
 				},
 				{ status: response.status },
 			);
@@ -53,29 +56,42 @@ export async function POST(request: NextRequest) {
 
 		const result = await response.json();
 		console.log(`✅ Timeline images generated: ${result.total_slides} slides`);
-		console.log(`🔑 Response keys: ${Object.keys(result).join(', ')}`);
+		console.log(`🔑 Response keys: ${Object.keys(result).join(", ")}`);
 
 		// Convert base64 images to real files for Remotion compatibility
 		const sessionId = nanoid(10);
-		const uploadsDir = path.join(process.cwd(), "public", "uploads", "presentai", sessionId);
+		const uploadsDir = path.join(
+			process.cwd(),
+			"public",
+			"uploads",
+			"presentai",
+			sessionId,
+		);
 
 		// Create directory
 		await fs.mkdir(uploadsDir, { recursive: true });
 		console.log(`📁 Created uploads directory: ${uploadsDir}`);
 
 		// Process slide images directly (response structure has slide_images at root level)
-		console.log(`🔍 Checking slide_images: exists=${!!result.slide_images}, isArray=${Array.isArray(result.slide_images)}, length=${result.slide_images?.length}`);
+		console.log(
+			`🔍 Checking slide_images: exists=${!!result.slide_images}, isArray=${Array.isArray(result.slide_images)}, length=${result.slide_images?.length}`,
+		);
 
 		if (result.slide_images && Array.isArray(result.slide_images)) {
 			console.log(`🔄 Processing ${result.slide_images.length} slides...`);
 
 			for (let i = 0; i < result.slide_images.length; i++) {
 				const slide = result.slide_images[i];
-				console.log(`📋 Slide ${i + 1}: has image_data=${!!slide.image_data}, slide_number=${slide.slide_number}`);
+				console.log(
+					`📋 Slide ${i + 1}: has image_data=${!!slide.image_data}, slide_number=${slide.slide_number}`,
+				);
 
 				if (slide.image_data) {
 					// Decode base64 and save as file
-					const base64Data = slide.image_data.replace(/^data:image\/\w+;base64,/, "");
+					const base64Data = slide.image_data.replace(
+						/^data:image\/\w+;base64,/,
+						"",
+					);
 					const buffer = Buffer.from(base64Data, "base64");
 
 					const filename = `slide-${slide.slide_number || i + 1}.png`;
@@ -87,7 +103,9 @@ export async function POST(request: NextRequest) {
 					slide.image_url = `/uploads/presentai/${sessionId}/${filename}`;
 					delete slide.image_data; // Remove base64 to reduce response size
 
-					console.log(`💾 Saved slide ${slide.slide_number || i + 1}: ${slide.image_url}`);
+					console.log(
+						`💾 Saved slide ${slide.slide_number || i + 1}: ${slide.image_url}`,
+					);
 				}
 			}
 		} else {
@@ -95,7 +113,6 @@ export async function POST(request: NextRequest) {
 		}
 
 		return NextResponse.json(result);
-
 	} catch (error) {
 		console.error("❌ Timeline generation error:", error);
 		return NextResponse.json(

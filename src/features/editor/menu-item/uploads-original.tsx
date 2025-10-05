@@ -247,7 +247,7 @@ export const Uploads = () => {
 							{hasActivity && (
 								<div className="space-y-3">
 									<div className="flex items-center gap-2 text-sm font-medium">
-										<Loader2 className="w-4 h-4 animate-spin" />
+										<Loader2 className="w-4 h-4 " />
 										{t("uploading")}
 									</div>
 									<div className="space-y-2">
@@ -256,7 +256,7 @@ export const Uploads = () => {
 												key={upload.id}
 												className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg"
 											>
-												<div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+												<div className="w-2 h-2 bg-yellow-500 rounded-full " />
 												<span className="text-xs flex-1 truncate">
 													{upload.file?.name || t("unknownFile")}
 												</span>
@@ -270,7 +270,7 @@ export const Uploads = () => {
 												key={upload.id}
 												className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg"
 											>
-												<Loader2 className="w-3 h-3 animate-spin" />
+												<Loader2 className="w-3 h-3 " />
 												<span className="text-xs flex-1 truncate">
 													{upload.file?.name || t("unknownFile")}
 												</span>
@@ -298,7 +298,7 @@ export const Uploads = () => {
 												{videos.map((video, idx) => (
 													<Card
 														key={video.id || idx}
-														className="cursor-pointer hover:bg-muted/50 transition-colors"
+														className="cursor-pointer hover:bg-muted/50 "
 														onClick={() => handleAddVideo(video)}
 													>
 														<CardContent className="p-2">
@@ -346,7 +346,7 @@ export const Uploads = () => {
 												{images.map((image, idx) => (
 													<Card
 														key={image.id || idx}
-														className="cursor-pointer hover:bg-muted/50 transition-colors"
+														className="cursor-pointer hover:bg-muted/50 "
 														onClick={() => handleAddImage(image)}
 													>
 														<CardContent className="p-2">
@@ -388,7 +388,7 @@ export const Uploads = () => {
 												{audios.map((audio, idx) => (
 													<Card
 														key={audio.id || idx}
-														className="cursor-pointer hover:bg-muted/50 transition-colors"
+														className="cursor-pointer hover:bg-muted/50 "
 														onClick={() => handleAddAudio(audio)}
 													>
 														<CardContent className="p-3">
@@ -452,7 +452,7 @@ export const Uploads = () => {
 									disabled={pexelsLoading}
 								>
 									{pexelsLoading ? (
-										<Loader2 className="h-3 w-3 animate-spin" />
+										<Loader2 className="h-3 w-3 " />
 									) : (
 										<Search className="h-3 w-3" />
 									)}
@@ -479,7 +479,7 @@ export const Uploads = () => {
 									{stockImages.map((image, index) => (
 										<Card
 											key={image.id || index}
-											className="cursor-pointer hover:bg-muted/50 transition-colors"
+											className="cursor-pointer hover:bg-muted/50 "
 											onClick={() => handleAddStockImage(image)}
 										>
 											<CardContent className="p-2">
@@ -517,7 +517,7 @@ export const Uploads = () => {
 								</div>
 							) : (
 								<div className="flex justify-center py-8">
-									<Loader2 className="h-6 w-6 animate-spin" />
+									<Loader2 className="h-6 w-6 " />
 								</div>
 							)}
 						</div>
@@ -544,7 +544,7 @@ export const Uploads = () => {
 									disabled={pexelsVideosLoading}
 								>
 									{pexelsVideosLoading ? (
-										<Loader2 className="h-3 w-3 animate-spin" />
+										<Loader2 className="h-3 w-3 " />
 									) : (
 										<Search className="h-3 w-3" />
 									)}
@@ -571,7 +571,7 @@ export const Uploads = () => {
 									{stockVideos.map((video, index) => (
 										<Card
 											key={video.id || index}
-											className="cursor-pointer hover:bg-muted/50 transition-colors"
+											className="cursor-pointer hover:bg-muted/50 "
 											onClick={() => handleAddStockVideo(video)}
 										>
 											<CardContent className="p-2">
@@ -614,7 +614,7 @@ export const Uploads = () => {
 								</div>
 							) : (
 								<div className="flex justify-center py-8">
-									<Loader2 className="h-6 w-6 animate-spin" />
+									<Loader2 className="h-6 w-6 " />
 								</div>
 							)}
 						</div>

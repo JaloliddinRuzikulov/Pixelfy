@@ -46,9 +46,15 @@ export async function middleware(request: NextRequest) {
 		try {
 			// Only verify JWT token signature (no database call in middleware)
 			isAuthenticated = verifySessionToken(sessionToken);
-			console.log(`[Middleware] Token found for ${pathname}, verified:`, isAuthenticated);
+			console.log(
+				`[Middleware] Token found for ${pathname}, verified:`,
+				isAuthenticated,
+			);
 		} catch (error) {
-			console.error(`[Middleware] Session verification failed for ${pathname}:`, error);
+			console.error(
+				`[Middleware] Session verification failed for ${pathname}:`,
+				error,
+			);
 			isAuthenticated = false;
 		}
 	} else {
@@ -58,7 +64,10 @@ export async function middleware(request: NextRequest) {
 	// Handle auth routes FIRST (before protected routes check)
 	// This prevents authenticated users from accessing login/register pages
 	if (authRoutes.some((route) => pathname.startsWith(route))) {
-		console.log(`[Middleware] Auth route detected: ${pathname}, isAuthenticated:`, isAuthenticated);
+		console.log(
+			`[Middleware] Auth route detected: ${pathname}, isAuthenticated:`,
+			isAuthenticated,
+		);
 
 		if (isAuthenticated) {
 			// Check if there's a return URL
@@ -78,28 +87,39 @@ export async function middleware(request: NextRequest) {
 		}
 
 		// Allow unauthenticated users to access auth pages
-		console.log(`[Middleware] Allowing unauthenticated access to auth page: ${pathname}`);
+		console.log(
+			`[Middleware] Allowing unauthenticated access to auth page: ${pathname}`,
+		);
 		return NextResponse.next();
 	}
 
 	// Handle protected routes
 	if (protectedRoutes.some((route) => pathname.startsWith(route))) {
-		console.log(`[Middleware] Protected route detected: ${pathname}, isAuthenticated:`, isAuthenticated);
+		console.log(
+			`[Middleware] Protected route detected: ${pathname}, isAuthenticated:`,
+			isAuthenticated,
+		);
 
 		if (!isAuthenticated) {
-			console.log(`[Middleware] Redirecting ${pathname} to login page (not authenticated)`);
+			console.log(
+				`[Middleware] Redirecting ${pathname} to login page (not authenticated)`,
+			);
 			// Redirect to login page with return URL
 			const loginUrl = new URL("/auth/login", request.url);
 			loginUrl.searchParams.set("returnTo", pathname);
 			return NextResponse.redirect(loginUrl);
 		}
 
-		console.log(`[Middleware] Allowing access to protected route ${pathname} (authenticated)`);
+		console.log(
+			`[Middleware] Allowing access to protected route ${pathname} (authenticated)`,
+		);
 		return NextResponse.next();
 	}
 
 	// Default: allow request to continue
-	console.log(`[Middleware] Allowing request to ${pathname} (no specific rules matched)`);
+	console.log(
+		`[Middleware] Allowing request to ${pathname} (no specific rules matched)`,
+	);
 	return NextResponse.next();
 }
 

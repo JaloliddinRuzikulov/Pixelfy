@@ -17,9 +17,9 @@ function EditorLoader() {
 				</div>
 				<div className="text-center">
 					<h2 className="text-lg font-semibold text-slate-900">
-						Loading Editor
+						Muharrir yuklanmoqda
 					</h2>
-					<p className="text-xs text-slate-500 mt-1">Please wait...</p>
+					<p className="text-xs text-slate-500 mt-1">Iltimos kuting...</p>
 				</div>
 			</div>
 		</div>

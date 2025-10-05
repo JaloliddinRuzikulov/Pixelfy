@@ -25,7 +25,7 @@ export async function processFileUpload(
 		console.log(`[UPLOAD] Starting file upload for ${uploadId}:`, {
 			fileName: file.name,
 			fileSize: file.size,
-			fileType: file.type
+			fileType: file.type,
 		});
 
 		// Create FormData for file upload
@@ -60,7 +60,10 @@ export async function processFileUpload(
 		}
 
 		const uploadInfo = response.data;
-		console.log(`[UPLOAD] Storage service response for ${uploadId}:`, uploadInfo);
+		console.log(
+			`[UPLOAD] Storage service response for ${uploadId}:`,
+			uploadInfo,
+		);
 
 		// Storage service response has different structure
 		const actualUploadInfo = {
@@ -72,7 +75,7 @@ export async function processFileUpload(
 			folder: uploadInfo.folder,
 			uploadedAt: uploadInfo.uploadedAt,
 			storageId: uploadInfo.storageId,
-			thumbnail: uploadInfo.thumbnail
+			thumbnail: uploadInfo.thumbnail,
 		};
 
 		// Generate media metadata
@@ -150,7 +153,9 @@ export async function processFileUpload(
 				uploadedUrl: actualUploadInfo.url,
 				storageId: actualUploadInfo.storageId,
 				thumbnail: actualUploadInfo.thumbnail,
-				thumbnailUrl: actualUploadInfo.thumbnail ? `/storage/${actualUploadInfo.thumbnail}` : undefined,
+				thumbnailUrl: actualUploadInfo.thumbnail
+					? `/storage/${actualUploadInfo.thumbnail}`
+					: undefined,
 				...mediaMetadata,
 			},
 			folder: actualUploadInfo.folder || null,
@@ -160,11 +165,12 @@ export async function processFileUpload(
 			status: "uploaded",
 			isPreview: false,
 			url: actualUploadInfo.url,
-			file: { // Add original file reference for UI
+			file: {
+				// Add original file reference for UI
 				name: file.name,
 				size: file.size,
-				type: file.type
-			}
+				type: file.type,
+			},
 		};
 
 		console.log(`[UPLOAD] Final upload data for ${uploadId}:`, uploadData);

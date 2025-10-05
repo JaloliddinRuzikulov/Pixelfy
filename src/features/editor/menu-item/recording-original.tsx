@@ -194,7 +194,7 @@ export function Recording() {
 											onValueChange={(v) => setRecordingMode(v as any)}
 											className="space-y-2"
 										>
-											<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30 transition-all group">
+											<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30  group">
 												<RadioGroupItem
 													value="screen"
 													id="screen"
@@ -214,7 +214,7 @@ export function Recording() {
 												</Label>
 											</div>
 
-											<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30 transition-all group">
+											<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30  group">
 												<RadioGroupItem
 													value="camera"
 													id="camera"
@@ -234,7 +234,7 @@ export function Recording() {
 												</Label>
 											</div>
 
-											<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30 transition-all group">
+											<div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-purple-500/20 hover:bg-purple-500/5 hover:border-purple-500/30  group">
 												<RadioGroupItem
 													value="both"
 													id="both"
@@ -266,7 +266,7 @@ export function Recording() {
 										</CardDescription>
 									</CardHeader>
 									<CardContent className="space-y-4">
-										<div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors">
+										<div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/70 ">
 											<Label
 												htmlFor="microphone"
 												className="flex items-center gap-2 cursor-pointer"
@@ -302,7 +302,7 @@ export function Recording() {
 											</Select>
 										)}
 
-										<div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/70 transition-colors">
+										<div className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted/70 ">
 											<Label
 												htmlFor="system-audio"
 												className="flex items-center gap-2 cursor-pointer"
@@ -370,7 +370,7 @@ export function Recording() {
 
 								{/* Recording Controls */}
 								<Card
-									className={`overflow-hidden transition-all ${isRecording ? "border-red-500/50 bg-red-500/5 shadow-lg shadow-red-500/10" : "border-red-500/10 bg-gradient-to-br from-red-500/5 to-transparent"}`}
+									className={`overflow-hidden  ${isRecording ? "border-red-500/50 bg-red-500/5 shadow-none shadow-red-500/10" : "border-red-500/10 bg-gradient-to-br from-red-500/5 to-transparent"}`}
 								>
 									<CardContent className="p-6">
 										{isRecording ? (
@@ -378,8 +378,8 @@ export function Recording() {
 												<div className="flex items-center justify-between">
 													<div className="flex items-center gap-3">
 														<div className="relative">
-															<div className="h-3 w-3 bg-red-500 rounded-full animate-pulse" />
-															<div className="absolute inset-0 h-3 w-3 bg-red-500 rounded-full animate-ping" />
+															<div className="h-3 w-3 bg-red-500 rounded-full " />
+															<div className="absolute inset-0 h-3 w-3 bg-red-500 rounded-full " />
 														</div>
 														<span className="text-sm font-medium">
 															Yozilmoqda
@@ -423,7 +423,7 @@ export function Recording() {
 										) : (
 											<Button
 												onClick={handleStartRecording}
-												className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 shadow-lg"
+												className="w-full bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 shadow-none"
 											>
 												<Video className="h-4 w-4 mr-2" />
 												Yozishni boshlash
@@ -578,11 +578,11 @@ export function Recording() {
 								<Button
 									onClick={handleGenerateTTS}
 									disabled={!ttsSettings.text.trim() || isGeneratingTTS}
-									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-lg"
+									className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 shadow-none"
 								>
 									{isGeneratingTTS ? (
 										<>
-											<Loader2 className="h-4 w-4 mr-2 animate-spin" />
+											<Loader2 className="h-4 w-4 mr-2 " />
 											Yaratilmoqda...
 										</>
 									) : (

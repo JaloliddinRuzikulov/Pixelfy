@@ -33,6 +33,8 @@ import {
 	TooltipProvider,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { XCircle } from "lucide-react";
 import useUploadStore from "../store/use-upload-store";
 import ModalUpload from "@/components/modal-upload";
 import { useTranslations } from "next-intl";
@@ -41,6 +43,7 @@ import { usePexelsVideos } from "@/hooks/use-pexels-videos";
 // import { ImageLoading } from "@/components/ui/image-loading"; // Not needed anymore
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // Helper functions
 const formatFileSize = (bytes: number) => {
@@ -67,6 +70,25 @@ export const Uploads = () => {
 		useUploadStore();
 	const [searchQuery, setSearchQuery] = useState("");
 	const [videoSearchQuery, setVideoSearchQuery] = useState("");
+	const [serviceStatus, setServiceStatus] = useState<
+		"checking" | "online" | "offline"
+	>("checking");
+
+	useEffect(() => {
+		const checkServiceHealth = async () => {
+			try {
+				const response = await fetch("/api/health/storage");
+				if (!response.ok) {
+					setServiceStatus("offline");
+				} else {
+					setServiceStatus("online");
+				}
+			} catch (error) {
+				setServiceStatus("offline");
+			}
+		};
+		checkServiceHealth();
+	}, []);
 	const [selectedFile, setSelectedFile] = useState<any>(null);
 
 	const {
@@ -99,15 +121,24 @@ export const Uploads = () => {
 
 	// Group completed uploads by type
 	const videos = uploads.filter((upload) => {
-		console.log(`[UI] Checking video filter for:`, { type: upload.type, contentType: upload.contentType });
+		console.log(`[UI] Checking video filter for:`, {
+			type: upload.type,
+			contentType: upload.contentType,
+		});
 		return upload.type === "video" || upload.contentType?.startsWith("video/");
 	});
 	const images = uploads.filter((upload) => {
-		console.log(`[UI] Checking image filter for:`, { type: upload.type, contentType: upload.contentType });
+		console.log(`[UI] Checking image filter for:`, {
+			type: upload.type,
+			contentType: upload.contentType,
+		});
 		return upload.type === "image" || upload.contentType?.startsWith("image/");
 	});
 	const audios = uploads.filter((upload) => {
-		console.log(`[UI] Checking audio filter for:`, { type: upload.type, contentType: upload.contentType });
+		console.log(`[UI] Checking audio filter for:`, {
+			type: upload.type,
+			contentType: upload.contentType,
+		});
 		return upload.type === "audio" || upload.contentType?.startsWith("audio/");
 	});
 
@@ -125,15 +156,18 @@ export const Uploads = () => {
 			}
 
 			// Get thumbnail URL - prioritize client-side generated thumbnail, then storage service thumbnail, then video itself
-			const thumbnailUrl = video.metadata?.thumbnailUrl ||
-								 (video.metadata?.thumbnail ? `/storage/${video.metadata.thumbnail}` : srcVideo);
+			const thumbnailUrl =
+				video.metadata?.thumbnailUrl ||
+				(video.metadata?.thumbnail
+					? `/storage/${video.metadata.thumbnail}`
+					: srcVideo);
 
 			console.log("[VIDEO THUMBNAIL DEBUG]", {
 				originalVideo: video,
 				thumbnailUrl: video.metadata?.thumbnailUrl,
 				thumbnailPath: video.metadata?.thumbnail,
 				finalThumbnailUrl: thumbnailUrl,
-				srcVideo
+				srcVideo,
 			});
 
 			const videoItem = {
@@ -468,7 +502,7 @@ export const Uploads = () => {
 	const showSuccessMessage = (message: string) => {
 		const successDiv = document.createElement("div");
 		successDiv.className =
-			"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50 animate-in slide-in-from-bottom";
+			"fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-none z-50  ";
 		successDiv.textContent = message;
 		document.body.appendChild(successDiv);
 		setTimeout(() => successDiv.remove(), 3000);
@@ -507,25 +541,38 @@ export const Uploads = () => {
 	// Debug logging
 	console.log(`[UI] Uploads state:`, {
 		totalUploads: uploads.length,
-		uploadsData: uploads.map(u => ({
+		uploadsData: uploads.map((u) => ({
 			type: u.type,
 			contentType: u.contentType,
 			fileName: u.file?.name || u.fileName,
-			url: u.url || u.metadata?.uploadedUrl
+			url: u.url || u.metadata?.uploadedUrl,
 		})),
 		filteredVideos: videos.length,
 		filteredImages: images.length,
 		filteredAudios: audios.length,
 		hasUploads,
-		hasActivity
+		hasActivity,
 	});
 
 	return (
 		<div className="flex flex-1 flex-col h-full overflow-hidden">
-			<div className="flex h-12 flex-none items-center px-4 text-sm font-medium border-b bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent">
+			<div className="flex h-12 flex-none items-center px-4 text-xs sm:text-sm font-medium border-b bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-transparent">
 				<FileIcon className="h-4 w-4 mr-2 text-blue-500" />
 				Media va Fayllar
 			</div>
+
+			{serviceStatus === "offline" && (
+				<div className="px-2 sm:px-4">
+					<Alert className="mt-2 sm:mt-4 border-destructive bg-destructive/10">
+						<XCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-destructive flex-shrink-0" />
+						<AlertDescription className="text-xs sm:text-sm text-destructive">
+							<strong>Storage xizmati ishlamayapti!</strong>
+							<br />
+							Fayl yuklash xizmati hozirda mavjud emas.
+						</AlertDescription>
+					</Alert>
+				</div>
+			)}
 
 			<ModalUpload />
 
@@ -535,7 +582,10 @@ export const Uploads = () => {
 			>
 				<div className="flex-shrink-0 border-b px-4 py-2">
 					<TabsList className="w-full h-auto rounded-none bg-transparent border-0 p-0 flex flex-wrap gap-2">
-						<TabsTrigger value="uploads" className="text-xs flex-1 min-w-[90px]">
+						<TabsTrigger
+							value="uploads"
+							className="text-xs flex-1 min-w-[90px]"
+						>
 							<UploadIcon className="h-3.5 w-3.5 mr-1.5" />
 							Yuklangan
 						</TabsTrigger>
@@ -550,13 +600,16 @@ export const Uploads = () => {
 					</TabsList>
 				</div>
 
-				<TabsContent value="uploads" className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden">
+				<TabsContent
+					value="uploads"
+					className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden"
+				>
 					<ScrollArea className="flex-1 h-full">
 						<div className="p-2 sm:p-4 space-y-3">
 							{/* Upload Button */}
 							<Button
 								onClick={() => setShowUploadModal(true)}
-								className="w-full h-12 border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 transition-all"
+								className="w-full h-12 border-2 border-dashed border-primary/30 bg-primary/5 hover:bg-primary/10 hover:border-primary/50 text-xs sm:text-sm"
 								variant="outline"
 							>
 								<UploadIcon className="w-4 h-4 mr-2" />
@@ -568,8 +621,8 @@ export const Uploads = () => {
 								<Card className="bg-blue-500/5 border-blue-500/20">
 									<CardContent className="p-4 space-y-3">
 										<div className="flex items-center gap-2">
-											<Loader2 className="w-4 h-4 animate-spin text-blue-500" />
-											<span className="text-sm font-medium">
+											<Loader2 className="w-4 h-4  text-blue-500" />
+											<span className="text-xs sm:text-sm font-medium">
 												Yuklanmoqda...
 											</span>
 										</div>
@@ -617,8 +670,8 @@ export const Uploads = () => {
 											<div className="flex items-center justify-between">
 												<div className="flex items-center gap-2">
 													<VideoIcon className="w-4 h-4 text-purple-500" />
-													<span className="text-sm font-medium">Videolar</span>
-													<Badge variant="secondary">{videos.length}</Badge>
+													<span className="text-xs sm:text-sm font-medium">Videolar</span>
+													<Badge variant="secondary" className="text-xs">{videos.length}</Badge>
 												</div>
 											</div>
 
@@ -626,7 +679,7 @@ export const Uploads = () => {
 												{videos.map((video, idx) => (
 													<Card
 														key={video.id || idx}
-														className="group overflow-hidden cursor-pointer hover:shadow-lg transition-all border-purple-500/10 hover:border-purple-500/30"
+														className="group overflow-hidden cursor-pointer hover:shadow-none  border-purple-500/10 hover:border-purple-500/30"
 														onClick={() => handleAddVideo(video)}
 													>
 														<div className="aspect-video relative overflow-hidden bg-gradient-to-br from-purple-500/10 to-pink-500/10">
@@ -644,7 +697,7 @@ export const Uploads = () => {
 															)}
 
 															{/* Overlay */}
-															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent  ">
 																<div className="absolute bottom-2 left-2 right-2">
 																	<p className="text-white text-xs font-medium truncate">
 																		{video.file?.name?.replace(
@@ -666,7 +719,7 @@ export const Uploads = () => {
 
 																{/* Play button */}
 																<div className="absolute inset-0 flex items-center justify-center">
-																	<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+																	<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center  ">
 																		<Play className="w-5 h-5 text-purple-600 ml-1" />
 																	</div>
 																</div>
@@ -684,8 +737,8 @@ export const Uploads = () => {
 											<div className="flex items-center justify-between">
 												<div className="flex items-center gap-2">
 													<ImageIcon className="w-4 h-4 text-blue-500" />
-													<span className="text-sm font-medium">Rasmlar</span>
-													<Badge variant="secondary">{images.length}</Badge>
+													<span className="text-xs sm:text-sm font-medium">Rasmlar</span>
+													<Badge variant="secondary" className="text-xs">{images.length}</Badge>
 												</div>
 											</div>
 
@@ -693,7 +746,7 @@ export const Uploads = () => {
 												{images.map((image, idx) => (
 													<Card
 														key={image.id || idx}
-														className="group overflow-hidden cursor-pointer hover:shadow-lg transition-all border-blue-500/10 hover:border-blue-500/30"
+														className="group overflow-hidden cursor-pointer hover:shadow-none  border-blue-500/10 hover:border-blue-500/30"
 														onClick={() => handleAddImage(image)}
 													>
 														<div className="aspect-square relative overflow-hidden bg-gradient-to-br from-blue-500/10 to-cyan-500/10">
@@ -701,7 +754,7 @@ export const Uploads = () => {
 																<img
 																	src={image.metadata?.uploadedUrl || image.url}
 																	alt={image.file?.name || "Image"}
-																	className="object-cover w-full h-full group-hover:scale-105 transition-transform"
+																	className="object-cover w-full h-full  "
 																/>
 															) : (
 																<div className="w-full h-full flex items-center justify-center">
@@ -710,7 +763,7 @@ export const Uploads = () => {
 															)}
 
 															{/* Overlay */}
-															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+															<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent  ">
 																<div className="absolute bottom-2 left-2 right-2">
 																	<p className="text-white text-xs font-medium truncate">
 																		{image.file?.name?.replace(
@@ -725,7 +778,7 @@ export const Uploads = () => {
 
 																{/* Add button */}
 																<div className="absolute top-2 right-2">
-																	<div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center group-hover:scale-110 transition-transform">
+																	<div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center  ">
 																		<Plus className="w-4 h-4 text-blue-600" />
 																	</div>
 																</div>
@@ -743,10 +796,10 @@ export const Uploads = () => {
 											<div className="flex items-center justify-between">
 												<div className="flex items-center gap-2">
 													<Music className="w-4 h-4 text-green-500" />
-													<span className="text-sm font-medium">
+													<span className="text-xs sm:text-sm font-medium">
 														Audio fayllar
 													</span>
-													<Badge variant="secondary">{audios.length}</Badge>
+													<Badge variant="secondary" className="text-xs">{audios.length}</Badge>
 												</div>
 											</div>
 
@@ -754,7 +807,7 @@ export const Uploads = () => {
 												{audios.map((audio, idx) => (
 													<Card
 														key={audio.id || idx}
-														className="cursor-pointer hover:shadow-md transition-all border-green-500/10 hover:border-green-500/30"
+														className="cursor-pointer hover:shadow-none  border-green-500/10 hover:border-green-500/30"
 														onClick={() => handleAddAudio(audio)}
 													>
 														<CardContent className="p-3">
@@ -792,11 +845,7 @@ export const Uploads = () => {
 																		)}
 																	</div>
 																</div>
-																<Button
-																	size="sm"
-																	variant="ghost"
-																	className="opacity-0 group-hover:opacity-100 transition-opacity"
-																>
+																<Button size="sm" variant="ghost" className=" ">
 																	<Plus className="h-4 w-4" />
 																</Button>
 															</div>
@@ -825,7 +874,10 @@ export const Uploads = () => {
 				</TabsContent>
 
 				{/* Stock Images Tab */}
-				<TabsContent value="images" className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden">
+				<TabsContent
+					value="images"
+					className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden"
+				>
 					<div className="flex flex-col flex-1 h-full overflow-hidden">
 						<div className="p-2 sm:p-4 space-y-3 flex-none">
 							<div className="relative">
@@ -866,63 +918,63 @@ export const Uploads = () => {
 								<div className="p-2 sm:p-4 pt-0">
 									{pexelsLoading ? (
 										<div className="flex items-center justify-center py-8">
-											<Loader2 className="w-6 h-6 animate-spin text-primary" />
+											<Loader2 className="w-6 h-6  text-primary" />
 										</div>
 									) : stockImages.length > 0 ? (
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-										{stockImages.map((image: any) => (
-											<Card
-												key={image.id}
-												className="group overflow-hidden cursor-pointer hover:shadow-lg transition-all"
-												onClick={() => handleAddStockImage(image)}
-											>
-												<div className="aspect-square relative overflow-hidden">
-													<img
-														src={
-															image.preview ||
-															image.src?.medium ||
-															image.src?.original ||
-															""
-														}
-														alt={
-															image.alt || image.details?.alt || "Stock image"
-														}
-														className="object-cover w-full h-full group-hover:scale-105 transition-transform"
-														loading="lazy"
-														onError={(e) => {
-															console.error(
-																"Image failed to load:",
-																e.currentTarget.src,
-															);
-															e.currentTarget.style.display = "none";
-														}}
-													/>
-													<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-														<div className="absolute bottom-2 left-2 right-2">
-															<p className="text-white text-xs truncate">
-																{image.alt || "Stock Image"}
-															</p>
-															<p className="text-white/80 text-[10px]">
-																by {image.photographer}
-															</p>
-														</div>
-														<div className="absolute top-2 right-2">
-															<div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center">
-																<Plus className="w-4 h-4 text-blue-600" />
+										<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+											{stockImages.map((image: any) => (
+												<Card
+													key={image.id}
+													className="group overflow-hidden cursor-pointer hover:shadow-none "
+													onClick={() => handleAddStockImage(image)}
+												>
+													<div className="aspect-square relative overflow-hidden">
+														<img
+															src={
+																image.preview ||
+																image.src?.medium ||
+																image.src?.original ||
+																""
+															}
+															alt={
+																image.alt || image.details?.alt || "Stock image"
+															}
+															className="object-cover w-full h-full  "
+															loading="lazy"
+															onError={(e) => {
+																console.error(
+																	"Image failed to load:",
+																	e.currentTarget.src,
+																);
+																e.currentTarget.style.display = "none";
+															}}
+														/>
+														<div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent  ">
+															<div className="absolute bottom-2 left-2 right-2">
+																<p className="text-white text-xs truncate">
+																	{image.alt || "Stock Image"}
+																</p>
+																<p className="text-white/80 text-[10px]">
+																	by {image.photographer}
+																</p>
+															</div>
+															<div className="absolute top-2 right-2">
+																<div className="w-8 h-8 rounded-full bg-white/90 flex items-center justify-center">
+																	<Plus className="w-4 h-4 text-blue-600" />
+																</div>
 															</div>
 														</div>
 													</div>
-												</div>
-											</Card>
-										))}
-									</div>
-								) : (
-									<div className="text-center py-8">
-										<p className="text-sm text-muted-foreground">
-											Rasmlar topilmadi
-										</p>
-									</div>
-								)}
+												</Card>
+											))}
+										</div>
+									) : (
+										<div className="text-center py-8">
+											<p className="text-sm text-muted-foreground">
+												Rasmlar topilmadi
+											</p>
+										</div>
+									)}
 								</div>
 							</ScrollArea>
 						</div>
@@ -930,7 +982,10 @@ export const Uploads = () => {
 				</TabsContent>
 
 				{/* Stock Videos Tab */}
-				<TabsContent value="videos" className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden">
+				<TabsContent
+					value="videos"
+					className="flex-1 mt-0 data-[state=active]:flex data-[state=active]:flex-col overflow-hidden"
+				>
 					<div className="flex flex-col flex-1 h-full overflow-hidden">
 						<div className="p-2 sm:p-4 space-y-3 flex-none">
 							<div className="relative">
@@ -971,65 +1026,65 @@ export const Uploads = () => {
 								<div className="p-2 sm:p-4 pt-0">
 									{pexelsVideosLoading ? (
 										<div className="flex items-center justify-center py-8">
-											<Loader2 className="w-6 h-6 animate-spin text-primary" />
+											<Loader2 className="w-6 h-6  text-primary" />
 										</div>
 									) : stockVideos.length > 0 ? (
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-										{stockVideos.map((video: any) => (
-											<Card
-												key={video.id}
-												className="group overflow-hidden cursor-pointer hover:shadow-lg transition-all"
-												onClick={() => handleAddStockVideo(video)}
-											>
-												<div className="aspect-video relative overflow-hidden bg-black">
-													{video.preview || video.image ? (
-														<img
-															src={video.preview || video.image}
-															alt={`Video by ${video.metadata?.user || video.user?.name || "Local Asset"}`}
-															className="object-cover w-full h-full group-hover:scale-105 transition-transform"
-														/>
-													) : (
-														<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20">
-															<VideoIcon className="w-8 h-8 text-purple-500/50" />
-														</div>
-													)}
-
-													{/* Overlay */}
-													<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent">
-														<div className="absolute bottom-2 left-2 right-2">
-															<p className="text-white text-xs font-medium truncate">
-																Stock Video
-															</p>
-															<div className="flex items-center gap-2 mt-1">
-																<span className="text-white/80 text-[10px]">
-																	by {video.user?.name || "Pexels"}
-																</span>
-																{video.duration && (
-																	<Badge className="text-[10px] px-1 py-0 h-4 bg-white/20 text-white border-0">
-																		{formatDuration(video.duration)}
-																	</Badge>
-																)}
+										<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+											{stockVideos.map((video: any) => (
+												<Card
+													key={video.id}
+													className="group overflow-hidden cursor-pointer hover:shadow-none "
+													onClick={() => handleAddStockVideo(video)}
+												>
+													<div className="aspect-video relative overflow-hidden bg-black">
+														{video.preview || video.image ? (
+															<img
+																src={video.preview || video.image}
+																alt={`Video by ${video.metadata?.user || video.user?.name || "Local Asset"}`}
+																className="object-cover w-full h-full  "
+															/>
+														) : (
+															<div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-500/20 to-pink-500/20">
+																<VideoIcon className="w-8 h-8 text-purple-500/50" />
 															</div>
-														</div>
+														)}
 
-														{/* Play button */}
-														<div className="absolute inset-0 flex items-center justify-center">
-															<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-																<Play className="w-5 h-5 text-purple-600 ml-1" />
+														{/* Overlay */}
+														<div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent">
+															<div className="absolute bottom-2 left-2 right-2">
+																<p className="text-white text-xs font-medium truncate">
+																	Stock Video
+																</p>
+																<div className="flex items-center gap-2 mt-1">
+																	<span className="text-white/80 text-[10px]">
+																		by {video.user?.name || "Pexels"}
+																	</span>
+																	{video.duration && (
+																		<Badge className="text-[10px] px-1 py-0 h-4 bg-white/20 text-white border-0">
+																			{formatDuration(video.duration)}
+																		</Badge>
+																	)}
+																</div>
+															</div>
+
+															{/* Play button */}
+															<div className="absolute inset-0 flex items-center justify-center">
+																<div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center  ">
+																	<Play className="w-5 h-5 text-purple-600 ml-1" />
+																</div>
 															</div>
 														</div>
 													</div>
-												</div>
-											</Card>
-										))}
-									</div>
-								) : (
-									<div className="text-center py-8">
-										<p className="text-sm text-muted-foreground">
-											Videolar topilmadi
-										</p>
-									</div>
-								)}
+												</Card>
+											))}
+										</div>
+									) : (
+										<div className="text-center py-8">
+											<p className="text-sm text-muted-foreground">
+												Videolar topilmadi
+											</p>
+										</div>
+									)}
 								</div>
 							</ScrollArea>
 						</div>

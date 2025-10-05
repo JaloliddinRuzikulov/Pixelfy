@@ -63,7 +63,7 @@ export const VoiceOver = () => {
 
 	return (
 		<div className="flex h-full flex-col overflow-hidden">
-			<div className="flex h-12 flex-none items-center px-4 text-sm font-medium border-b border-border/20">
+			<div className="flex h-12 flex-none items-center px-4 text-xs sm:text-sm font-medium border-b border-border/20">
 				Generate AI voice over
 			</div>
 
@@ -71,7 +71,7 @@ export const VoiceOver = () => {
 				<div className="p-4 space-y-4">
 					{/* Text Input */}
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">Text to speech</Label>
+						<Label className="text-xs sm:text-sm font-medium">Text to speech</Label>
 						<Textarea
 							placeholder="Enter your text here..."
 							value={text}
@@ -86,19 +86,19 @@ export const VoiceOver = () => {
 
 					{/* Voice Selection */}
 					<div className="space-y-2">
-						<Label className="text-sm font-medium">Choose voice</Label>
+						<Label className="text-xs sm:text-sm font-medium">Choose voice</Label>
 						<div className="grid grid-cols-1 gap-1.5">
 							{VOICES.map((v) => (
 								<Card
 									key={v.id}
-									className={`cursor-pointer border transition-colors hover:bg-muted/50 ${voice === v.id ? "border-primary bg-primary/5" : "border-border"}`}
+									className={`cursor-pointer border  hover:bg-muted/50 ${voice === v.id ? "border-primary bg-primary/5" : "border-border"}`}
 									onClick={() => setVoice(v.id)}
 								>
 									<CardContent className="p-2.5">
 										<div className="flex items-center justify-between">
 											<div>
-												<div className="font-medium text-sm">{v.name}</div>
-												<div className="text-xs text-muted-foreground">
+												<div className="font-medium text-xs sm:text-sm">{v.name}</div>
+												<div className="text-xs sm:text-sm text-muted-foreground">
 													{v.desc}
 												</div>
 											</div>
@@ -118,11 +118,11 @@ export const VoiceOver = () => {
 				<Button
 					onClick={generateVoiceOver}
 					disabled={!text.trim() || isGenerating}
-					className="w-full"
+					className="w-full text-xs sm:text-sm"
 				>
 					{isGenerating ? (
 						<>
-							<Loader2 className="w-4 h-4 mr-2 animate-spin" />
+							<Loader2 className="w-4 h-4 mr-2 " />
 							Generating...
 						</>
 					) : (

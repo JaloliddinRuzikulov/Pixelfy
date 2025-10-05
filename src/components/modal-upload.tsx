@@ -309,7 +309,11 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 									<p className="text-sm text-muted-foreground mb-2">
 										Drag and drop files here, or
 									</p>
-									<Button onClick={triggerFileInput} variant="outline" size="sm">
+									<Button
+										onClick={triggerFileInput}
+										variant="outline"
+										size="sm"
+									>
 										browse files
 									</Button>
 								</div>
@@ -324,73 +328,73 @@ const ModalUpload: React.FC<ModalUploadProps> = ({ type = "all" }) => {
 										<AnimatePresence initial={false}>
 											<div className="flex flex-col gap-2">
 												{files.map((file) => (
-												<motion.div
-													key={file.id}
-													className="relative flex flex-col items-center p-1.5 sm:p-2 border rounded shadow-sm w-full"
-													initial={{ opacity: 0, scale: 0.8 }}
-													animate={{ opacity: 1, scale: 1 }}
-													exit={{ opacity: 0, scale: 0.8 }}
-													transition={{
-														type: "spring",
-														stiffness: 300,
-														damping: 30,
-													}}
-													layout
-												>
-													<div className="w-full flex justify-between items-center">
-														<div className="flex flex-1 gap-1 sm:gap-1.5 md:gap-2  items-center">
-															<div className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex items-center justify-center">
-																{file.file?.type.startsWith("image/") ? (
-																	<img
-																		src={URL.createObjectURL(file.file)}
-																		alt={file.file.name}
-																		className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 object-cover rounded border"
-																	/>
-																) : file.file?.type.startsWith("video/") &&
-																	videoThumbnails[file.file.name] ? (
-																	<img
-																		src={videoThumbnails[file.file.name]}
-																		alt={`${file.file.name} thumbnail`}
-																		className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 object-cover rounded border"
-																	/>
-																) : (
-																	<div className="h-5 w-5 sm:h-6 md:h-8 md:w-8 flex items-center justify-center rounded border bg-muted">
-																		<FileIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4 text-foreground" />
-																	</div>
-																)}
-															</div>
-
-															<div>
-																<div
-																	className="w-full truncate text-xs text-muted-foreground max-w-80"
-																	title={file.file?.name ?? ""}
-																>
-																	{file.file?.name ?? ""}
-																</div>
-																<div
-																	className={clsx(
-																		"text-[9px] sm:text-[10px] text-gray-400",
+													<motion.div
+														key={file.id}
+														className="relative flex flex-col items-center p-1.5 sm:p-2 border rounded shadow-sm w-full"
+														initial={{ opacity: 0, scale: 0.8 }}
+														animate={{ opacity: 1, scale: 1 }}
+														exit={{ opacity: 0, scale: 0.8 }}
+														transition={{
+															type: "spring",
+															stiffness: 300,
+															damping: 30,
+														}}
+														layout
+													>
+														<div className="w-full flex justify-between items-center">
+															<div className="flex flex-1 gap-1 sm:gap-1.5 md:gap-2  items-center">
+																<div className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 flex items-center justify-center">
+																	{file.file?.type.startsWith("image/") ? (
+																		<img
+																			src={URL.createObjectURL(file.file)}
+																			alt={file.file.name}
+																			className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 object-cover rounded border"
+																		/>
+																	) : file.file?.type.startsWith("video/") &&
+																		videoThumbnails[file.file.name] ? (
+																		<img
+																			src={videoThumbnails[file.file.name]}
+																			alt={`${file.file.name} thumbnail`}
+																			className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 object-cover rounded border"
+																		/>
+																	) : (
+																		<div className="h-5 w-5 sm:h-6 md:h-8 md:w-8 flex items-center justify-center rounded border bg-muted">
+																			<FileIcon className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-4 md:w-4 text-foreground" />
+																		</div>
 																	)}
-																>
-																	{file.file
-																		? `${(file.file.size / 1024).toFixed(2)} KB`
-																		: ""}
+																</div>
+
+																<div>
+																	<div
+																		className="w-full truncate text-xs text-muted-foreground max-w-80"
+																		title={file.file?.name ?? ""}
+																	>
+																		{file.file?.name ?? ""}
+																	</div>
+																	<div
+																		className={clsx(
+																			"text-[9px] sm:text-[10px] text-gray-400",
+																		)}
+																	>
+																		{file.file
+																			? `${(file.file.size / 1024).toFixed(2)} KB`
+																			: ""}
+																	</div>
 																</div>
 															</div>
+															<Button
+																variant={"outline"}
+																onClick={() =>
+																	file.file &&
+																	handleRemoveFile(file.id, file.file)
+																}
+																size={"icon"}
+																className="cursor-pointer"
+															>
+																<X className="h-4 w-4" />
+															</Button>
 														</div>
-														<Button
-															variant={"outline"}
-															onClick={() =>
-																file.file &&
-																handleRemoveFile(file.id, file.file)
-															}
-															size={"icon"}
-															className="cursor-pointer"
-														>
-															<X className="h-4 w-4" />
-														</Button>
-													</div>
-												</motion.div>
+													</motion.div>
 												))}
 											</div>
 										</AnimatePresence>

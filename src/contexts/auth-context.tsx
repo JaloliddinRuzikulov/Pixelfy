@@ -36,9 +36,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				if (response.ok) {
 					const data = await response.json();
 					setUser(data.user);
+				} else {
+					// If 401, cookie was cleared by API - force logout
+					console.log("[Auth] Invalid session detected, clearing user state");
+					setUser(null);
+					// Clear local storage
+					localStorage.clear();
+					sessionStorage.clear();
 				}
 			} catch (error) {
 				console.error("Failed to fetch user:", error);
+				setUser(null);
 			} finally {
 				setIsLoading(false);
 			}
@@ -103,7 +111,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 				const data = await response.json();
 				setUser(data.user);
 			} else {
+				// If 401, cookie was cleared by API - force logout
+				console.log(
+					"[Auth] Invalid session detected during refresh, clearing user state",
+				);
 				setUser(null);
+				localStorage.clear();
+				sessionStorage.clear();
 			}
 		} catch (error) {
 			console.error("Failed to refresh user:", error);

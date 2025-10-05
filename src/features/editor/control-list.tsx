@@ -44,7 +44,7 @@ function ControlMenu({ controlType }: { controlType: ItemType }) {
 	return (
 		<div
 			style={{ zIndex: 201 }}
-			className="absolute right-2.5 top-1/2 flex w-14 -translate-y-1/2 flex-col items-center rounded-lg bg-sidebar py-2 shadow-lg"
+			className="absolute right-2.5 top-1/2 flex w-14 -translate-y-1/2 flex-col items-center rounded-lg bg-sidebar py-2 shadow-none"
 		>
 			{
 				{

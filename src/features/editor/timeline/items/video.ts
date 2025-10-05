@@ -230,12 +230,15 @@ class Video extends Trimmable {
 			const img = new Image();
 
 			// For data URLs, don't set crossOrigin
-			if (!fallbackThumbnail.startsWith('data:')) {
+			if (!fallbackThumbnail.startsWith("data:")) {
 				img.crossOrigin = "anonymous";
 			}
 
 			img.onload = () => {
-				console.log("✅ Image loaded successfully:", fallbackThumbnail.substring(0, 50) + "...");
+				console.log(
+					"✅ Image loaded successfully:",
+					fallbackThumbnail.substring(0, 50) + "...",
+				);
 				console.log("Image dimensions:", img.width, "x", img.height);
 
 				// Create a temporary canvas to resize the image
@@ -260,7 +263,12 @@ class Video extends Trimmable {
 				// Create new image from resized canvas
 				const resizedImg = new Image();
 				resizedImg.onload = () => {
-					console.log("✅ Resized thumbnail cached:", targetWidth, "x", targetHeight);
+					console.log(
+						"✅ Resized thumbnail cached:",
+						targetWidth,
+						"x",
+						targetHeight,
+					);
 					this.aspectRatio = aspectRatio;
 					this.thumbnailWidth = targetWidth;
 					this.thumbnailCache.setThumbnail("fallback", resizedImg);
@@ -281,9 +289,14 @@ class Video extends Trimmable {
 				console.log("Failed URL:", fallbackThumbnail.substring(0, 50) + "...");
 
 				// Set default dimensions even if image fails to load
-				this.aspectRatio = 16/9; // Default aspect ratio
-				this.thumbnailWidth = Math.round(40 * (16/9)); // ~71px width
-				console.log("⚠️ Using default dimensions:", this.thumbnailWidth, "x", 40);
+				this.aspectRatio = 16 / 9; // Default aspect ratio
+				this.thumbnailWidth = Math.round(40 * (16 / 9)); // ~71px width
+				console.log(
+					"⚠️ Using default dimensions:",
+					this.thumbnailWidth,
+					"x",
+					40,
+				);
 				resolve();
 			};
 

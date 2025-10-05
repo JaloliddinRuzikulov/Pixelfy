@@ -344,11 +344,18 @@ const Editor = ({
 								{showMenuItem && <MenuItem />}
 							</ResizablePanel>
 							{showMenuItem && (
-								<ResizableHandle withHandle className="w-1 bg-border hover:bg-primary/60 transition-colors" />
+								<ResizableHandle
+									withHandle
+									className="w-1 bg-border hover:bg-primary/60 transition-colors"
+								/>
 							)}
 						</>
 					)}
-					<ResizablePanel id="main-content" order={2} defaultSize={isLargeScreen ? (showMenuItem ? 80 : 95) : 100}>
+					<ResizablePanel
+						id="main-content"
+						order={2}
+						defaultSize={isLargeScreen ? (showMenuItem ? 80 : 95) : 100}
+					>
 						<ResizablePanelGroup style={{ flex: 1 }} direction="vertical">
 							<ResizablePanel
 								className="relative border-r-2 border-border"

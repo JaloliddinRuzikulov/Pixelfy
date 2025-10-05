@@ -85,15 +85,15 @@ const generateMockItems = (category: string, count: number) => {
 	const getPlaceholderImage = (cat: string, index: number) => {
 		// Generate a simple colored SVG data URL
 		const colors = {
-			shape: '#3b82f6',
-			music: '#a855f7',
-			sticker: '#eab308',
-			background: '#22c55e',
-			border: '#ec4899',
-			effect: '#f97316',
-			overlay: '#6366f1',
+			shape: "#3b82f6",
+			music: "#a855f7",
+			sticker: "#eab308",
+			background: "#22c55e",
+			border: "#ec4899",
+			effect: "#f97316",
+			overlay: "#6366f1",
 		};
-		const color = colors[cat as keyof typeof colors] || '#64748b';
+		const color = colors[cat as keyof typeof colors] || "#64748b";
 		const svg = `<svg width="150" height="150" xmlns="http://www.w3.org/2000/svg"><rect width="150" height="150" fill="${color}"/><text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="white" font-size="48" font-family="Arial">${index + 1}</text></svg>`;
 		return `data:image/svg+xml;base64,${btoa(svg)}`;
 	};
@@ -190,9 +190,10 @@ export function ContentLibrary() {
 		const duration = item.duration ? item.duration * 1000 : 5000; // Convert to milliseconds
 
 		// Ensure we have a valid src
-		const src = item.thumbnail && item.thumbnail.trim() !== ""
-			? item.thumbnail
-			: `data:image/svg+xml;base64,${btoa('<svg width="150" height="150" xmlns="http://www.w3.org/2000/svg"><rect width="150" height="150" fill="#64748b"/></svg>')}`;
+		const src =
+			item.thumbnail && item.thumbnail.trim() !== ""
+				? item.thumbnail
+				: `data:image/svg+xml;base64,${btoa('<svg width="150" height="150" xmlns="http://www.w3.org/2000/svg"><rect width="150" height="150" fill="#64748b"/></svg>')}`;
 
 		const trackItem: any = {
 			id: generateId(),
@@ -206,20 +207,20 @@ export function ContentLibrary() {
 						src: src,
 						volume: 1,
 						name: item.name,
-				  }
+					}
 				: {
 						// Image/Shape item details
 						src: src,
-						x: 50,  // Center x
-						y: 50,  // Center y
-						width: 50,  // 50% width
-						height: 50,  // 50% height
+						x: 50, // Center x
+						y: 50, // Center y
+						width: 50, // 50% width
+						height: 50, // 50% height
 						opacity: 1,
 						fit: "contain",
 						rotation: 0,
 						scaleX: 1,
 						scaleY: 1,
-				  },
+					},
 			metadata: {
 				name: item.name,
 				category: item.category,
@@ -228,7 +229,10 @@ export function ContentLibrary() {
 			},
 		};
 
-		console.log("📦 Dispatching track item with src:", trackItem.details.src.substring(0, 100));
+		console.log(
+			"📦 Dispatching track item with src:",
+			trackItem.details.src.substring(0, 100),
+		);
 
 		dispatch(ADD_ITEMS, {
 			payload: {
@@ -263,7 +267,7 @@ export function ContentLibrary() {
 			<div className="flex-shrink-0 p-3 space-y-3 border-b">
 				{/* Search Bar */}
 				<div className="relative">
-					<Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+					<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
 					<Input
 						placeholder="Kontent qidirish..."
 						value={searchQuery}
@@ -274,7 +278,7 @@ export function ContentLibrary() {
 						<Button
 							variant="ghost"
 							size="sm"
-							className="absolute right-1 top-1/2 transform -translate-y-1/2 h-7 w-7 p-0"
+							className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
 							onClick={() => setSearchQuery("")}
 						>
 							<X className="h-3 w-3" />
@@ -329,7 +333,9 @@ export function ContentLibrary() {
 						<ScrollArea className="w-full whitespace-nowrap">
 							<div className="flex gap-2 pb-2">
 								<Button
-									variant={selectedSubcategory === "all" ? "secondary" : "ghost"}
+									variant={
+										selectedSubcategory === "all" ? "secondary" : "ghost"
+									}
 									size="sm"
 									className="h-7 px-2.5 rounded-full text-xs shrink-0"
 									onClick={() => setSelectedSubcategory("all")}
@@ -411,68 +417,66 @@ export function ContentLibrary() {
 			<div className="flex-1 overflow-hidden">
 				<ScrollArea className="h-full">
 					<div className="p-4">
-							{filteredContent.length === 0 ? (
-								<div className="flex flex-col items-center justify-center py-20">
-									<Search className="h-12 w-12 text-muted-foreground mb-4" />
-									<p className="text-muted-foreground">Hech narsa topilmadi</p>
-									<Button
-										variant="outline"
-										size="sm"
-										className="mt-4"
-										onClick={() => {
-											setSearchQuery("");
-											setSelectedCategory("all");
-											setSelectedSubcategory("all");
-										}}
-									>
-										Filtrlarni tozalash
-									</Button>
-								</div>
-							) : viewMode === "grid" ? (
-								<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
-									{filteredContent.map((item) => {
-										return (
-											<div
-												key={item.id}
-												className="group relative aspect-square rounded-lg overflow-hidden cursor-pointer hover:shadow-md transition-all"
-												onClick={() => handleAddToTimeline(item)}
-											>
-												<img
-													src={item.thumbnail}
-													alt={item.name}
-													className="w-full h-full object-cover"
-												/>
-												<div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-													<p className="text-xs font-medium text-white truncate">
-														{item.name}
-													</p>
-												</div>
-											</div>
-										);
-									})}
-								</div>
-							) : (
-								<div className="space-y-1.5">
-									{filteredContent.map((item) => {
-										return (
-											<div
-												key={item.id}
-												className="group flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer transition-colors"
-												onClick={() => handleAddToTimeline(item)}
-											>
-												<img
-													src={item.thumbnail}
-													alt={item.name}
-													className="w-10 h-10 rounded object-cover flex-shrink-0"
-												/>
-												<p className="text-sm truncate flex-1">
+						{filteredContent.length === 0 ? (
+							<div className="flex flex-col items-center justify-center py-20">
+								<Search className="h-12 w-12 text-muted-foreground mb-4" />
+								<p className="text-muted-foreground">Hech narsa topilmadi</p>
+								<Button
+									variant="outline"
+									size="sm"
+									className="mt-4"
+									onClick={() => {
+										setSearchQuery("");
+										setSelectedCategory("all");
+										setSelectedSubcategory("all");
+									}}
+								>
+									Filtrlarni tozalash
+								</Button>
+							</div>
+						) : viewMode === "grid" ? (
+							<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2">
+								{filteredContent.map((item) => {
+									return (
+										<div
+											key={item.id}
+											className="group relative aspect-square rounded-lg overflow-hidden cursor-pointer hover:shadow-none "
+											onClick={() => handleAddToTimeline(item)}
+										>
+											<img
+												src={item.thumbnail}
+												alt={item.name}
+												className="w-full h-full object-cover"
+											/>
+											<div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+												<p className="text-xs font-medium text-white truncate">
 													{item.name}
 												</p>
 											</div>
-										);
-									})}
-								</div>
-							)}
+										</div>
+									);
+								})}
+							</div>
+						) : (
+							<div className="space-y-1.5">
+								{filteredContent.map((item) => {
+									return (
+										<div
+											key={item.id}
+											className="group flex items-center gap-2 p-2 rounded-md hover:bg-muted/50 cursor-pointer "
+											onClick={() => handleAddToTimeline(item)}
+										>
+											<img
+												src={item.thumbnail}
+												alt={item.name}
+												className="w-10 h-10 rounded object-cover flex-shrink-0"
+											/>
+											<p className="text-sm truncate flex-1">{item.name}</p>
+										</div>
+									);
+								})}
+							</div>
+						)}
 					</div>
 				</ScrollArea>
 			</div>

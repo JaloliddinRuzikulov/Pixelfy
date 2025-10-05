@@ -1053,11 +1053,7 @@ function generateMathContent(
 						},
 						{
 							title: "Ildizning xossalari",
-							content: [
-								"√(a×b) = √a × √b",
-								"√(a/b) = √a / √b",
-								"√a² = |a|",
-							],
+							content: ["√(a×b) = √a × √b", "√(a/b) = √a / √b", "√a² = |a|"],
 						},
 						{
 							title: "Kub ildiz",
@@ -1116,11 +1112,7 @@ function generateMathContent(
 						},
 						{
 							title: "Properties of Roots",
-							content: [
-								"√(a×b) = √a × √b",
-								"√(a/b) = √a / √b",
-								"√a² = |a|",
-							],
+							content: ["√(a×b) = √a × √b", "√(a/b) = √a / √b", "√a² = |a|"],
 						},
 						{
 							title: "Cube Roots",

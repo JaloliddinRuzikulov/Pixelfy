@@ -442,7 +442,7 @@ export default function ControlItemHorizontal() {
 				>
 					<motion.div
 						ref={drawerRef}
-						className="bg-background mb-12 w-full max-h-[80vh] min-h-[340px] rounded-t-lg border-t shadow-lg pointer-events-auto"
+						className="bg-background mb-12 w-full max-h-[80vh] min-h-[340px] rounded-t-lg border-t shadow-none pointer-events-auto"
 						drag="y"
 						dragConstraints={{ top: 0, bottom: 0 }}
 						dragElastic={0.1}

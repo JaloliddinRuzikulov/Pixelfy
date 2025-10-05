@@ -287,7 +287,7 @@ const NavigationMenu = () => {
 			</DropdownMenuTrigger>
 			<DropdownMenuContent
 				align="start"
-				className="w-56 z-[9999] bg-background border shadow-lg"
+				className="w-56 z-[9999] bg-background border shadow-none"
 				sideOffset={5}
 			>
 				<DropdownMenuItem onClick={handleGoHome} className="cursor-pointer">
