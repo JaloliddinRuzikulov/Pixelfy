@@ -225,39 +225,16 @@ export default function Wav2LipMenuItem() {
 			setState((prev) => ({ ...prev, progress: 95 }));
 			setProgressMessage("Video tayyor!");
 
-			// Get the blob
+			// Get the blob and create URL directly
 			const blob = await response.blob();
-
-			// Upload blob to server to get a permanent URL
-			const uploadFormData = new FormData();
-			const file = new File([blob], `wav2lip-${Date.now()}.mp4`, {
-				type: "video/mp4",
-			});
-			uploadFormData.append("file", file);
-
-			const uploadResponse = await fetch("/api/local-upload", {
-				method: "POST",
-				body: uploadFormData,
-			});
-
-			if (!uploadResponse.ok) {
-				throw new Error("Failed to save video to server");
-			}
-
-			const uploadData = await uploadResponse.json();
-			const serverUrl = uploadData.url;
-
-			// Also create blob URL for preview
-			const previewUrl = URL.createObjectURL(blob);
+			const blobUrl = URL.createObjectURL(blob);
 
 			setState((prev) => ({
 				...prev,
-				generatedVideoUrl: serverUrl, // Store server URL instead of blob URL
+				generatedVideoUrl: blobUrl,
 				isGenerating: false,
 				progress: 100,
 				error: null,
-				// Store preview URL separately if needed for UI
-				previewUrl: previewUrl,
 			}));
 			setProgressMessage("Muvaffaqiyatli yakunlandi!");
 
