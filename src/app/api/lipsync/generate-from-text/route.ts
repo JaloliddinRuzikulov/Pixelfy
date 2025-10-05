@@ -8,6 +8,10 @@ export async function POST(request: NextRequest) {
 		const lipsyncServiceUrl =
 			process.env.LIPSYNC_SERVICE_URL || "http://localhost:11430";
 
+		// Get API key from environment
+		const apiKey =
+			process.env.LIPSYNC_API_KEY || "wav2lip_default_dev_key_2024";
+
 		// Forward request to lipsync service
 		const response = await fetch(
 			`${lipsyncServiceUrl}/lipsync/generate-from-text`,
@@ -15,6 +19,7 @@ export async function POST(request: NextRequest) {
 				method: "POST",
 				body: formData,
 				headers: {
+					"X-API-Key": apiKey,
 					// Don't set Content-Type - let fetch handle it for FormData
 				},
 			},
