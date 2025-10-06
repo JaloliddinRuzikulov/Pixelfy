@@ -37,7 +37,11 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 		setProjectId: (projectId) => set({ projectId }),
 		setExporting: (exporting) => set({ exporting }),
 		setExportType: (exportType) => set({ exportType }),
-		setProgress: (progress) => set({ progress }),
+		setProgress: (progress) => {
+			const numProgress = typeof progress === "number" ? progress : Number(progress) || 0;
+			console.log("setProgress called with:", progress, "-> setting to:", numProgress);
+			set({ progress: numProgress });
+		},
 		setState: (state) => set({ ...state }),
 		setOutput: (output) => set({ output }),
 		setDisplayProgressModal: (displayProgressModal) =>
@@ -150,7 +154,12 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 
 						// Ensure progress is a number and convert to integer
 						const progressValue = typeof progress === "number" ? Math.floor(progress) : 0;
-						console.log("Setting progress:", progressValue, "from:", progress);
+						console.log("Polling update - Raw progress:", progress, "Type:", typeof progress, "Setting to:", progressValue);
+
+						// Use get() to check current state before updating
+						const currentProgress = get().progress;
+						console.log("Current progress in state:", currentProgress, "Type:", typeof currentProgress);
+
 						set({ progress: progressValue });
 
 						if (status === "completed") {
