@@ -143,7 +143,9 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 						console.log("Status info:", statusInfo);
 						const { status, progress, outputUrl, error } = statusInfo;
 
-						set({ progress: progress || 0 });
+						// Ensure progress is a number
+						const progressValue = typeof progress === "number" ? progress : 0;
+						set({ progress: progressValue });
 
 						if (status === "completed") {
 							set({
