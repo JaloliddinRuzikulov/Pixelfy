@@ -6,7 +6,7 @@ const renderJobs = new Map<
 	string,
 	{
 		id: string;
-		status: "pending" | "processing" | "completed" | "failed";
+		status: "pending" | "processing" | "completed" | "failed" | "queued";
 		progress: number;
 		outputUrl?: string;
 		error?: string;
@@ -14,10 +14,30 @@ const renderJobs = new Map<
 	}
 >();
 
+// Queue for render jobs
+const renderQueue: string[] = [];
+let isProcessingQueue = false;
+
 export async function POST(request: NextRequest) {
 	try {
 		const body = await request.json();
 		const { design, chromaKeySettings } = body;
+
+		// Check if there's already an active render
+		const activeRender = Array.from(renderJobs.values()).find(
+			(job) => job.status === "processing",
+		);
+
+		if (activeRender) {
+			return NextResponse.json(
+				{
+					error: "Render already in progress",
+					message: "Iltimos, joriy eksport tugashini kuting",
+					activeJobId: activeRender.id,
+				},
+				{ status: 409 }, // Conflict
+			);
+		}
 
 		// Get server URL from request headers
 		const host = request.headers.get("host") || "localhost:3001";

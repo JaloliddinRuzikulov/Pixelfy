@@ -160,9 +160,15 @@ export default function Navbar({
 const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 	const t = useTranslations("editor");
 	const isMediumScreen = useIsMediumScreen();
-	const { actions } = useDownloadState();
+	const { exporting, actions } = useDownloadState();
 
 	const handleExport = () => {
+		// Prevent multiple exports
+		if (exporting) {
+			console.log("Export already in progress, ignoring click");
+			return;
+		}
+
 		const state = stateManager.getState();
 
 		const data: IDesign = {
@@ -179,11 +185,14 @@ const DownloadPopover = ({ stateManager }: { stateManager: StateManager }) => {
 	return (
 		<Button
 			onClick={handleExport}
+			disabled={exporting}
 			className="flex h-7 gap-1 border border-border"
 			size={isMediumScreen ? "sm" : "icon"}
 		>
 			<Download width={18} />{" "}
-			<span className="hidden md:block">{t("exportVideo")}</span>
+			<span className="hidden md:block">
+				{exporting ? "Eksport qilinmoqda..." : t("exportVideo")}
+			</span>
 		</Button>
 	);
 };

@@ -119,6 +119,14 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 				});
 
 				if (!response.ok) {
+					if (response.status === 409) {
+						// Another render is in progress
+						const errorData = await response.json();
+						set({ exporting: false, displayProgressModal: false });
+						alert(errorData.message || "Boshqa eksport jarayonda. Iltimos kuting.");
+						return;
+					}
+
 					const error = await response.text();
 					console.error("Export submit error:", error);
 					throw new Error(`Failed to submit export request: ${error}`);
