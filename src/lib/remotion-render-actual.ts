@@ -578,7 +578,9 @@ registerRoot(RemotionVideo);
 		entryPoint,
 		publicDir: tempPublicDir, // Provide the public directory with assets
 		onProgress: (progress) => {
-			onProgress(20 + progress * 20); // 20-40%
+			// Bundle progress is 0-1 (percentage as decimal)
+			const percentProgress = Math.floor(progress * 100);
+			onProgress(20 + (percentProgress * 20) / 100); // 20-40%
 		},
 		webpackOverride: (config) => {
 			// Ensure webpack can serve static files
@@ -637,8 +639,14 @@ registerRoot(RemotionVideo);
 		chromiumOptions: {
 			// Chrome memory optimizations handled differently in newer versions
 		} as any,
-		onProgress: ({ progress }) => {
-			onProgress(40 + progress * 60); // 40-100%
+		onProgress: ({ renderedFrames, encodedFrames, encodedDoneIn, renderedDoneIn }) => {
+			// Calculate progress based on encoded frames (more accurate for final progress)
+			const totalFrames = composition.durationInFrames;
+			const frameProgress = encodedFrames / totalFrames;
+			const percentProgress = Math.floor(frameProgress * 100);
+
+			console.log(`Render progress: ${percentProgress}% (${encodedFrames}/${totalFrames} frames)`);
+			onProgress(40 + (percentProgress * 60) / 100); // 40-100%
 
 			// Don't clean up temp files during render - it causes audio mixing failures
 			// The temp cleanup will happen after render completes
