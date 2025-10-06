@@ -578,9 +578,10 @@ registerRoot(RemotionVideo);
 		entryPoint,
 		publicDir: tempPublicDir, // Provide the public directory with assets
 		onProgress: (progress) => {
-			// Bundle progress is 0-1 (percentage as decimal)
-			const percentProgress = Math.floor(progress * 100);
-			onProgress(20 + (percentProgress * 20) / 100); // 20-40%
+			// progress 0-1 orasida keladi (0.5 = 50%)
+			// 20-40% oralig'i uchun: 20 + (progress * 20)
+			const bundleProgress = 20 + Math.floor(progress * 20);
+			onProgress(Math.min(bundleProgress, 40)); // max 40
 		},
 		webpackOverride: (config) => {
 			// Ensure webpack can serve static files
@@ -640,13 +641,14 @@ registerRoot(RemotionVideo);
 			// Chrome memory optimizations handled differently in newer versions
 		} as any,
 		onProgress: ({ renderedFrames, encodedFrames, encodedDoneIn, renderedDoneIn }) => {
-			// Calculate progress based on encoded frames (more accurate for final progress)
+			// encodedFrames / totalFrames = 0-1 orasidagi qiymat
+			// 40-100% oralig'i uchun: 40 + (nisbat * 60)
 			const totalFrames = composition.durationInFrames;
-			const frameProgress = encodedFrames / totalFrames;
-			const percentProgress = Math.floor(frameProgress * 100);
+			const ratio = encodedFrames / totalFrames; // 0-1
+			const renderProgress = 40 + Math.floor(ratio * 60);
 
-			console.log(`Render progress: ${percentProgress}% (${encodedFrames}/${totalFrames} frames)`);
-			onProgress(40 + (percentProgress * 60) / 100); // 40-100%
+			console.log(`Render: ${encodedFrames}/${totalFrames} frames -> ${renderProgress}%`);
+			onProgress(Math.min(renderProgress, 100)); // max 100
 
 			// Don't clean up temp files during render - it causes audio mixing failures
 			// The temp cleanup will happen after render completes
