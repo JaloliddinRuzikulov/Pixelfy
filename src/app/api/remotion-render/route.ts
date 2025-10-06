@@ -2,17 +2,38 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 
 // Store for tracking render jobs (in production, use database)
-const renderJobs = new Map<
-	string,
-	{
-		id: string;
-		status: "pending" | "processing" | "completed" | "failed" | "queued";
-		progress: number;
-		outputUrl?: string;
-		error?: string;
-		createdAt: Date;
-	}
->();
+// Using global to persist across hot reloads in development
+const globalForRenderJobs = globalThis as unknown as {
+	renderJobs: Map<
+		string,
+		{
+			id: string;
+			status: "pending" | "processing" | "completed" | "failed" | "queued";
+			progress: number;
+			outputUrl?: string;
+			error?: string;
+			createdAt: Date;
+		}
+	>;
+};
+
+const renderJobs =
+	globalForRenderJobs.renderJobs ||
+	new Map<
+		string,
+		{
+			id: string;
+			status: "pending" | "processing" | "completed" | "failed" | "queued";
+			progress: number;
+			outputUrl?: string;
+			error?: string;
+			createdAt: Date;
+		}
+	>();
+
+if (process.env.NODE_ENV !== "production") {
+	globalForRenderJobs.renderJobs = renderJobs;
+}
 
 // Queue for render jobs
 const renderQueue: string[] = [];
