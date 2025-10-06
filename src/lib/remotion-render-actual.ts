@@ -12,6 +12,7 @@ export async function renderWithActualComposition(
 	design: IDesign,
 	chromaKeySettings: any,
 	onProgress: (progress: number) => void,
+	serverUrl?: string, // Optional server URL for asset resolution
 ): Promise<string> {
 	// This will only be imported server-side
 	const { bundle } = await import("@remotion/bundler");
@@ -137,6 +138,7 @@ import { registerRoot, Composition, AbsoluteFill, Sequence, OffthreadVideo, Audi
 // Serialized data from the server
 const designData = ${JSON.stringify(storeData)};
 const chromaKeyData = ${JSON.stringify(chromaKeySettings || {})};
+const serverUrl = ${JSON.stringify(serverUrl || "http://localhost:3001")};
 
 // Helper to resolve asset URLs
 const resolveAssetUrl = (src) => {
@@ -157,9 +159,7 @@ const resolveAssetUrl = (src) => {
 
 	// Handle storage service URLs - convert to full URL
 	if (src.startsWith('/storage/')) {
-		// Convert to full localhost URL during development
-		const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
-		return baseUrl + src;
+		return serverUrl + src;
 	}
 
 	// Handle HTTP/HTTPS URLs

@@ -19,6 +19,11 @@ export async function POST(request: NextRequest) {
 		const body = await request.json();
 		const { design, chromaKeySettings } = body;
 
+		// Get server URL from request headers
+		const host = request.headers.get("host") || "localhost:3001";
+		const protocol = request.headers.get("x-forwarded-proto") || "http";
+		const serverUrl = `${protocol}://${host}`;
+
 		// Generate unique job ID
 		const jobId = crypto.randomBytes(16).toString("hex");
 
@@ -31,14 +36,16 @@ export async function POST(request: NextRequest) {
 		});
 
 		// Start async rendering (in background)
-		processRemotionRender(jobId, design, chromaKeySettings).catch((error) => {
-			console.error("Render error:", error);
-			const job = renderJobs.get(jobId);
-			if (job) {
-				job.status = "failed";
-				job.error = error.message;
-			}
-		});
+		processRemotionRender(jobId, design, chromaKeySettings, serverUrl).catch(
+			(error) => {
+				console.error("Render error:", error);
+				const job = renderJobs.get(jobId);
+				if (job) {
+					job.status = "failed";
+					job.error = error.message;
+				}
+			},
+		);
 
 		return NextResponse.json({
 			success: true,
@@ -81,6 +88,7 @@ async function processRemotionRender(
 	jobId: string,
 	design: any,
 	chromaKeySettings: any,
+	serverUrl: string,
 ) {
 	const job = renderJobs.get(jobId);
 	if (!job) return;
@@ -120,6 +128,7 @@ async function processRemotionRender(
 					global.gc();
 				}
 			},
+			serverUrl, // Pass server URL for asset resolution
 		);
 
 		// Update job completion
