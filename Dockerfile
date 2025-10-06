@@ -95,12 +95,13 @@ RUN groupadd --system --gid 1001 nodejs && \
 RUN mkdir -p /app/public/uploads/audio /app/public/uploads/videos /app/public/uploads/presentation-pages /app/public/renders && \
     chown -R nextjs:nodejs /app/public
 
-# Copy built application
+# Copy built application - use standalone output
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next ./.next
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy full node_modules for Remotion (needs esbuild binaries)
 COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/next.config.mjs ./next.config.mjs
 
 # Install Bun for nextjs user
 USER root
@@ -119,4 +120,4 @@ ENV HOSTNAME="0.0.0.0"
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD curl -f http://localhost:3000/api/health || exit 1
 
-CMD ["bun", "run", ".next/standalone/server.js"]
+CMD ["bun", "run", "server.js"]
