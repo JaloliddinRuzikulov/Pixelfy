@@ -16,6 +16,10 @@ const DownloadProgressModal = () => {
 			console.log("downloading");
 		}
 	};
+
+	// Ensure progress is a number and properly formatted
+	const progressValue = Number.isFinite(progress) ? Math.floor(progress) : 0;
+
 	return (
 		<Dialog
 			open={displayProgressModal}
@@ -47,7 +51,7 @@ const DownloadProgressModal = () => {
 				) : (
 					<div className="flex flex-1 flex-col items-center justify-center gap-4">
 						<div className="text-5xl font-semibold font-heading">
-							{Math.floor(progress)}%
+							{progressValue}%
 						</div>
 						<div className="font-bold">Eksport qilinmoqda...</div>
 						<div className="text-center text-zinc-500">

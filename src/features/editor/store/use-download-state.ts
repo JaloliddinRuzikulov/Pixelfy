@@ -44,8 +44,13 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 			set({ displayProgressModal }),
 		startExport: async () => {
 			try {
-				// Set exporting to true at the start
-				set({ exporting: true, displayProgressModal: true, progress: 0 });
+				// Reset state completely before starting new export
+				set({
+					exporting: true,
+					displayProgressModal: true,
+					progress: 0,
+					output: undefined,
+				});
 
 				const { payload, exportType } = get();
 
@@ -143,8 +148,9 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 						console.log("Status info:", statusInfo);
 						const { status, progress, outputUrl, error } = statusInfo;
 
-						// Ensure progress is a number
-						const progressValue = typeof progress === "number" ? progress : 0;
+						// Ensure progress is a number and convert to integer
+						const progressValue = typeof progress === "number" ? Math.floor(progress) : 0;
+						console.log("Setting progress:", progressValue, "from:", progress);
 						set({ progress: progressValue });
 
 						if (status === "completed") {
