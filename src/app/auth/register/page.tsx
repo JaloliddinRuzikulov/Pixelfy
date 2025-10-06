@@ -1,5 +1,10 @@
 import { RegisterForm } from "@/components/auth/register-form";
 import { AuthLayout } from "@/components/auth/auth-layout";
+import { Suspense } from "react";
+
+function RegisterFormWrapper() {
+	return <RegisterForm />;
+}
 
 export default function RegisterPage() {
 	return (
@@ -7,7 +12,9 @@ export default function RegisterPage() {
 			title="Pixelfy"
 			subtitle="Join thousands of creators on Pixelfy.uz"
 		>
-			<RegisterForm />
+			<Suspense fallback={<div>Loading...</div>}>
+				<RegisterFormWrapper />
+			</Suspense>
 		</AuthLayout>
 	);
 }
