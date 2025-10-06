@@ -48,6 +48,9 @@ export async function renderWithActualComposition(
 			} else if (src.startsWith("/api/local-upload/")) {
 				// Local uploaded files via API
 				requiredAssets.add(src);
+			} else if (src.startsWith("/storage/")) {
+				// Storage service files - these will be fetched via HTTP
+				httpAssets.add(src);
 			} else if (src.startsWith("http://") || src.startsWith("https://")) {
 				// External URLs (like stock videos from Pexels)
 				httpAssets.add(src);
@@ -150,6 +153,13 @@ const resolveAssetUrl = (src) => {
 	if (src.startsWith('data:')) {
 		// Data URLs can be used directly
 		return src;
+	}
+
+	// Handle storage service URLs - convert to full URL
+	if (src.startsWith('/storage/')) {
+		// Convert to full localhost URL during development
+		const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+		return baseUrl + src;
 	}
 
 	// Handle HTTP/HTTPS URLs
