@@ -29,7 +29,7 @@ const DownloadProgressModal = () => {
 					className="absolute right-4 top-5 h-5 w-5 text-zinc-400 hover:cursor-pointer hover:text-zinc-500"
 				/>
 				<div className="flex h-16 items-center border-b px-4 font-medium">
-					Download
+					Yuklab olish
 				</div>
 				{isCompleted ? (
 					<div className="flex flex-1 flex-col items-center justify-center gap-2 space-y-4">
@@ -37,24 +37,24 @@ const DownloadProgressModal = () => {
 							<div className="font-semibold">
 								<CircleCheckIcon />
 							</div>
-							<div className="font-bold">Exported</div>
+							<div className="font-bold">Eksport qilindi</div>
 							<div className="text-muted-foreground">
-								You can download the video to your device.
+								Videoni qurilmangizga yuklab olishingiz mumkin.
 							</div>
 						</div>
-						<Button onClick={handleDownload}>Download</Button>
+						<Button onClick={handleDownload}>Yuklab olish</Button>
 					</div>
 				) : (
 					<div className="flex flex-1 flex-col items-center justify-center gap-4">
 						<div className="text-5xl font-semibold font-heading">
 							{Math.floor(progress)}%
 						</div>
-						<div className="font-bold">Exporting...</div>
+						<div className="font-bold">Eksport qilinmoqda...</div>
 						<div className="text-center text-zinc-500">
-							<div>Closing the browser will not cancel the export.</div>
-							<div>The video will be saved in your space.</div>
+							<div>Brauzerni yopish eksportni bekor qilmaydi.</div>
+							<div>Video sizning bo'limingizda saqlanadi.</div>
 						</div>
-						<Button variant={"outline"}>Cancel</Button>
+						<Button variant={"outline"}>Bekor qilish</Button>
 					</div>
 				)}
 			</DialogContent>
