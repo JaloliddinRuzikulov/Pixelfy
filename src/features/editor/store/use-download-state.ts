@@ -38,8 +38,14 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 		setExporting: (exporting) => set({ exporting }),
 		setExportType: (exportType) => set({ exportType }),
 		setProgress: (progress) => {
-			const numProgress = typeof progress === "number" ? progress : Number(progress) || 0;
-			console.log("setProgress called with:", progress, "-> setting to:", numProgress);
+			const numProgress =
+				typeof progress === "number" ? progress : Number(progress) || 0;
+			console.log(
+				"setProgress called with:",
+				progress,
+				"-> setting to:",
+				numProgress,
+			);
 			set({ progress: numProgress });
 		},
 		setState: (state) => set({ ...state }),
@@ -123,7 +129,9 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 						// Another render is in progress
 						const errorData = await response.json();
 						set({ exporting: false, displayProgressModal: false });
-						alert(errorData.message || "Boshqa eksport jarayonda. Iltimos kuting.");
+						alert(
+							errorData.message || "Boshqa eksport jarayonda. Iltimos kuting.",
+						);
 						return;
 					}
 
@@ -161,12 +169,25 @@ export const useDownloadState = create<DownloadState>((set, get) => ({
 						const { status, progress, outputUrl, error } = statusInfo;
 
 						// Ensure progress is a number and convert to integer
-						const progressValue = typeof progress === "number" ? Math.floor(progress) : 0;
-						console.log("Polling update - Raw progress:", progress, "Type:", typeof progress, "Setting to:", progressValue);
+						const progressValue =
+							typeof progress === "number" ? Math.floor(progress) : 0;
+						console.log(
+							"Polling update - Raw progress:",
+							progress,
+							"Type:",
+							typeof progress,
+							"Setting to:",
+							progressValue,
+						);
 
 						// Use get() to check current state before updating
 						const currentProgress = get().progress;
-						console.log("Current progress in state:", currentProgress, "Type:", typeof currentProgress);
+						console.log(
+							"Current progress in state:",
+							currentProgress,
+							"Type:",
+							typeof currentProgress,
+						);
 
 						set({ progress: progressValue });
 

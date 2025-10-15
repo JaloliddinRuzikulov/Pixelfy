@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
@@ -29,20 +29,34 @@ import {
 	Download,
 	Settings,
 	AlertCircle,
+	Square,
+	Pause,
+	Volume2,
+	FileAudio,
+	Trash2,
 } from "lucide-react";
 import {
 	Collapsible,
 	CollapsibleContent,
 	CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { dispatch } from "@designcombo/events";
 import { ADD_ITEMS } from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
 import { useI18n } from "@/hooks/use-i18n";
+import { cn } from "@/lib/utils";
+import TTSInput from "./components/tts-input";
 
-interface Wav2LipUploadState {
+type AudioMode = "tts" | "record" | "upload";
+
+interface SinxronUploadState {
 	video: File | null;
 	text: string;
+	audioMode: AudioMode;
+	audioFile: File | null;
+	recordedAudio: Blob | null;
+	isRecording: boolean;
 	isGenerating: boolean;
 	generatedVideoUrl: string | null;
 	previewUrl?: string | null;
@@ -50,12 +64,16 @@ interface Wav2LipUploadState {
 	progress: number;
 }
 
-export default function Wav2LipMenuItem() {
+export default function SinxronMenuItem() {
 	const { t } = useI18n();
 
-	const [state, setState] = useState<Wav2LipUploadState>({
+	const [state, setState] = useState<SinxronUploadState>({
 		video: null,
 		text: "",
+		audioMode: "tts",
+		audioFile: null,
+		recordedAudio: null,
+		isRecording: false,
 		isGenerating: false,
 		generatedVideoUrl: null,
 		error: null,
@@ -63,19 +81,22 @@ export default function Wav2LipMenuItem() {
 	});
 
 	const [progressMessage, setProgressMessage] = useState<string>("");
+	const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+	const audioChunksRef = useRef<Blob[]>([]);
+	const audioStreamRef = useRef<MediaStream | null>(null);
 
 	const [settings, setSettings] = useState({
-		ttsMethod: "aisha", // Default to Aisha for best quality
-		ttsModel: "gulnoza", // Aisha model
+		ttsMethod: "aisha",
+		ttsModel: "gulnoza",
+		ttsLanguage: "uz",
 		pads: "0,10,0,0",
-		faceDetBatchSize: 4, // Reduced for faster processing
-		wav2lipBatchSize: 16, // Reduced for faster processing
-		resizeFactor: 2, // Reduced resolution for faster processing
+		faceDetBatchSize: 4,
+		sinxronBatchSize: 16,
+		resizeFactor: 2,
 		crop: "0,-1,0,-1",
 		static: false,
 		fps: 25.0,
 		noSmooth: false,
-		// No demo mode - only real AI
 	});
 
 	const [serviceStatus, setServiceStatus] = useState<
@@ -98,12 +119,38 @@ export default function Wav2LipMenuItem() {
 		checkServiceHealth();
 	}, []);
 
+	// Cleanup on unmount
+	useEffect(() => {
+		return () => {
+			if (audioStreamRef.current) {
+				audioStreamRef.current.getTracks().forEach((track) => track.stop());
+			}
+		};
+	}, []);
+
 	const onVideoDrop = useCallback((acceptedFiles: File[]) => {
 		const file = acceptedFiles[0];
 		if (file && file.type.startsWith("video/")) {
 			setState((prev) => ({ ...prev, video: file, error: null }));
 		} else {
 			setState((prev) => ({ ...prev, error: "Iltimos, video fayl yuklang" }));
+		}
+	}, []);
+
+	const onAudioDrop = useCallback((acceptedFiles: File[]) => {
+		const file = acceptedFiles[0];
+		if (file && file.type.startsWith("audio/")) {
+			setState((prev) => ({
+				...prev,
+				audioFile: file,
+				error: null,
+				audioMode: "upload",
+			}));
+		} else {
+			setState((prev) => ({
+				...prev,
+				error: "Iltimos, audio fayl yuklang (MP3, WAV, M4A)",
+			}));
 		}
 	}, []);
 
@@ -119,9 +166,110 @@ export default function Wav2LipMenuItem() {
 		multiple: false,
 	});
 
+	const {
+		getRootProps: getAudioRootProps,
+		getInputProps: getAudioInputProps,
+		isDragActive: isAudioDragActive,
+	} = useDropzone({
+		onDrop: onAudioDrop,
+		accept: {
+			"audio/*": [".mp3", ".wav", ".m4a", ".aac", ".ogg"],
+		},
+		multiple: false,
+	});
+
+	// Audio recording functions
+	const startRecording = async () => {
+		try {
+			const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+			audioStreamRef.current = stream;
+
+			const mediaRecorder = new MediaRecorder(stream);
+			mediaRecorderRef.current = mediaRecorder;
+			audioChunksRef.current = [];
+
+			mediaRecorder.ondataavailable = (event) => {
+				if (event.data.size > 0) {
+					audioChunksRef.current.push(event.data);
+				}
+			};
+
+			mediaRecorder.onstop = () => {
+				const audioBlob = new Blob(audioChunksRef.current, {
+					type: "audio/webm",
+				});
+				setState((prev) => ({
+					...prev,
+					recordedAudio: audioBlob,
+					isRecording: false,
+					audioMode: "record",
+				}));
+			};
+
+			mediaRecorder.start();
+			setState((prev) => ({ ...prev, isRecording: true }));
+			toast.success("Ovoz yozish boshlandi");
+		} catch (error) {
+			console.error("Error starting recording:", error);
+			setState((prev) => ({
+				...prev,
+				error:
+					"Mikrofonga kirish rad etildi. Brauzer sozlamalarini tekshiring.",
+			}));
+			toast.error("Mikrofonga kirish rad etildi");
+		}
+	};
+
+	const stopRecording = () => {
+		if (mediaRecorderRef.current && state.isRecording) {
+			mediaRecorderRef.current.stop();
+			if (audioStreamRef.current) {
+				audioStreamRef.current.getTracks().forEach((track) => track.stop());
+			}
+			toast.success("Ovoz yozish to'xtatildi");
+		}
+	};
+
+	const deleteRecording = () => {
+		setState((prev) => ({
+			...prev,
+			recordedAudio: null,
+			audioMode: "tts",
+		}));
+		toast.success("Yozilgan ovoz o'chirildi");
+	};
+
+	const deleteAudioFile = () => {
+		setState((prev) => ({
+			...prev,
+			audioFile: null,
+			audioMode: "tts",
+		}));
+		toast.success("Audio fayl o'chirildi");
+	};
+
 	const generateLipSyncVideo = async () => {
-		if (!state.video || !state.text.trim()) {
-			setState((prev) => ({ ...prev, error: "Video va matn kiritish shart" }));
+		// Validation
+		if (!state.video) {
+			setState((prev) => ({ ...prev, error: "Video yuklash shart" }));
+			return;
+		}
+
+		if (state.audioMode === "tts" && !state.text.trim()) {
+			setState((prev) => ({
+				...prev,
+				error: "Matn kiritish yoki audio yuklash/yozish shart",
+			}));
+			return;
+		}
+
+		if (state.audioMode === "upload" && !state.audioFile) {
+			setState((prev) => ({ ...prev, error: "Audio fayl yuklash shart" }));
+			return;
+		}
+
+		if (state.audioMode === "record" && !state.recordedAudio) {
+			setState((prev) => ({ ...prev, error: "Avval ovoz yozing" }));
 			return;
 		}
 
@@ -133,7 +281,6 @@ export default function Wav2LipMenuItem() {
 		}));
 		setProgressMessage("Tayyorlanmoqda...");
 
-		// Declare progressInterval and controller in the outer scope
 		let progressInterval: NodeJS.Timeout | undefined;
 		let controller: AbortController | undefined;
 		let timeoutId: NodeJS.Timeout | undefined;
@@ -141,13 +288,36 @@ export default function Wav2LipMenuItem() {
 		try {
 			const formData = new FormData();
 			formData.append("video", state.video);
-			formData.append("text", state.text);
-			formData.append("language", "uz");
-			formData.append("tts_method", settings.ttsMethod);
-			// Add Aisha model parameter if using Aisha TTS
-			if (settings.ttsMethod === "aisha") {
-				formData.append("tts_model", settings.ttsModel);
+
+			// Choose API endpoint based on audio mode
+			let apiUrl = "";
+
+			if (state.audioMode === "tts") {
+				// Use text-to-speech
+				apiUrl = "/api/lipsync/generate-from-text";
+				formData.append("text", state.text);
+				formData.append("language", settings.ttsLanguage);
+				formData.append("tts_method", settings.ttsMethod);
+				if (settings.ttsMethod === "aisha") {
+					formData.append("tts_model", settings.ttsModel);
+				}
+			} else if (state.audioMode === "upload" && state.audioFile) {
+				// Use uploaded audio file
+				apiUrl = "/api/lipsync/generate";
+				formData.append("audio", state.audioFile);
+			} else if (state.audioMode === "record" && state.recordedAudio) {
+				// Use recorded audio
+				apiUrl = "/api/lipsync/generate";
+				const audioFile = new File(
+					[state.recordedAudio],
+					"recorded-audio.webm",
+					{
+						type: "audio/webm",
+					},
+				);
+				formData.append("audio", audioFile);
 			}
+
 			formData.append("pads", settings.pads);
 			formData.append(
 				"face_det_batch_size",
@@ -155,7 +325,7 @@ export default function Wav2LipMenuItem() {
 			);
 			formData.append(
 				"wav2lip_batch_size",
-				settings.wav2lipBatchSize.toString(),
+				settings.sinxronBatchSize.toString(),
 			);
 			formData.append("resize_factor", settings.resizeFactor.toString());
 			formData.append("crop", settings.crop);
@@ -163,24 +333,24 @@ export default function Wav2LipMenuItem() {
 			formData.append("fps", settings.fps.toString());
 			formData.append("no_smooth", settings.noSmooth.toString());
 
-			// Progress updates with messages
 			setState((prev) => ({ ...prev, progress: 10 }));
 			setProgressMessage("Video yuklanmoqda...");
 
-			const apiUrl = "/api/lipsync/generate-from-text";
 			console.log("Sending request to:", apiUrl);
 
-			// Start progress simulation while waiting for response
 			progressInterval = setInterval(() => {
 				setState((prev) => {
 					if (prev.progress < 90) {
 						const newProgress = Math.min(prev.progress + Math.random() * 5, 90);
 
-						// Update message based on progress
 						if (newProgress < 20) {
 							setProgressMessage("Video yuklanmoqda...");
 						} else if (newProgress < 40) {
-							setProgressMessage("Audio yaratilmoqda...");
+							setProgressMessage(
+								state.audioMode === "tts"
+									? "Audio yaratilmoqda..."
+									: "Audio qayta ishlanmoqda...",
+							);
 						} else if (newProgress < 60) {
 							setProgressMessage("Yuz tanlanmoqda...");
 						} else if (newProgress < 80) {
@@ -195,9 +365,8 @@ export default function Wav2LipMenuItem() {
 				});
 			}, 1000);
 
-			// Set longer timeout for the request (5 minutes)
 			controller = new AbortController();
-			timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minutes
+			timeoutId = setTimeout(() => controller.abort(), 300000);
 
 			const response = await fetch(apiUrl, {
 				method: "POST",
@@ -214,10 +383,28 @@ export default function Wav2LipMenuItem() {
 				let errorMessage = "Video yaratishda xatolik";
 				try {
 					const errorData = await response.json();
-					errorMessage = errorData.detail || errorMessage;
+					console.error("Error response data:", errorData);
+					errorMessage = errorData.detail || errorData.error || errorData.details || errorMessage;
+
+					// More specific error messages
+					if (response.status === 502 || response.status === 503) {
+						errorMessage = "AI xizmati hozirda mavjud emas. Iltimos, keyinroq urinib ko'ring.";
+					} else if (response.status === 504) {
+						errorMessage = "Server javob berish vaqti tugadi. Video juda uzun yoki hajmi katta.";
+					} else if (response.status === 413) {
+						errorMessage = "Fayl hajmi juda katta. Kichikroq video yuklang.";
+					} else if (response.status === 400) {
+						errorMessage = errorData.detail || errorData.error || "Noto'g'ri ma'lumot yuborildi.";
+					}
 				} catch {
 					const errorText = await response.text();
+					console.error("Error response text:", errorText);
 					errorMessage = errorText || errorMessage;
+
+					// Check for common error patterns
+					if (response.status === 502 || response.status === 503) {
+						errorMessage = "AI xizmati hozirda mavjud emas. Iltimos, keyinroq urinib ko'ring.";
+					}
 				}
 				throw new Error(errorMessage);
 			}
@@ -225,7 +412,6 @@ export default function Wav2LipMenuItem() {
 			setState((prev) => ({ ...prev, progress: 95 }));
 			setProgressMessage("Video tayyor!");
 
-			// Get the blob and create URL directly
 			const blob = await response.blob();
 			const blobUrl = URL.createObjectURL(blob);
 
@@ -237,21 +423,28 @@ export default function Wav2LipMenuItem() {
 				error: null,
 			}));
 			setProgressMessage("Muvaffaqiyatli yakunlandi!");
+			toast.success("Video muvaffaqiyatli yaratildi!");
 
-			// Clear progress message after 2 seconds
 			setTimeout(() => setProgressMessage(""), 2000);
 		} catch (error) {
-			// Clean up intervals and timeouts
 			if (progressInterval) clearInterval(progressInterval);
 			if (timeoutId) clearTimeout(timeoutId);
 
-			let errorMessage = "Noma'lum xatolik";
+			console.error("Full error details:", error);
+
+			let errorMessage = "Noma'lum xatolik yuz berdi";
 			if (error instanceof Error) {
 				if (error.name === "AbortError") {
 					errorMessage = "Vaqt tugadi - video juda uzun yoki katta hajmda";
 				} else if (error.message.includes("timeout")) {
 					errorMessage =
 						"Jarayon juda uzoq davom etdi. Qisqaroq video yoki kichikroq o'lchamda sinab ko'ring";
+				} else if (error.message.includes("fetch") || error.message.includes("Failed to fetch")) {
+					errorMessage = "Serverga ulanishda xatolik. Internet aloqangizni tekshiring yoki keyinroq urinib ko'ring.";
+				} else if (error.message.includes("NetworkError") || error.message.includes("Network")) {
+					errorMessage = "Tarmoq xatolik. Internet aloqangizni tekshiring.";
+				} else if (error.message.includes("CORS")) {
+					errorMessage = "Server konfiguratsiya xatoligi. Administratorga xabar bering.";
 				} else {
 					errorMessage = error.message;
 				}
@@ -264,6 +457,7 @@ export default function Wav2LipMenuItem() {
 				progress: 0,
 			}));
 			setProgressMessage("");
+			toast.error(errorMessage);
 		}
 	};
 
@@ -271,32 +465,20 @@ export default function Wav2LipMenuItem() {
 		if (!state.generatedVideoUrl) return;
 
 		try {
-			// Get actual video duration
 			const videoElement = document.createElement("video");
 			videoElement.src = state.generatedVideoUrl;
 
-			// Wait for video metadata to load
 			await new Promise((resolve, reject) => {
 				videoElement.onloadedmetadata = resolve;
 				videoElement.onerror = reject;
-				// Set a timeout to prevent infinite waiting
 				setTimeout(
 					() => reject(new Error("Video metadata loading timeout")),
 					5000,
 				);
 			});
 
-			// Get duration in milliseconds (video.duration is in seconds)
 			const durationInMs = Math.round(videoElement.duration * 1000);
-			console.log(
-				"Video duration detected:",
-				videoElement.duration,
-				"seconds =",
-				durationInMs,
-				"ms",
-			);
 
-			// Always create video track item with actual duration
 			const videoItem = {
 				id: generateId(),
 				type: "video" as const,
@@ -313,36 +495,41 @@ export default function Wav2LipMenuItem() {
 					src: state.generatedVideoUrl,
 				},
 				metadata: {
-					source: "wav2lip",
-					originalText: state.text,
+					source: "sinxron",
+					audioMode: state.audioMode,
+					originalText: state.audioMode === "tts" ? state.text : "",
 					generatedAt: new Date().toISOString(),
 					originalDuration: durationInMs,
 				},
-				name: `Wav2Lip Video - ${new Date().toLocaleTimeString()}`,
+				name: `Sinxron Video - ${new Date().toLocaleTimeString()}`,
 			};
 
-			console.log("Dispatching ADD_ITEMS for Wav2Lip video:", videoItem);
+			console.log("Dispatching ADD_ITEMS for Sinxron video:", videoItem);
 			dispatch(ADD_ITEMS, {
 				payload: {
 					trackItems: [videoItem],
 				},
 			});
 
-			// Reset state after adding to timeline
 			setState((prev) => ({
 				...prev,
 				generatedVideoUrl: null,
 				video: null,
 				text: "",
+				audioFile: null,
+				recordedAudio: null,
 			}));
+
+			toast.success("Video timeline'ga qo'shildi!");
 		} catch (error) {
-			console.error("Error adding Wav2Lip video to timeline:", error);
-			const errorMessage = error instanceof Error ? error.message : String(error);
-			console.error("Error details:", errorMessage);
+			console.error("Error adding Sinxron video to timeline:", error);
+			const errorMessage =
+				error instanceof Error ? error.message : String(error);
 			setState((prev) => ({
 				...prev,
 				error: `Timeline'ga qo'shishda xatolik: ${errorMessage}`,
 			}));
+			toast.error("Timeline'ga qo'shishda xatolik");
 		}
 	};
 
@@ -350,11 +537,28 @@ export default function Wav2LipMenuItem() {
 		setState({
 			video: null,
 			text: "",
+			audioMode: "tts",
+			audioFile: null,
+			recordedAudio: null,
+			isRecording: false,
 			isGenerating: false,
 			generatedVideoUrl: null,
 			error: null,
 			progress: 0,
 		});
+	};
+
+	const getAudioSourceInfo = () => {
+		if (state.audioMode === "tts" && state.text) {
+			return `TTS: ${state.text.substring(0, 50)}${state.text.length > 50 ? "..." : ""}`;
+		}
+		if (state.audioMode === "upload" && state.audioFile) {
+			return `Fayl: ${state.audioFile.name}`;
+		}
+		if (state.audioMode === "record" && state.recordedAudio) {
+			return `Yozilgan: ${(state.recordedAudio.size / 1024).toFixed(1)} KB`;
+		}
+		return "Audio tanlanmagan";
 	};
 
 	return (
@@ -372,7 +576,7 @@ export default function Wav2LipMenuItem() {
 						<AlertDescription className="text-xs sm:text-sm text-destructive">
 							<strong>AI xizmati ishlamayapti!</strong>
 							<br />
-							Wav2Lip AI xizmati hozirda mavjud emas.
+							Sinxron AI xizmati hozirda mavjud emas.
 						</AlertDescription>
 					</Alert>
 				</div>
@@ -391,11 +595,12 @@ export default function Wav2LipMenuItem() {
 						<CardContent>
 							<div
 								{...getVideoRootProps()}
-								className={`border-2 border-dashed rounded-lg p-3 text-center cursor-pointer  ${
+								className={cn(
+									"border-2 border-dashed rounded-lg p-3 text-center cursor-pointer transition-colors",
 									isVideoDragActive
 										? "border-primary bg-primary/10"
-										: "border-muted-foreground/25 hover:border-primary/50"
-								}`}
+										: "border-muted-foreground/25 hover:border-primary/50",
+								)}
 							>
 								<input {...getVideoInputProps()} />
 								<Upload className="w-6 h-6 mx-auto mb-1 text-muted-foreground" />
@@ -418,141 +623,235 @@ export default function Wav2LipMenuItem() {
 						</CardContent>
 					</Card>
 
-					{/* Text Input */}
+					{/* Audio Input - Tabs */}
 					<Card>
 						<CardHeader>
 							<CardTitle className="text-sm sm:text-base flex items-center gap-2">
-								<Mic className="w-4 h-4" />
-								O'zbek matni
+								<Volume2 className="w-4 h-4" />
+								Audio manbai
 							</CardTitle>
 							<CardDescription className="text-xs sm:text-sm">
-								Videodagi shaxs aytadigan matni kiriting
+								Audio yaratish, yozish yoki yuklash
 							</CardDescription>
 						</CardHeader>
 						<CardContent>
-							<Textarea
-								value={state.text}
-								onChange={(e) =>
-									setState((prev) => ({ ...prev, text: e.target.value }))
+							<Tabs
+								value={state.audioMode}
+								onValueChange={(value) =>
+									setState((prev) => ({
+										...prev,
+										audioMode: value as AudioMode,
+									}))
 								}
-								placeholder="Bu yerga o'zbek tilidagi matni yozing..."
-								rows={4}
-								className="w-full"
-							/>
-							<div className="flex items-center justify-between mt-2">
-								<span className="text-sm text-muted-foreground">
-									{state.text.length} ta belgi
-								</span>
-								<div className="flex items-center gap-2">
-									<Label className="text-xs text-muted-foreground">
-										Audio:
-									</Label>
-									<Select
-										value={settings.ttsMethod}
-										onValueChange={(value) =>
-											setSettings((prev) => ({ ...prev, ttsMethod: value }))
+							>
+								<TabsList className="grid w-full grid-cols-3">
+									<TabsTrigger value="tts" className="text-xs">
+										<Mic className="w-3 h-3 mr-1" />
+										TTS
+									</TabsTrigger>
+									<TabsTrigger value="record" className="text-xs">
+										<Mic className="w-3 h-3 mr-1" />
+										Yozish
+									</TabsTrigger>
+									<TabsTrigger value="upload" className="text-xs">
+										<FileAudio className="w-3 h-3 mr-1" />
+										Yuklash
+									</TabsTrigger>
+								</TabsList>
+
+								{/* TTS Tab */}
+								<TabsContent value="tts" className="space-y-3 mt-3">
+									<TTSInput
+										text={state.text}
+										onTextChange={(text) =>
+											setState((prev) => ({ ...prev, text }))
 										}
-									>
-										<SelectTrigger className="w-32">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="aisha">
-												<div className="flex items-center gap-1">
-													<span className="text-green-500 text-xs">●</span>
-													Aisha TTS
-													<span className="text-xs text-muted-foreground ml-1">
-														★
+										settings={{
+											ttsMethod: settings.ttsMethod,
+											ttsModel: settings.ttsModel,
+											ttsLanguage: settings.ttsLanguage,
+										}}
+										onSettingsChange={(newSettings) =>
+											setSettings((prev) => ({ ...prev, ...newSettings }))
+										}
+									/>
+								</TabsContent>
+
+								{/* Record Tab */}
+								<TabsContent value="record" className="space-y-3 mt-3">
+									{!state.recordedAudio ? (
+										<div className="space-y-3">
+											<div className="text-center p-4 border-2 border-dashed rounded-lg">
+												<Mic className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+												<p className="text-sm text-muted-foreground mb-3">
+													Ovozingizni yozing
+												</p>
+												<Button
+													onClick={
+														state.isRecording ? stopRecording : startRecording
+													}
+													variant={
+														state.isRecording ? "destructive" : "default"
+													}
+													size="sm"
+												>
+													{state.isRecording ? (
+														<>
+															<Square className="w-4 h-4 mr-2" />
+															To'xtatish
+														</>
+													) : (
+														<>
+															<Mic className="w-4 h-4 mr-2" />
+															Yozishni boshlash
+														</>
+													)}
+												</Button>
+											</div>
+											{state.isRecording && (
+												<div className="flex items-center justify-center gap-2 text-destructive animate-pulse">
+													<div className="w-2 h-2 bg-destructive rounded-full"></div>
+													<span className="text-sm font-medium">
+														Yozilmoqda...
 													</span>
 												</div>
-											</SelectItem>
-											<SelectItem value="pyttsx3">
-												<div className="flex items-center gap-1">
-													<span className="text-green-500 text-xs">●</span>
-													Pyttsx3
-												</div>
-											</SelectItem>
-											<SelectItem value="espeak">
-												<div className="flex items-center gap-1">
-													<span className="text-green-500 text-xs">●</span>
-													Espeak
-												</div>
-											</SelectItem>
-											<SelectItem value="auto">
-												<div className="flex items-center gap-1">
-													<span className="text-blue-500 text-xs">●</span>
-													Avtomatik
-												</div>
-											</SelectItem>
-											<SelectItem value="google">
-												<div className="flex items-center gap-1">
-													<span className="text-yellow-500 text-xs">●</span>
-													Google TTS
-												</div>
-											</SelectItem>
-											<SelectItem value="azure">
-												<div className="flex items-center gap-1">
-													<span className="text-yellow-500 text-xs">●</span>
-													Azure TTS
-												</div>
-											</SelectItem>
-										</SelectContent>
-									</Select>
-								</div>
-							</div>
-							{/* Show Aisha model selector when Aisha TTS is selected */}
-							{settings.ttsMethod === "aisha" && (
-								<div className="flex items-center gap-2 mt-3">
-									<Label className="text-xs text-muted-foreground">Ovoz:</Label>
-									<Select
-										value={settings.ttsModel}
-										onValueChange={(value) =>
-											setSettings((prev) => ({ ...prev, ttsModel: value }))
-										}
-									>
-										<SelectTrigger className="w-32">
-											<SelectValue />
-										</SelectTrigger>
-										<SelectContent>
-											<SelectItem value="gulnoza">
-												<div className="flex items-center gap-1">
-													<span className="text-pink-500 text-xs">♀</span>
-													Gulnoza
-												</div>
-											</SelectItem>
-											<SelectItem value="sardor" disabled>
-												<div className="flex items-center gap-1">
-													<span className="text-blue-500 text-xs">♂</span>
-													Sardor
-													<span className="text-xs text-muted-foreground ml-1">
-														(Tez kunda)
+											)}
+										</div>
+									) : (
+										<div className="space-y-3">
+											<div className="p-3 bg-muted/50 rounded-lg">
+												<div className="flex items-center justify-between mb-2">
+													<span className="text-sm font-medium">
+														Yozilgan audio
+													</span>
+													<span className="text-xs text-muted-foreground">
+														{(state.recordedAudio.size / 1024).toFixed(1)} KB
 													</span>
 												</div>
-											</SelectItem>
-										</SelectContent>
-									</Select>
-									<span className="text-xs text-muted-foreground">
-										Yuqori sifatli o'zbek ovozi
-									</span>
-								</div>
-							)}
+												<audio
+													controls
+													src={URL.createObjectURL(state.recordedAudio)}
+													className="w-full h-8"
+												/>
+											</div>
+											<div className="flex gap-2">
+												<Button
+													onClick={startRecording}
+													variant="outline"
+													size="sm"
+													className="flex-1"
+												>
+													<Mic className="w-4 h-4 mr-2" />
+													Qayta yozish
+												</Button>
+												<Button
+													onClick={deleteRecording}
+													variant="destructive"
+													size="sm"
+												>
+													<Trash2 className="w-4 h-4" />
+												</Button>
+											</div>
+										</div>
+									)}
+								</TabsContent>
+
+								{/* Upload Tab */}
+								<TabsContent value="upload" className="space-y-3 mt-3">
+									{!state.audioFile ? (
+										<div
+											{...getAudioRootProps()}
+											className={cn(
+												"border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors",
+												isAudioDragActive
+													? "border-primary bg-primary/10"
+													: "border-muted-foreground/25 hover:border-primary/50",
+											)}
+										>
+											<input {...getAudioInputProps()} />
+											<FileAudio className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
+											<p className="text-sm">Audio fayl yuklang</p>
+											<p className="text-xs text-muted-foreground">
+												MP3, WAV, M4A, AAC, OGG
+											</p>
+										</div>
+									) : (
+										<div className="space-y-3">
+											<div className="p-3 bg-muted/50 rounded-lg">
+												<div className="flex items-center justify-between mb-2">
+													<span className="text-sm font-medium">
+														{state.audioFile.name}
+													</span>
+													<span className="text-xs text-muted-foreground">
+														{(state.audioFile.size / 1024 / 1024).toFixed(2)} MB
+													</span>
+												</div>
+												<audio
+													controls
+													src={URL.createObjectURL(state.audioFile)}
+													className="w-full h-8"
+												/>
+											</div>
+											<div className="flex gap-2">
+												<div
+													{...getAudioRootProps()}
+													className="flex-1 cursor-pointer"
+												>
+													<input {...getAudioInputProps()} />
+													<Button
+														variant="outline"
+														size="sm"
+														className="w-full"
+													>
+														<Upload className="w-4 h-4 mr-2" />
+														Boshqa yuklash
+													</Button>
+												</div>
+												<Button
+													onClick={deleteAudioFile}
+													variant="destructive"
+													size="sm"
+												>
+													<Trash2 className="w-4 h-4" />
+												</Button>
+											</div>
+										</div>
+									)}
+								</TabsContent>
+							</Tabs>
 						</CardContent>
 					</Card>
 
-					{/* Advanced Settings */}
+					{/* Generate Button with Advanced Settings */}
 					<Collapsible>
-						<CollapsibleTrigger asChild>
-							<Button variant="outline" size="sm" className="w-full">
-								<Settings className="w-4 h-4 mr-2" />
-								Qo'shimcha sozlamalar
+						<div className="grid grid-cols-5 gap-2">
+							<Button
+								onClick={generateLipSyncVideo}
+								disabled={
+									!state.video ||
+									(state.audioMode === "tts" && !state.text.trim()) ||
+									(state.audioMode === "upload" && !state.audioFile) ||
+									(state.audioMode === "record" && !state.recordedAudio) ||
+									state.isGenerating
+								}
+								className="col-span-4"
+								size="lg"
+							>
+								{state.isGenerating ? "Yaratilmoqda..." : "Video yaratish"}
 							</Button>
-						</CollapsibleTrigger>
+							<CollapsibleTrigger asChild>
+								<Button variant="outline" size="lg" className="col-span-1">
+									<Settings className="w-4 h-4" />
+								</Button>
+							</CollapsibleTrigger>
+						</div>
+
 						<CollapsibleContent className="mt-2">
 							<Card>
 								<CardContent className="pt-4 space-y-3">
-									<div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+									<div className="grid grid-cols-2 gap-2">
 										<div>
-											<Label className="text-xs">Yuz aniqlash partiyasi</Label>
+											<Label className="text-xs">Yuz aniqlash</Label>
 											<Input
 												type="number"
 												value={settings.faceDetBatchSize}
@@ -568,14 +867,14 @@ export default function Wav2LipMenuItem() {
 											/>
 										</div>
 										<div>
-											<Label className="text-xs">Wav2Lip partiyasi</Label>
+											<Label className="text-xs">Partiyasi</Label>
 											<Input
 												type="number"
-												value={settings.wav2lipBatchSize}
+												value={settings.sinxronBatchSize}
 												onChange={(e) =>
 													setSettings((prev) => ({
 														...prev,
-														wav2lipBatchSize: parseInt(e.target.value) || 16,
+														sinxronBatchSize: parseInt(e.target.value) || 16,
 													}))
 												}
 												min="1"
@@ -584,7 +883,7 @@ export default function Wav2LipMenuItem() {
 											/>
 										</div>
 										<div>
-											<Label className="text-xs">O'lcham koeffitsienti</Label>
+											<Label className="text-xs">O'lcham</Label>
 											<Input
 												type="number"
 												value={settings.resizeFactor}
@@ -620,7 +919,7 @@ export default function Wav2LipMenuItem() {
 									<div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md">
 										<AlertCircle className="w-4 h-4 text-muted-foreground" />
 										<p className="text-xs text-muted-foreground">
-											Kichikroq batch va resize qiymatlari tezroq ishlaydi
+											Kichikroq qiymatlar tezroq ishlaydi
 										</p>
 									</div>
 								</CardContent>
@@ -630,9 +929,12 @@ export default function Wav2LipMenuItem() {
 
 					{/* Error Display */}
 					{state.error && (
-						<div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
-							<p className="text-sm text-destructive">{state.error}</p>
-						</div>
+						<Alert variant="destructive">
+							<AlertCircle className="h-4 w-4" />
+							<AlertDescription className="text-sm">
+								{state.error}
+							</AlertDescription>
+						</Alert>
 					)}
 
 					{/* Progress */}
@@ -650,10 +952,10 @@ export default function Wav2LipMenuItem() {
 									</div>
 									<div className="w-full bg-secondary rounded-full h-3 overflow-hidden">
 										<div
-											className="bg-gradient-to-r from-primary to-primary/80 h-full rounded-full    relative"
+											className="bg-gradient-to-r from-primary to-primary/80 h-full rounded-full relative transition-all duration-300"
 											style={{ width: `${state.progress}%` }}
 										>
-											<div className="absolute inset-0 bg-white/20 "></div>
+											<div className="absolute inset-0 bg-white/20"></div>
 										</div>
 									</div>
 									<div className="text-xs text-muted-foreground text-center">
@@ -684,13 +986,16 @@ export default function Wav2LipMenuItem() {
 							<CardContent>
 								<div className="space-y-3">
 									<video
-										src={state.previewUrl || state.generatedVideoUrl}
+										src={state.generatedVideoUrl}
 										controls
 										className="w-full rounded-lg"
 									/>
+									<div className="p-2 bg-muted/50 rounded text-xs text-muted-foreground">
+										<strong>Audio:</strong> {getAudioSourceInfo()}
+									</div>
 									<div className="flex gap-2">
 										<Button onClick={addToTimeline} className="flex-1">
-											Videoni timelinega qo'shish
+											Timeline'ga qo'shish
 										</Button>
 										<Button variant="outline" onClick={resetState}>
 											Yangilash
@@ -700,16 +1005,6 @@ export default function Wav2LipMenuItem() {
 							</CardContent>
 						</Card>
 					)}
-
-					{/* Generate Button */}
-					<Button
-						onClick={generateLipSyncVideo}
-						disabled={!state.video || !state.text.trim() || state.isGenerating}
-						className="w-full"
-						size="lg"
-					>
-						{state.isGenerating ? "Yaratilmoqda..." : "Video yaratish"}
-					</Button>
 				</div>
 			</div>
 		</div>

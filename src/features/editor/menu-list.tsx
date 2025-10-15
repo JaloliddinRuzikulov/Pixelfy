@@ -34,16 +34,28 @@ const MENU_ITEMS_CONFIG = [
 		ariaLabelKey: "media.mediaAria",
 	},
 	{
-		id: "presentai",
-		icon: Sparkles,
-		labelKey: "media.presentai",
-		ariaLabelKey: "media.presentaiAria",
-	},
-	{
 		id: "wav2lip",
 		icon: UserCheck,
 		labelKey: "media.wav2lip",
 		ariaLabelKey: "media.wav2lipAria",
+	},
+	{
+		id: "texts",
+		icon: Type,
+		labelKey: "media.texts",
+		ariaLabelKey: "media.textsAria",
+	},
+	{
+		id: "content-library",
+		icon: Library,
+		labelKey: "media.contentLibrary",
+		ariaLabelKey: "media.contentLibraryAria",
+	},
+	{
+		id: "presentai",
+		icon: Sparkles,
+		labelKey: "media.presentai",
+		ariaLabelKey: "media.presentaiAria",
 	},
 	{
 		id: "office",
@@ -56,18 +68,6 @@ const MENU_ITEMS_CONFIG = [
 		icon: PenTool,
 		labelKey: "media.recording",
 		ariaLabelKey: "media.recordingAria",
-	},
-	{
-		id: "content-library",
-		icon: Library,
-		labelKey: "media.contentLibrary",
-		ariaLabelKey: "media.contentLibraryAria",
-	},
-	{
-		id: "texts",
-		icon: Type,
-		labelKey: "media.texts",
-		ariaLabelKey: "media.textsAria",
 	},
 ] as const;
 

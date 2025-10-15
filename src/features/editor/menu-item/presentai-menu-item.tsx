@@ -273,7 +273,9 @@ export function PresentAIMenuItem() {
 		<div className="flex flex-col h-full">
 			<div className="flex items-center gap-2 p-4 pb-2 border-b bg-background/50">
 				<Sparkles className="w-5 h-5 text-primary" />
-				<h2 className="text-sm sm:text-base font-semibold">AI Taqdimot Generatori</h2>
+				<h2 className="text-sm sm:text-base font-semibold">
+					AI Taqdimot Generatori
+				</h2>
 			</div>
 
 			{/* Service Status Alert */}
@@ -296,7 +298,9 @@ export function PresentAIMenuItem() {
 						{/* Generation Form */}
 						<Card>
 							<CardHeader>
-								<CardTitle className="text-sm sm:text-base">Taqdimot Yaratish</CardTitle>
+								<CardTitle className="text-sm sm:text-base">
+									Taqdimot Yaratish
+								</CardTitle>
 								<CardDescription className="text-xs sm:text-sm">
 									Taqdimot mavzusini tasvirlab bering va AI sizga slaydlar
 									yaratib bersin
@@ -363,7 +367,10 @@ export function PresentAIMenuItem() {
 
 								{/* Prompt Input - moved to bottom for better UX */}
 								<div className="space-y-2">
-									<Label htmlFor="prompt" className="text-xs sm:text-sm font-medium">
+									<Label
+										htmlFor="prompt"
+										className="text-xs sm:text-sm font-medium"
+									>
 										Taqdimot Mavzusi
 									</Label>
 									<Textarea

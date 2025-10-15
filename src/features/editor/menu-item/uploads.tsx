@@ -670,8 +670,12 @@ export const Uploads = () => {
 											<div className="flex items-center justify-between">
 												<div className="flex items-center gap-2">
 													<VideoIcon className="w-4 h-4 text-purple-500" />
-													<span className="text-xs sm:text-sm font-medium">Videolar</span>
-													<Badge variant="secondary" className="text-xs">{videos.length}</Badge>
+													<span className="text-xs sm:text-sm font-medium">
+														Videolar
+													</span>
+													<Badge variant="secondary" className="text-xs">
+														{videos.length}
+													</Badge>
 												</div>
 											</div>
 
@@ -737,8 +741,12 @@ export const Uploads = () => {
 											<div className="flex items-center justify-between">
 												<div className="flex items-center gap-2">
 													<ImageIcon className="w-4 h-4 text-blue-500" />
-													<span className="text-xs sm:text-sm font-medium">Rasmlar</span>
-													<Badge variant="secondary" className="text-xs">{images.length}</Badge>
+													<span className="text-xs sm:text-sm font-medium">
+														Rasmlar
+													</span>
+													<Badge variant="secondary" className="text-xs">
+														{images.length}
+													</Badge>
 												</div>
 											</div>
 
@@ -799,7 +807,9 @@ export const Uploads = () => {
 													<span className="text-xs sm:text-sm font-medium">
 														Audio fayllar
 													</span>
-													<Badge variant="secondary" className="text-xs">{audios.length}</Badge>
+													<Badge variant="secondary" className="text-xs">
+														{audios.length}
+													</Badge>
 												</div>
 											</div>
 

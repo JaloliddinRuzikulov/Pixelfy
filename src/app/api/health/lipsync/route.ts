@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 
-const LIPSYNC_SERVICE_URL = process.env.LIPSYNC_SERVICE_URL || "http://localhost:9001";
+const LIPSYNC_SERVICE_URL =
+	process.env.LIPSYNC_SERVICE_URL || "http://localhost:9001";
 
 export async function GET() {
 	try {

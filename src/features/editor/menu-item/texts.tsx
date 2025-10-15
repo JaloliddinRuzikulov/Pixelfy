@@ -134,14 +134,21 @@ export const Texts = () => {
 						<Draggable
 							data={TEXT_ADD_PAYLOAD}
 							renderCustomPreview={
-								<Button variant="secondary" className="w-full text-xs sm:text-sm">
+								<Button
+									variant="secondary"
+									className="w-full text-xs sm:text-sm"
+								>
 									<Plus className="w-4 h-4 mr-2" />
 									Add Text
 								</Button>
 							}
 							shouldDisplayPreview={!isDraggingOverTimeline}
 						>
-							<Button onClick={handleQuickAdd} className="w-full text-xs sm:text-sm" size="lg">
+							<Button
+								onClick={handleQuickAdd}
+								className="w-full text-xs sm:text-sm"
+								size="lg"
+							>
 								<Plus className="w-4 h-4 mr-2" />
 								Add Text to Timeline
 							</Button>

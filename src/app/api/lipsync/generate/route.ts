@@ -12,8 +12,19 @@ export async function POST(request: NextRequest) {
 		const apiKey =
 			process.env.LIPSYNC_API_KEY || "wav2lip_default_dev_key_2024";
 
+		console.log("📤 Forwarding request to lipsync service:", lipsyncServiceUrl);
+		console.log("🔑 Using API key:", apiKey.substring(0, 10) + "...");
+
 		// Forward request to lipsync service
-		const response = await fetch(`${lipsyncServiceUrl}/lipsync/generate`, {
+		// Note: For combined mode (Ollama + Lipsync), use /lipsync prefix
+		// For standalone mode, check if URL already ends with /lipsync
+		const apiUrl = lipsyncServiceUrl.includes('/lipsync')
+			? `${lipsyncServiceUrl}/generate`
+			: `${lipsyncServiceUrl}/lipsync/generate`;
+
+		console.log("🌐 Full API URL:", apiUrl);
+
+		const response = await fetch(apiUrl, {
 			method: "POST",
 			body: formData,
 			headers: {
@@ -22,13 +33,17 @@ export async function POST(request: NextRequest) {
 			},
 		});
 
+		console.log("📥 Response status from lipsync service:", response.status);
+
 		if (!response.ok) {
 			const errorText = await response.text();
-			console.error("Lipsync service error:", errorText);
+			console.error("❌ Lipsync service error:", errorText);
+			console.error("❌ Response status:", response.status);
 			return NextResponse.json(
 				{
 					error: "Lipsync service error",
 					details: errorText,
+					status: response.status,
 				},
 				{ status: response.status },
 			);
@@ -47,7 +62,20 @@ export async function POST(request: NextRequest) {
 			},
 		});
 	} catch (error) {
-		console.error("Error in lipsync API:", error);
+		console.error("❌ Error in lipsync API:", error);
+
+		// Check if it's a network error
+		if (error instanceof TypeError && error.message.includes("fetch")) {
+			console.error("🌐 Network error - cannot reach lipsync service");
+			return NextResponse.json(
+				{
+					error: "Cannot connect to AI service",
+					details: "AI xizmati mavjud emas. Iltimos, xizmat ishga tushganini tekshiring.",
+				},
+				{ status: 503 },
+			);
+		}
+
 		return NextResponse.json(
 			{
 				error: "Failed to generate lip-sync video",

@@ -640,14 +640,21 @@ registerRoot(RemotionVideo);
 		chromiumOptions: {
 			// Chrome memory optimizations handled differently in newer versions
 		} as any,
-		onProgress: ({ renderedFrames, encodedFrames, encodedDoneIn, renderedDoneIn }) => {
+		onProgress: ({
+			renderedFrames,
+			encodedFrames,
+			encodedDoneIn,
+			renderedDoneIn,
+		}) => {
 			// encodedFrames / totalFrames = 0-1 orasidagi qiymat
 			// 40-100% oralig'i uchun: 40 + (nisbat * 60)
 			const totalFrames = composition.durationInFrames;
 			const ratio = encodedFrames / totalFrames; // 0-1
 			const renderProgress = 40 + Math.floor(ratio * 60);
 
-			console.log(`Render: ${encodedFrames}/${totalFrames} frames -> ${renderProgress}%`);
+			console.log(
+				`Render: ${encodedFrames}/${totalFrames} frames -> ${renderProgress}%`,
+			);
 			onProgress(Math.min(renderProgress, 100)); // max 100
 
 			// Don't clean up temp files during render - it causes audio mixing failures

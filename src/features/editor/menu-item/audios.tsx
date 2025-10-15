@@ -142,7 +142,9 @@ const AudioItem = ({
 
 						{/* Content */}
 						<div className="flex-1 min-w-0">
-							<div className="font-medium text-xs sm:text-sm truncate">{audio.name}</div>
+							<div className="font-medium text-xs sm:text-sm truncate">
+								{audio.name}
+							</div>
 							<div className="text-xs sm:text-sm text-muted-foreground truncate">
 								{audio.metadata?.author || "Unknown Artist"}
 							</div>

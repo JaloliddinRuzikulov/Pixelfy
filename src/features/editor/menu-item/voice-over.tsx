@@ -71,7 +71,9 @@ export const VoiceOver = () => {
 				<div className="p-4 space-y-4">
 					{/* Text Input */}
 					<div className="space-y-2">
-						<Label className="text-xs sm:text-sm font-medium">Text to speech</Label>
+						<Label className="text-xs sm:text-sm font-medium">
+							Text to speech
+						</Label>
 						<Textarea
 							placeholder="Enter your text here..."
 							value={text}
@@ -86,7 +88,9 @@ export const VoiceOver = () => {
 
 					{/* Voice Selection */}
 					<div className="space-y-2">
-						<Label className="text-xs sm:text-sm font-medium">Choose voice</Label>
+						<Label className="text-xs sm:text-sm font-medium">
+							Choose voice
+						</Label>
 						<div className="grid grid-cols-1 gap-1.5">
 							{VOICES.map((v) => (
 								<Card
@@ -97,7 +101,9 @@ export const VoiceOver = () => {
 									<CardContent className="p-2.5">
 										<div className="flex items-center justify-between">
 											<div>
-												<div className="font-medium text-xs sm:text-sm">{v.name}</div>
+												<div className="font-medium text-xs sm:text-sm">
+													{v.name}
+												</div>
 												<div className="text-xs sm:text-sm text-muted-foreground">
 													{v.desc}
 												</div>

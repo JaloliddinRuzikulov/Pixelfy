@@ -8,7 +8,7 @@ import { VoiceOver } from "./voice-over";
 import { useIsLargeScreen } from "@/hooks/use-media-query";
 import { Uploads } from "./uploads";
 import { Presentations } from "./presentations";
-import Wav2LipMenuItem from "./wav2lip";
+import SinxronMenuItem from "./wav2lip";
 import { Office } from "./office";
 import { Recording } from "./recording";
 import { ContentLibrary } from "./content-library";
@@ -74,7 +74,7 @@ const ActiveMenuItem = () => {
 	}
 
 	if (activeMenuItem === "wav2lip") {
-		return <Wav2LipMenuItem />;
+		return <SinxronMenuItem />;
 	}
 
 	return null;
