@@ -369,9 +369,12 @@ export default function SinxronMenuItem() {
 			// Use async job submission to bypass Nginx timeout
 			let submitUrl = "";
 			if (apiUrl.includes("/generate-from-text")) {
-				submitUrl = apiUrl.replace('/generate-from-text', '/submit-job-from-text');
+				submitUrl = apiUrl.replace(
+					"/generate-from-text",
+					"/submit-job-from-text",
+				);
 			} else {
-				submitUrl = apiUrl.replace('/generate', '/submit-job');
+				submitUrl = apiUrl.replace("/generate", "/submit-job");
 			}
 
 			console.log("Submitting job to:", submitUrl);
@@ -396,9 +399,16 @@ export default function SinxronMenuItem() {
 			while (jobStatus === "queued" || jobStatus === "processing") {
 				await new Promise((resolve) => setTimeout(resolve, 2000)); // Poll every 2s
 
-				const statusUrl = submitUrl
-					.replace('/submit-job', `/job/${job_id}/status`)
-					.replace('/submit-job-from-text', `/job/${job_id}/status`);
+				// Build correct status URL - replace submit endpoints with job status endpoint
+				let statusUrl = submitUrl;
+				if (statusUrl.includes("/submit-job-from-text")) {
+					statusUrl = statusUrl.replace(
+						"/submit-job-from-text",
+						`/job/${job_id}/status`,
+					);
+				} else if (statusUrl.includes("/submit-job")) {
+					statusUrl = statusUrl.replace("/submit-job", `/job/${job_id}/status`);
+				}
 				const statusResponse = await fetch(statusUrl);
 
 				if (!statusResponse.ok) {
@@ -408,7 +418,10 @@ export default function SinxronMenuItem() {
 				const jobData = await statusResponse.json();
 				jobStatus = jobData.status;
 
-				setState((prev) => ({ ...prev, progress: Math.min(jobData.progress || 50, 90) }));
+				setState((prev) => ({
+					...prev,
+					progress: Math.min(jobData.progress || 50, 90),
+				}));
 				setProgressMessage(jobData.message || "Qayta ishlanmoqda...");
 
 				if (jobStatus === "completed") {
@@ -418,9 +431,19 @@ export default function SinxronMenuItem() {
 					setState((prev) => ({ ...prev, progress: 95 }));
 					setProgressMessage("Video saqlanmoqda...");
 
-					const downloadUrl = submitUrl
-						.replace('/submit-job', `/job/${job_id}/download`)
-						.replace('/submit-job-from-text', `/job/${job_id}/download`);
+					// Build correct download URL - replace submit endpoints with job download endpoint
+					let downloadUrl = submitUrl;
+					if (downloadUrl.includes("/submit-job-from-text")) {
+						downloadUrl = downloadUrl.replace(
+							"/submit-job-from-text",
+							`/job/${job_id}/download`,
+						);
+					} else if (downloadUrl.includes("/submit-job")) {
+						downloadUrl = downloadUrl.replace(
+							"/submit-job",
+							`/job/${job_id}/download`,
+						);
+					}
 					const videoResponse = await fetch(downloadUrl);
 
 					if (!videoResponse.ok) {
@@ -431,7 +454,7 @@ export default function SinxronMenuItem() {
 
 					// Save video to server's public/uploads directory
 					const filename = `lipsync_${job_id}_${Date.now()}.mp4`;
-					const savedUrl = await uploadBlobToServer(blob, filename, 'lipsync');
+					const savedUrl = await uploadBlobToServer(blob, filename, "lipsync");
 					console.log("Video saved to server:", savedUrl);
 
 					setState((prev) => ({
@@ -523,12 +546,20 @@ export default function SinxronMenuItem() {
 					errorMessage = "So'rov bekor qilindi";
 				} else if (error.message.includes("timeout")) {
 					errorMessage = "Ulanish vaqti tugadi. Qayta urinib ko'ring";
-				} else if (error.message.includes("fetch") || error.message.includes("Failed to fetch")) {
-					errorMessage = "Serverga ulanishda xatolik. Internet aloqangizni tekshiring yoki keyinroq urinib ko'ring.";
-				} else if (error.message.includes("NetworkError") || error.message.includes("Network")) {
+				} else if (
+					error.message.includes("fetch") ||
+					error.message.includes("Failed to fetch")
+				) {
+					errorMessage =
+						"Serverga ulanishda xatolik. Internet aloqangizni tekshiring yoki keyinroq urinib ko'ring.";
+				} else if (
+					error.message.includes("NetworkError") ||
+					error.message.includes("Network")
+				) {
 					errorMessage = "Tarmoq xatolik. Internet aloqangizni tekshiring.";
 				} else if (error.message.includes("CORS")) {
-					errorMessage = "Server konfiguratsiya xatoligi. Administratorga xabar bering.";
+					errorMessage =
+						"Server konfiguratsiya xatoligi. Administratorga xabar bering.";
 				} else {
 					errorMessage = error.message;
 				}
