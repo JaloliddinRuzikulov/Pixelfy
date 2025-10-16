@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Disable timeout for long-running AI processing
+export const maxDuration = 300; // 5 minutes (Vercel Pro)
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
 	try {
 		const formData = await request.formData();
