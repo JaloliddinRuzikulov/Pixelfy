@@ -7,6 +7,7 @@ import { dispatch } from "@designcombo/events";
 import { ADD_IMAGE, ADD_VIDEO, ADD_AUDIO } from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
 import { toast } from "sonner";
+import { uploadBlobToServer } from "@/lib/upload-helper";
 
 const SceneEmpty = () => {
 	const [isLoading, setIsLoading] = useState(true);
@@ -50,16 +51,22 @@ const SceneEmpty = () => {
 
 		for (const file of files) {
 			const fileType = file.type.split("/")[0];
-			const objectUrl = URL.createObjectURL(file);
-
-			const basePayload = {
-				id: generateId(),
-				name: file.name,
-				src: objectUrl,
-				file: file,
-			};
 
 			try {
+				// Upload file to server first
+				const serverUrl = await uploadBlobToServer(
+					file,
+					file.name,
+					fileType === "image" ? "images" : fileType === "video" ? "videos" : "audio",
+				);
+
+				const basePayload = {
+					id: generateId(),
+					name: file.name,
+					src: serverUrl,
+					file: file,
+				};
+
 				switch (fileType) {
 					case "image":
 						dispatch(ADD_IMAGE, {
