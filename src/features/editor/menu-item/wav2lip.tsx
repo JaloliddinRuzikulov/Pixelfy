@@ -46,6 +46,7 @@ import { ADD_ITEMS } from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
 import { useI18n } from "@/hooks/use-i18n";
 import { cn } from "@/lib/utils";
+import { uploadBlobToServer } from "@/lib/upload-helper";
 import TTSInput from "./components/tts-input";
 
 type AudioMode = "tts" | "record" | "upload";
@@ -413,7 +414,10 @@ export default function SinxronMenuItem() {
 				if (jobStatus === "completed") {
 					if (progressInterval) clearInterval(progressInterval);
 
-					// Download result
+					// Download result and save to server
+					setState((prev) => ({ ...prev, progress: 95 }));
+					setProgressMessage("Video saqlanmoqda...");
+
 					const downloadUrl = submitUrl
 						.replace('/submit-job', `/job/${job_id}/download`)
 						.replace('/submit-job-from-text', `/job/${job_id}/download`);
@@ -424,11 +428,15 @@ export default function SinxronMenuItem() {
 					}
 
 					const blob = await videoResponse.blob();
-					const blobUrl = URL.createObjectURL(blob);
+
+					// Save video to server's public/uploads directory
+					const filename = `lipsync_${job_id}_${Date.now()}.mp4`;
+					const savedUrl = await uploadBlobToServer(blob, filename, 'lipsync');
+					console.log("Video saved to server:", savedUrl);
 
 					setState((prev) => ({
 						...prev,
-						generatedVideoUrl: blobUrl,
+						generatedVideoUrl: savedUrl,
 						isGenerating: false,
 						progress: 100,
 						error: null,
