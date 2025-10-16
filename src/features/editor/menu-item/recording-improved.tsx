@@ -58,6 +58,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useStore } from "../store/use-store";
 import { StateManager } from "@designcombo/state";
+import { uploadBlobToServer } from "@/lib/upload-helper";
 
 interface RecordingSettings {
 	video: boolean;
@@ -168,23 +169,34 @@ export function RecordingImproved() {
 				}
 			};
 
-			mediaRecorder.onstop = () => {
+			mediaRecorder.onstop = async () => {
 				const audioBlob = new Blob(audioChunksRef.current, {
 					type: "audio/webm",
 				});
-				const audioUrl = URL.createObjectURL(audioBlob);
 
-				const newRecording: AudioRecording = {
-					id: `rec-${Date.now()}`,
-					url: audioUrl,
-					blob: audioBlob,
-					duration: recordingTime,
-					timestamp: Date.now(),
-					name: `Audio yozuv ${recordings.length + 1}`,
-				};
+				// Upload to server instead of creating blob URL
+				const timestamp = Date.now();
+				const filename = `recording_${timestamp}.webm`;
 
-				setRecordings((prev) => [...prev, newRecording]);
-				setSelectedRecording(newRecording);
+				try {
+					const serverUrl = await uploadBlobToServer(audioBlob, filename, "recordings");
+
+					const newRecording: AudioRecording = {
+						id: `rec-${timestamp}`,
+						url: serverUrl,
+						blob: audioBlob,
+						duration: recordingTime,
+						timestamp: timestamp,
+						name: `Audio yozuv ${recordings.length + 1}`,
+					};
+
+					setRecordings((prev) => [...prev, newRecording]);
+					setSelectedRecording(newRecording);
+				} catch (error) {
+					console.error("Failed to upload recording:", error);
+					alert("Audio yozuvni saqlashda xatolik yuz berdi.");
+				}
+
 				audioChunksRef.current = [];
 			};
 
@@ -299,14 +311,18 @@ export function RecordingImproved() {
 
 			if (response.ok) {
 				const audioBlob = await response.blob();
-				const audioUrl = URL.createObjectURL(audioBlob);
+
+				// Upload to server instead of creating blob URL
+				const timestamp = Date.now();
+				const filename = `tts_${timestamp}.webm`;
+				const serverUrl = await uploadBlobToServer(audioBlob, filename, "recordings");
 
 				const newRecording: AudioRecording = {
-					id: `tts-${Date.now()}`,
-					url: audioUrl,
+					id: `tts-${timestamp}`,
+					url: serverUrl,
 					blob: audioBlob,
 					duration: 0, // Will be calculated when added to timeline
-					timestamp: Date.now(),
+					timestamp: timestamp,
 					name: `TTS: ${ttsSettings.text.substring(0, 30)}...`,
 				};
 

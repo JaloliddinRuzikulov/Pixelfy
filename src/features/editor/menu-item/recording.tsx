@@ -45,6 +45,7 @@ import { cn } from "@/lib/utils";
 import { dispatch } from "@designcombo/events";
 import { ADD_ITEMS } from "@designcombo/state";
 import { generateId } from "@designcombo/timeline";
+import { uploadBlobToServer } from "@/lib/upload-helper";
 
 interface RecordingSettings {
 	video: boolean;
@@ -146,24 +147,35 @@ function ScreenCameraRecording() {
 					}
 				};
 
-				mediaRecorder.onstop = () => {
+				mediaRecorder.onstop = async () => {
 					const videoBlob = new Blob(videoChunksRef.current, {
 						type: "video/webm",
 					});
-					const videoUrl = URL.createObjectURL(videoBlob);
 
-					const newRecording = {
-						id: `video-rec-${Date.now()}`,
-						url: videoUrl,
-						blob: videoBlob,
-						duration: recordingTime,
-						timestamp: Date.now(),
-						name: `${recordingMode === "screen" ? "Ekran" : recordingMode === "camera" ? "Kamera" : "Ekran+Kamera"} yozuvi`,
-						type: recordingMode,
-					};
+					// Upload to server instead of creating blob URL
+					const timestamp = Date.now();
+					const filename = `video_recording_${timestamp}.webm`;
 
-					setRecordings((prev) => [...prev, newRecording]);
-					setSelectedRecording(newRecording);
+					try {
+						const serverUrl = await uploadBlobToServer(videoBlob, filename, "recordings");
+
+						const newRecording = {
+							id: `video-rec-${timestamp}`,
+							url: serverUrl,
+							blob: videoBlob,
+							duration: recordingTime,
+							timestamp: timestamp,
+							name: `${recordingMode === "screen" ? "Ekran" : recordingMode === "camera" ? "Kamera" : "Ekran+Kamera"} yozuvi`,
+							type: recordingMode,
+						};
+
+						setRecordings((prev) => [...prev, newRecording]);
+						setSelectedRecording(newRecording);
+					} catch (error) {
+						console.error("Failed to upload video recording:", error);
+						alert("Video yozuvni saqlashda xatolik yuz berdi.");
+					}
+
 					videoChunksRef.current = [];
 				};
 
@@ -644,23 +656,34 @@ export function Recording() {
 				}
 			};
 
-			mediaRecorder.onstop = () => {
+			mediaRecorder.onstop = async () => {
 				const audioBlob = new Blob(audioChunksRef.current, {
 					type: "audio/webm",
 				});
-				const audioUrl = URL.createObjectURL(audioBlob);
 
-				const newRecording: AudioRecording = {
-					id: `rec-${Date.now()}`,
-					url: audioUrl,
-					blob: audioBlob,
-					duration: recordingTime,
-					timestamp: Date.now(),
-					name: `Audio yozuv ${recordings.length + 1}`,
-				};
+				// Upload to server instead of creating blob URL
+				const timestamp = Date.now();
+				const filename = `recording_${timestamp}.webm`;
 
-				setRecordings((prev) => [...prev, newRecording]);
-				setSelectedRecording(newRecording);
+				try {
+					const serverUrl = await uploadBlobToServer(audioBlob, filename, "recordings");
+
+					const newRecording: AudioRecording = {
+						id: `rec-${timestamp}`,
+						url: serverUrl,
+						blob: audioBlob,
+						duration: recordingTime,
+						timestamp: timestamp,
+						name: `Audio yozuv ${recordings.length + 1}`,
+					};
+
+					setRecordings((prev) => [...prev, newRecording]);
+					setSelectedRecording(newRecording);
+				} catch (error) {
+					console.error("Failed to upload recording:", error);
+					alert("Audio yozuvni saqlashda xatolik yuz berdi.");
+				}
+
 				audioChunksRef.current = [];
 			};
 
@@ -839,14 +862,18 @@ export function Recording() {
 
 			if (response.ok) {
 				const audioBlob = await response.blob();
-				const audioUrl = URL.createObjectURL(audioBlob);
+
+				// Upload to server instead of creating blob URL
+				const timestamp = Date.now();
+				const filename = `tts_${timestamp}.webm`;
+				const serverUrl = await uploadBlobToServer(audioBlob, filename, "recordings");
 
 				const newRecording: AudioRecording = {
-					id: `tts-${Date.now()}`,
-					url: audioUrl,
+					id: `tts-${timestamp}`,
+					url: serverUrl,
 					blob: audioBlob,
 					duration: 0, // Will be calculated when added to timeline
-					timestamp: Date.now(),
+					timestamp: timestamp,
 					name: `TTS: ${ttsSettings.text.substring(0, 30)}...`,
 				};
 
