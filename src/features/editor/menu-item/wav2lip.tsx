@@ -493,6 +493,7 @@ export default function SinxronMenuItem() {
 			toast.success("Video muvaffaqiyatli yaratildi!");
 
 			setTimeout(() => setProgressMessage(""), 2000);
+			*/
 		} catch (error) {
 			if (progressInterval) clearInterval(progressInterval);
 			if (timeoutId) clearTimeout(timeoutId);
