@@ -365,16 +365,17 @@ export default function SinxronMenuItem() {
 				});
 			}, 1000);
 
-			controller = new AbortController();
-			timeoutId = setTimeout(() => controller.abort(), 300000);
+			// No timeout - let server process as long as needed
+			// controller = new AbortController();
+			// timeoutId = setTimeout(() => controller.abort(), 300000);
 
 			const response = await fetch(apiUrl, {
 				method: "POST",
 				body: formData,
-				signal: controller.signal,
+				// signal removed - no timeout
 			});
 
-			clearTimeout(timeoutId);
+			// clearTimeout(timeoutId);
 			if (progressInterval) clearInterval(progressInterval);
 
 			console.log("Response status:", response.status);
@@ -390,7 +391,7 @@ export default function SinxronMenuItem() {
 					if (response.status === 502 || response.status === 503) {
 						errorMessage = "AI xizmati hozirda mavjud emas. Iltimos, keyinroq urinib ko'ring.";
 					} else if (response.status === 504) {
-						errorMessage = "Server javob berish vaqti tugadi. Video juda uzun yoki hajmi katta.";
+						errorMessage = "Gateway timeout xatolik. Qayta urinib ko'ring.";
 					} else if (response.status === 413) {
 						errorMessage = "Fayl hajmi juda katta. Kichikroq video yuklang.";
 					} else if (response.status === 400) {
@@ -435,10 +436,9 @@ export default function SinxronMenuItem() {
 			let errorMessage = "Noma'lum xatolik yuz berdi";
 			if (error instanceof Error) {
 				if (error.name === "AbortError") {
-					errorMessage = "Vaqt tugadi - video juda uzun yoki katta hajmda";
+					errorMessage = "So'rov bekor qilindi";
 				} else if (error.message.includes("timeout")) {
-					errorMessage =
-						"Jarayon juda uzoq davom etdi. Qisqaroq video yoki kichikroq o'lchamda sinab ko'ring";
+					errorMessage = "Ulanish vaqti tugadi. Qayta urinib ko'ring";
 				} else if (error.message.includes("fetch") || error.message.includes("Failed to fetch")) {
 					errorMessage = "Serverga ulanishda xatolik. Internet aloqangizni tekshiring yoki keyinroq urinib ko'ring.";
 				} else if (error.message.includes("NetworkError") || error.message.includes("Network")) {
