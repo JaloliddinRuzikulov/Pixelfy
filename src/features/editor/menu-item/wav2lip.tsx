@@ -365,17 +365,86 @@ export default function SinxronMenuItem() {
 				});
 			}, 1000);
 
-			// No timeout - let server process as long as needed
-			// controller = new AbortController();
-			// timeoutId = setTimeout(() => controller.abort(), 300000);
+			// Use async job submission to bypass Nginx timeout
+			const submitUrl = apiUrl.replace('/generate', '/submit-job');
 
+			console.log("Submitting job to:", submitUrl);
+
+			const submitResponse = await fetch(submitUrl, {
+				method: "POST",
+				body: formData,
+			});
+
+			if (!submitResponse.ok) {
+				throw new Error("Failed to submit job");
+			}
+
+			const { job_id } = await submitResponse.json();
+			console.log("Job submitted:", job_id);
+
+			setState((prev) => ({ ...prev, progress: 20 }));
+			setProgressMessage("Job yaratildi, kutilmoqda...");
+
+			// Poll for status
+			let jobStatus = "queued";
+			while (jobStatus === "queued" || jobStatus === "processing") {
+				await new Promise((resolve) => setTimeout(resolve, 2000)); // Poll every 2s
+
+				const statusUrl = submitUrl.replace('/submit-job', `/job/${job_id}/status`);
+				const statusResponse = await fetch(statusUrl);
+
+				if (!statusResponse.ok) {
+					throw new Error("Failed to check status");
+				}
+
+				const jobData = await statusResponse.json();
+				jobStatus = jobData.status;
+
+				setState((prev) => ({ ...prev, progress: Math.min(jobData.progress || 50, 90) }));
+				setProgressMessage(jobData.message || "Qayta ishlanmoqda...");
+
+				if (jobStatus === "completed") {
+					if (progressInterval) clearInterval(progressInterval);
+
+					// Download result
+					const downloadUrl = submitUrl.replace('/submit-job', `/job/${job_id}/download`);
+					const videoResponse = await fetch(downloadUrl);
+
+					if (!videoResponse.ok) {
+						throw new Error("Failed to download result");
+					}
+
+					const blob = await videoResponse.blob();
+					const blobUrl = URL.createObjectURL(blob);
+
+					setState((prev) => ({
+						...prev,
+						generatedVideoUrl: blobUrl,
+						isGenerating: false,
+						progress: 100,
+						error: null,
+					}));
+					setProgressMessage("Muvaffaqiyatli yakunlandi!");
+					toast.success("Video muvaffaqiyatli yaratildi!");
+					setTimeout(() => setProgressMessage(""), 2000);
+					return; // Exit function
+				}
+
+				if (jobStatus === "failed") {
+					throw new Error(jobData.error || "Processing failed");
+				}
+			}
+
+			// Success - exit function
+			*/
+
+			// Old synchronous code removed - now using async job queue
+			/*
 			const response = await fetch(apiUrl, {
 				method: "POST",
 				body: formData,
-				// signal removed - no timeout
 			});
 
-			// clearTimeout(timeoutId);
 			if (progressInterval) clearInterval(progressInterval);
 
 			console.log("Response status:", response.status);
