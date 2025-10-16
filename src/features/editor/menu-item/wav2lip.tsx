@@ -435,9 +435,6 @@ export default function SinxronMenuItem() {
 				}
 			}
 
-			// Success - exit function
-			*/
-
 			// Old synchronous code removed - now using async job queue
 			/*
 			const response = await fetch(apiUrl, {
