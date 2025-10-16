@@ -366,7 +366,12 @@ export default function SinxronMenuItem() {
 			}, 1000);
 
 			// Use async job submission to bypass Nginx timeout
-			const submitUrl = apiUrl.replace('/generate', '/submit-job');
+			let submitUrl = "";
+			if (apiUrl.includes("/generate-from-text")) {
+				submitUrl = apiUrl.replace('/generate-from-text', '/submit-job-from-text');
+			} else {
+				submitUrl = apiUrl.replace('/generate', '/submit-job');
+			}
 
 			console.log("Submitting job to:", submitUrl);
 
@@ -390,7 +395,9 @@ export default function SinxronMenuItem() {
 			while (jobStatus === "queued" || jobStatus === "processing") {
 				await new Promise((resolve) => setTimeout(resolve, 2000)); // Poll every 2s
 
-				const statusUrl = submitUrl.replace('/submit-job', `/job/${job_id}/status`);
+				const statusUrl = submitUrl
+					.replace('/submit-job', `/job/${job_id}/status`)
+					.replace('/submit-job-from-text', `/job/${job_id}/status`);
 				const statusResponse = await fetch(statusUrl);
 
 				if (!statusResponse.ok) {
@@ -407,7 +414,9 @@ export default function SinxronMenuItem() {
 					if (progressInterval) clearInterval(progressInterval);
 
 					// Download result
-					const downloadUrl = submitUrl.replace('/submit-job', `/job/${job_id}/download`);
+					const downloadUrl = submitUrl
+						.replace('/submit-job', `/job/${job_id}/download`)
+						.replace('/submit-job-from-text', `/job/${job_id}/download`);
 					const videoResponse = await fetch(downloadUrl);
 
 					if (!videoResponse.ok) {
